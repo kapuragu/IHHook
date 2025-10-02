@@ -23,10 +23,13 @@
 #include "Hooks_Buddy.h" //ZIP: For buddies
 #include "Hooks_Vehicle.h" //ZIP: For vehicles
 //#include "Hooks_FoxString.h" //ZIP: FoxString hook
-#include "Hooks_CallMenu.h" //ZIP: For Call Menu
 
 #include <string>
 #include "hooks/mgsvtpp_func_typedefs.h"
+
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 extern void LoadImguiBindings(lua_State* lState);
 
@@ -103,6 +106,7 @@ namespace IHHook {
 			return nL;
 		}//lua_newthreadHook
 
+		std::map<uint64_t, std::string> pathDict{};
 		//tex may be better to hook the fox engine OpenLuawhatever that calls newstate and sets up the lua libraries
 		//but don't know fox OpenLuas return type
 		void __fastcall luaL_openlibsHook(lua_State* L) {
@@ -116,6 +120,8 @@ namespace IHHook {
 			lua_setfield(L, LUA_GLOBALSINDEX, "_IHHook");
 
 			CreateLibs(L);
+
+			pathDict = readPathCodeDictionary("pathDict.txt");
 
 			//OFF luaopen_winapi(L);
 			LoadImguiBindings(L);
@@ -307,6 +313,7 @@ namespace IHHook {
 				CREATE_HOOK(lua_pcall)
 				CREATE_HOOK(lua_cpcall)
 				CREATE_HOOK(l_StubbedOut)
+				CREATE_HOOK(LoadDefaultFpksFunc)
 
 				ENABLEHOOK(luaL_openlibs)
 				ENABLEHOOK(lua_newstate)
@@ -318,6 +325,7 @@ namespace IHHook {
 				ENABLEHOOK(lua_pcall)
 				ENABLEHOOK(lua_cpcall)
 				//ENABLEHOOK(l_StubbedOut)//DEBUGNOW enabling after lua is init in openlibs see l_StubbedOutHook
+				ENABLEHOOK(LoadDefaultFpksFunc)
 			}//if name##Addr != NULL
 		}//CreateHooks
 
@@ -328,7 +336,6 @@ namespace IHHook {
 			Hooks_Buddy::CreateLibs(L); //ZIP: For buddies
 			Hooks_Vehicle::CreateLibs(L); //ZIP: For vehicles
 			//Hooks_FoxString::CreateLibs(L); //ZIP: FoxString hook
-			Hooks_CallMenu::CreateLibs(L); //ZIP: For Call Menu
 		}//CreateLibs
 
 		//tex: replacement for MGSVs stubbed out "print", original lua implementation in lbaselib.c
@@ -488,5 +495,63 @@ namespace IHHook {
 				lua_close(nL);
 			}
 		}//TestHooks_Lua_PostNewState
+
+		//rlc FROM UNKNOWN'S DYNAMITE
+		// file format is `string,pathcode64`
+		std::map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename) {
+			std::map<uint64_t, std::string> result;
+			if (!std::filesystem::exists(filename)) {
+				spdlog::info("Path dictionary {} doesn't exist, message names/values will not be resolved", filename);
+				return result;
+			}
+
+			std::ifstream inputFile(filename);
+
+			if (!inputFile.is_open()) {
+				spdlog::error("Error opening file!");
+				return result;
+			}
+
+
+			spdlog::info("Reading path dict...");
+
+			inputFile.unsetf(std::ios_base::skipws);
+
+			std::string line;
+			while (std::getline(inputFile, line)) {
+				std::string value = line;
+				result[(uint64_t)PathCode64(value.c_str())] = value;
+			}
+
+			inputFile.close();
+			spdlog::info("Path dict size: {:d}", result.size());
+
+			return result;
+		}
+
+		// used for debugging, see docs/issue_7.md
+		std::map<void*, std::string> blockNames{};
+		int* LoadDefaultFpksFuncHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count) {
+			DWORD tid = GetCurrentThreadId();
+			auto pp = pathID;
+			auto blockName = blockNames[thisPtr];
+			if (pathDict.empty()) {
+				spdlog::info("tid 1 {}, block {} ({}), loading {:x} ({:d})", tid, blockName, thisPtr, *pp, count);
+				return LoadDefaultFpksFunc(thisPtr, errorCode, pathID, count);
+			}
+
+			for (int i = 0; i < count; i++) {
+				auto name = pathDict[(ulonglong)*pathID & 0x3FFFFFFFFFFFF];
+				if (name.empty()) {
+					spdlog::info("tid 2 {}, block {} ({}), loading {:x} ({:d}/{:d})", tid, blockName, thisPtr, *pp, i + 1, count);
+				}
+				else {
+					spdlog::info("tid 3 {}, block {} ({}), loading {} ({:d}/{})", tid, blockName, thisPtr, name, i + 1, count);
+				}
+				pp++;
+			}
+			auto q = LoadDefaultFpksFunc(thisPtr, errorCode, pathID, count);
+			return q;
+		}
 	}//namespace Hooks_Lua
 }//namespace IHHoook

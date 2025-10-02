@@ -219,9 +219,6 @@
     <ClInclude Include="Hooks_Vehicle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks_CallMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -371,9 +368,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks_CallMenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IHHook.rc">
@@ -385,5 +379,8 @@
       <Filter>Source Files\imguiimpl</Filter>
     </None>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="pathDict.txt" />
   </ItemGroup>
 </Project>
