@@ -178,6 +178,8 @@ namespace IHHook {
 		luaopen_debug = (luaopen_debugFunc*)addressSet["luaopen_debug"];
 		luaopen_package = (luaopen_packageFunc*)addressSet["luaopen_package"];
 		luaL_openlibs = (luaL_openlibsFunc*)addressSet["luaL_openlibs"];
+		GetChangeLocationMenuParameterByLocationId = (GetChangeLocationMenuParameterByLocationIdFunc*)addressSet["GetChangeLocationMenuParameterByLocationId"];
+		GetMbFreeChangeLocationMenuParameter = (GetMbFreeChangeLocationMenuParameterFunc*)addressSet["GetMbFreeChangeLocationMenuParameter"];
 	}//SetFuncPtrs
 
 }//namespace IHHook

@@ -31,6 +31,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "util.h"
+
 extern void LoadImguiBindings(lua_State* lState);
 
 namespace IHHook {
@@ -326,6 +328,8 @@ namespace IHHook {
 				ENABLEHOOK(lua_cpcall)
 				//ENABLEHOOK(l_StubbedOut)//DEBUGNOW enabling after lua is init in openlibs see l_StubbedOutHook
 				ENABLEHOOK(LoadDefaultFpksFunc)
+				CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
+				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
 			}//if name##Addr != NULL
 		}//CreateHooks
 
@@ -552,6 +556,41 @@ namespace IHHook {
 			}
 			auto q = LoadDefaultFpksFunc(thisPtr, errorCode, pathID, count);
 			return q;
+		}
+
+		void* GetChangeLocationMenuParameterByLocationIdHook(void* MotherBaseMissionCommonData, unsigned short locationCode)
+		{
+			//Handle vanilla cases with vanilla function
+			switch (locationCode)
+			{
+				case 10:
+				case 20:
+				case 50:
+					void* ret = GetChangeLocationMenuParameterByLocationId(MotherBaseMissionCommonData, locationCode);
+					return ret;
+			}
+
+			//Get total count of location change parameters
+			auto ChangeLocationMenuParamCount = (byte)((char*)MotherBaseMissionCommonData + 0x111);
+
+			if (ChangeLocationMenuParamCount == 0x0) {
+				return (void*)0x0;
+			}
+
+			//Pointer to location change parameters
+			auto paramsPtr = (void*)((char*)MotherBaseMissionCommonData + 0x118);
+
+			uint paramIndex_cpy = 0;
+			ulonglong paramIndex = 0;
+			while (*(unsigned short*)paramsPtr != locationCode) {
+				paramIndex_cpy = (int)paramIndex + 1;
+				paramIndex = (ulonglong)paramIndex_cpy;
+				paramsPtr = (char*)paramsPtr + 0x18;
+				if (ChangeLocationMenuParamCount <= paramIndex_cpy) {
+					return (void*)0x0;
+				}
+			}
+			return (int*)((char*)(MotherBaseMissionCommonData) + (paramIndex * 3 + 0x23) * 8);
 		}
 	}//namespace Hooks_Lua
 }//namespace IHHoook

@@ -176,5 +176,8 @@ namespace IHHook {
 		{"luaopen_debug", 0x14c21ea00},
 		{"luaopen_package", 0x14c21ee20},
 		{"luaL_openlibs", 0x14c1fd0c0},
+
+		{"GetChangeLocationMenuParameterByLocationId",0x145f785d0},
+		{ "GetMbFreeChangeLocationMenuParameter",0x145f78b90 },
 	};//map mgsvtpp_adresses_1_0_15_3_en
 }//namespace IHHook
