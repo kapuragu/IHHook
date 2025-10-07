@@ -29,3 +29,40 @@ namespace fox {
 //tex the (extern of the) function pointers
 //extern l_StubbedOutFunc* l_StubbedOut;//EXPORT_FUNC_FALSE
 //extern nullsub_2Func* nullsub_2;//EXPORT_FUNC_FALSE
+
+//joey's defs
+
+//using long = int64_t;
+
+using ubyte = uint8_t;
+using ushort = uint16_t;
+//using uint = uint32_t;
+using ulong = uint64_t;
+
+using StringId = ulong;
+using PathId = ulong;
+using StrCode32 = uint;
+
+typedef uint64_t StringId;
+typedef struct ChangeLocationMenuParameter {
+	unsigned short LocationId;
+	unsigned short MissionId;
+	byte paddingA[0x4];
+	StringId FreeMissionName;
+	byte Flags;
+	byte MbStageBaseId;
+	byte paddingB[0x6];
+};
+typedef struct MotherBaseMissionCommonData {
+	byte paddingA[0x111];
+	byte ChangeLocationMenuParamCount;
+	byte paddingB[0x6];
+	ChangeLocationMenuParameter ChangeLocationMenuParams[12];
+	byte paddingC[0x88];
+};
+
+static const enum TppLocationId : ushort {
+	afgh = 10,
+	mafr = 20,
+	mtbs = 50,
+};

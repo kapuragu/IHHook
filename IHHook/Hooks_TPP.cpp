@@ -8,8 +8,7 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <sstream>   
-#include "hooks/mgsvtpp_func_typedefs.h"
+#include <sstream>
 
 namespace IHHook {
 	std::map<int, long long> locationLangIds{
@@ -210,11 +209,34 @@ namespace IHHook {
 #ifdef _DEBUG
 				//ENABLEHOOK(nullsub_2)//DEBUGNOW
 #endif // DEBUG
+				CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
+				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
 			}//if addr
 
 			//DEBUGNOW
 			//CREATE_HOOK(UnkSomeUpdateFunc)
 			//ENABLEHOOK(UnkSomeUpdateFunc)
 		}//CreateHooks
+		ChangeLocationMenuParameter* GetChangeLocationMenuParameterByLocationIdHook(MotherBaseMissionCommonData* This, unsigned short locationCode)
+		{
+			switch (locationCode)
+			{
+			case TppLocationId::afgh:
+			case TppLocationId::mafr:
+			case TppLocationId::mtbs:
+				return GetChangeLocationMenuParameterByLocationId(This,locationCode);
+			}
+
+			if (locationCode == mtbs)
+				return GetMbFreeChangeLocationMenuParameter(This);
+
+			ChangeLocationMenuParameter* params = This->ChangeLocationMenuParams;
+			for (uint i = 0; i < This->ChangeLocationMenuParamCount; i++)
+			{
+				if (params[i].LocationId == locationCode)
+					return params + i;
+			}
+			return nullptr;
+		}
 	}//Hooks_TPP
 }//namespace IHHook

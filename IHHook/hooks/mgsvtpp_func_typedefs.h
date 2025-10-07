@@ -180,8 +180,8 @@ typedef int (__fastcall luaopen_mathFunc)(lua_State * L);
 typedef int (__fastcall luaopen_debugFunc)(lua_State * L);
 typedef int (__fastcall luaopen_packageFunc)(lua_State * L);
 typedef void (__fastcall luaL_openlibsFunc)(lua_State * L);
-typedef void* (__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(void* MotherBaseMissionCommonData, unsigned short locationCode);
-typedef void* (__thiscall GetMbFreeChangeLocationMenuParameterFunc)(void* MotherBaseMissionCommonData);
+typedef ChangeLocationMenuParameter* (__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
+typedef ChangeLocationMenuParameter* (__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
 
 //tex the (extern of the) function pointers
 extern GetStrCodeWithLengthFunc* GetStrCodeWithLength;

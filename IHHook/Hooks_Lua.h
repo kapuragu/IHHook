@@ -14,6 +14,5 @@ namespace IHHook {
 		extern lua_State* luaState;
 		std::map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename);
 		int* LoadDefaultFpksFuncHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count);
-		void* GetChangeLocationMenuParameterByLocationIdHook(void* MotherBaseMissionCommonData, unsigned short locationCode);
 	}//namespace Hooks_Lua
 }//namespace IHHook
