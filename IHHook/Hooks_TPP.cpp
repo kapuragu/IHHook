@@ -227,14 +227,18 @@ namespace IHHook {
 				return GetChangeLocationMenuParameterByLocationId(This,locationCode);
 			}
 
+			//In case original check slips, send mtbs here
 			if (locationCode == mtbs)
 				return GetMbFreeChangeLocationMenuParameter(This);
 
+			//Joey's structs and iteration code!
 			ChangeLocationMenuParameter* params = This->ChangeLocationMenuParams;
 			for (uint i = 0; i < This->ChangeLocationMenuParamCount; i++)
 			{
-				if (params[i].LocationId == locationCode)
-					return params + i;
+				//top line is to ensure this locationcode is a valid free roam location
+				if (locationLangIds.find(locationCode) != locationLangIds.end())
+					if (params[i].LocationId == locationCode)
+						return params + i;
 			}
 			return nullptr;
 		}
