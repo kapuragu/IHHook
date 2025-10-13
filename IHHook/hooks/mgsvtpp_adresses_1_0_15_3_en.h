@@ -53,6 +53,8 @@ namespace IHHook {
 		{"LoadAllVehicleCamoFpks", 0x145006860},
 		{"BuddyCommandGetNameLangId", 0x14110dc60},
 		{"BuddyCommandGetDescriptionLangId", 0x14110da10},
+		{"ConvertRadioTypeToSpeechLabel",0x140d685c0},//tpp::gm::CpRadioService::ConvertRadioTypeToSpeechLabel
+		{"ConvertSpeechLabelToRadioType",0x140d58d20},//tpp::gm::CpRadioService::ConvertSpeechLabelToRadioType
 		{"lua_newstate", 0x14c1fc960},//tex could use default implementation, but may want to hook if we want to see what the engine is up to
 		{"lua_close", 0x14c1fc380},
 		{"lua_newthread", 0x14c1d9d90},

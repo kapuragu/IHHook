@@ -177,3 +177,5 @@ luaL_openlibsFunc* luaL_openlibs;
 
 GetChangeLocationMenuParameterByLocationIdFunc* GetChangeLocationMenuParameterByLocationId;
 GetMbFreeChangeLocationMenuParameterFunc* GetMbFreeChangeLocationMenuParameter;
+ConvertRadioTypeToSpeechLabelFunc* ConvertRadioTypeToSpeechLabel;
+ConvertSpeechLabelToRadioTypeFunc* ConvertSpeechLabelToRadioType;

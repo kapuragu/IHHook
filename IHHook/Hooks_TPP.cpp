@@ -19,6 +19,7 @@ namespace IHHook {
 		//DEBUGNOW proof of concept hack
 		//{40,0x27376b6e62ff},//tpp_loc_gntn - caplags langid from his gntn addon
 	};
+	bool isCode102 = true;
 
 	namespace Hooks_TPP {
 		//tex from here
@@ -211,6 +212,10 @@ namespace IHHook {
 #endif // DEBUG
 				CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
 				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
+					CREATE_HOOK(ConvertRadioTypeToSpeechLabel)
+					ENABLEHOOK(ConvertRadioTypeToSpeechLabel)
+					CREATE_HOOK(ConvertSpeechLabelToRadioType)
+					ENABLEHOOK(ConvertSpeechLabelToRadioType)
 			}//if addr
 
 			//DEBUGNOW
@@ -242,5 +247,31 @@ namespace IHHook {
 			}
 			return nullptr;
 		}
+		uint ConvertRadioTypeToSpeechLabelHook(ubyte radioType)
+		{
+			if (isCode102)
+			{
+				if (radioType == 0x5a)
+				{
+					return GetStrCode32("CPR0038_102");
+				}
+			}
+			auto ret = ConvertRadioTypeToSpeechLabel(radioType);
+			spdlog::info("ConvertRadioTypeToSpeechLabel({})={}", radioType, ret);
+			return ret;
+		};
+		ubyte ConvertSpeechLabelToRadioTypeHook(uint speechLabel)
+		{
+			if (isCode102)
+			{
+				if (speechLabel == GetStrCode32("CPR0038_102"))
+				{
+					return 0x5a;
+				}
+			}
+			auto ret = ConvertSpeechLabelToRadioType(speechLabel);
+			spdlog::info("ConvertSpeechLabelToRadioType({})={}", speechLabel, ret);
+			return ret;
+		};
 	}//Hooks_TPP
 }//namespace IHHook

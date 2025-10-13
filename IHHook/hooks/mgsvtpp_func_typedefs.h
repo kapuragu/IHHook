@@ -182,6 +182,8 @@ typedef int (__fastcall luaopen_packageFunc)(lua_State * L);
 typedef void (__fastcall luaL_openlibsFunc)(lua_State * L);
 typedef ChangeLocationMenuParameter* (__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
 typedef ChangeLocationMenuParameter* (__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
+typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
+typedef ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel);
 
 //tex the (extern of the) function pointers
 extern GetStrCodeWithLengthFunc* GetStrCodeWithLength;
@@ -352,3 +354,5 @@ extern luaopen_packageFunc* luaopen_package;
 extern luaL_openlibsFunc* luaL_openlibs;
 extern GetChangeLocationMenuParameterByLocationIdFunc* GetChangeLocationMenuParameterByLocationId;
 extern GetMbFreeChangeLocationMenuParameterFunc* GetMbFreeChangeLocationMenuParameter;
+extern ConvertRadioTypeToSpeechLabelFunc* ConvertRadioTypeToSpeechLabel;
+extern ConvertSpeechLabelToRadioTypeFunc* ConvertSpeechLabelToRadioType;

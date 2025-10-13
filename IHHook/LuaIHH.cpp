@@ -20,6 +20,7 @@ namespace IHHook {
 	extern std::shared_ptr<spdlog::logger> luaLog;
 
 	extern std::map<int, long long> locationLangIds;
+	extern bool isCode102;
 
 	namespace LuaIHH {
 		//IHH module funcs>
@@ -230,6 +231,16 @@ namespace IHHook {
 		}//l_TestCallToIHHook
 		// < IHH module funcs
 
+		static int l_EnableCode102(lua_State* L)
+		{
+			if (lua_isboolean(L, -1))
+			{
+				isCode102 = lua_toboolean(L, -1);
+				return 1;
+			}
+			return 0;
+		}
+
 		//tex TODO better module name, will likely break out into IHH<module name> as the amount of functions expands, but would have to change 'if IHH' checks in IH
 		int luaopen_ihh(lua_State* L) {
 			spdlog::debug(__func__);
@@ -253,6 +264,7 @@ namespace IHHook {
 				{ "SetCamHook", Hooks_FOV::l_SetCamHook },//TODO: move to own lib
 				{ "UpdateCamHook", Hooks_FOV::l_UpdateCamHook },
 				{ "TestCallToIHHook", l_TestCallToIHHook},
+				{ "EnableCode102", l_EnableCode102},
 				{ NULL, NULL }
 			};
 			luaI_openlib(L, "IHH", ihh_funcs, 0);

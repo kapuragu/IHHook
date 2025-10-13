@@ -180,6 +180,8 @@ namespace IHHook {
 		luaL_openlibs = (luaL_openlibsFunc*)addressSet["luaL_openlibs"];
 		GetChangeLocationMenuParameterByLocationId = (GetChangeLocationMenuParameterByLocationIdFunc*)addressSet["GetChangeLocationMenuParameterByLocationId"];
 		GetMbFreeChangeLocationMenuParameter = (GetMbFreeChangeLocationMenuParameterFunc*)addressSet["GetMbFreeChangeLocationMenuParameter"];
+		ConvertRadioTypeToSpeechLabel = (ConvertRadioTypeToSpeechLabelFunc*)addressSet["ConvertRadioTypeToSpeechLabel"];
+		ConvertSpeechLabelToRadioType = (ConvertSpeechLabelToRadioTypeFunc*)addressSet["ConvertSpeechLabelToRadioType"];
 	}//SetFuncPtrs
 
 }//namespace IHHook
