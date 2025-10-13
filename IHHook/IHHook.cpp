@@ -177,8 +177,8 @@ namespace IHHook {
 		SetCurrentDirectory(gameDir.c_str());//tex so this dll and lua can use reletive paths
 
 		config.debugMode = true;//DEBUGNOW -v
-		SetupLog();
 		ParseConfig(hookConfigName);//TODO: set log level via config.debugMode
+		SetupLog();
 
 		//tex DEBUGNOW mgo is a seperate exe in the same dir, so bail out on exe name
 		HMODULE hExe = GetModuleHandle(NULL);
