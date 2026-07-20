@@ -75,7 +75,7 @@ namespace IHHook {
 		{"LoadBuddyHorseCommonFPK", 0x140a46b93},//ditto
 		{"LoadBuddyWalkerGearArmFpk", 0x140a45fb0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearArmFile
 		{"LoadBuddyWalkerGearHeadFpk", 0x140a46120},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearHeadFile
-		{"LoadBuddyWalkerGearWeaponFpk", 0x14811e9a0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearMainWeaponFile
+		{"LoadBuddyWalkerGearWeaponFpk", 0x140a461d0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearMainWeaponFile
 		//{"LoadDefaultFpksFunc", 0x1431d96b0},//int * fox::Block::Load(void *thisPtr,int *errorCode,ulonglong *pathID,uint param_4)
 		
 		{"PreparePlayerVehicleInSortie", 0x140b3aba0},//tpp::gm::vehicle::ReliefBlockController::LoadToExhibit
