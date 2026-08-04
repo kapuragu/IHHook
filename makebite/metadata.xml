@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ModEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="IHHook" Version="r22" Author="TinManTex" Website="https://www.nexusmods.com/metalgearsolidvtpp/mods/1226/">
+<ModEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="IHHook" Version="r23" Author="TinManTex" Website="https://www.nexusmods.com/metalgearsolidvtpp/mods/1226/">
   <MGSVersion Version="1.0.15.4" />
   <SBVersion Version="0.0.0.0" />
   <Description># IHHook
-Version r22 - 2026-06-14 (see github for full changes)  
+Version r23 - 2026-08-04 (see github for full changes)
+version_info.txt version bump
+
+Version r22 - 2026-06-14
 Fixed D-Walker hook addresses that made the game crash for some users on the English version.
 
 Version r21 - 2026-06-10
