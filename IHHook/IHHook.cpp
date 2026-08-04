@@ -283,11 +283,11 @@ namespace IHHook {
 
 			//GAMEVERSION
 			//DEBUGNOW TODO: an adresset map too I guess
-			if (gameVer == "en"||gameVer=="Tpp_steam_mst_en_day3800") {
+			if (gameVer == "en"||gameVer=="Tpp_steam_mst_en_day3800"||gameVer=="Tpp_steam_mst_en_day3900") {
 				addressSet = mgsvtpp_adresses_1_0_15_4_en;
 			}
 			else {
-				if (gameVer == "jp"||gameVer=="Tpp_steam_mst_jp_day3800") {
+				if (gameVer == "jp"||gameVer=="Tpp_steam_mst_jp_day3800"||gameVer=="Tpp_steam_mst_jp_day3900") {
 					addressSet = mgsvtpp_adresses_1_0_15_4_jp;
 				}
 				else {

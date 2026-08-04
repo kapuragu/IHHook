@@ -1,5 +1,8 @@
 # IHHook
-Version r22 - 2026-06-14 (see github for full changes)  
+Version r23 - 2026-08-04 (see github for full changes)
+version_info.txt version bump
+
+Version r22 - 2026-06-14
 Fixed D-Walker hook addresses that made the game crash for some users on the English version.
 
 Version r21 - 2026-06-10
