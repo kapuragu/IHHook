@@ -242,12 +242,7 @@ namespace IHHook {
 			SetCursor(true);//tex DEBUGNOW imgui window currently wont auto dismiss, so give user cursor
 		} 
 		else {
-			if (gameVer != "Tpp_steam_mst_en_day1820" 
-				&& gameVer != "Tpp_steam_mst_jp_day1820"
-				&& gameVer != "Tpp_steam_mst_en_day3800"
-				&& gameVer != "Tpp_steam_mst_jp_day3800"
-				&& gameVer != "en"
-				&& gameVer != "jp" ) {//rlc back compat 15.3 and 15.4
+			if (gameVer.find("Tpp_steam_mst") == std::string::npos ) {
 				isTargetExe = false;
 
 				errorMessages.push_back("WARNING: Unknown lang version");
@@ -255,6 +250,7 @@ namespace IHHook {
 				errorMessages.push_back("with some limitations.");
 				errorMessages.push_back("Including this menu not working in-game.");
 				errorMessages.push_back("Click on the x to close this window.");
+				errorMessages.push_back("Game version: `"+gameVer+"`");
 
 				for each (std::string message in errorMessages) {
 					spdlog::error(message);
@@ -283,25 +279,15 @@ namespace IHHook {
 
 			//GAMEVERSION
 			//DEBUGNOW TODO: an adresset map too I guess
-			if (gameVer == "en"||gameVer=="Tpp_steam_mst_en_day3800"||gameVer=="Tpp_steam_mst_en_day3900") {
-				addressSet = mgsvtpp_adresses_1_0_15_4_en;
-			}
-			else {
-				if (gameVer == "jp"||gameVer=="Tpp_steam_mst_jp_day3800"||gameVer=="Tpp_steam_mst_jp_day3900") {
-					addressSet = mgsvtpp_adresses_1_0_15_4_jp;
-				}
-				else {
-					if (gameVer=="Tpp_steam_mst_en_day1820") {
-						addressSet = mgsvtpp_adresses_1_0_15_3_en;
-					}
-					else {
-						if (gameVer=="Tpp_steam_mst_jp_day1820") {
-							addressSet = mgsvtpp_adresses_1_0_15_3_jp;
-						}
-					}
-					//tex unknown exe lang, should already be handled by isTargetExe
-				}
-			}//if lang
+			bool isJp = gameVer.find("mst_jp") != std::string::npos;
+			bool isDay1820 = gameVer.find("day1820") != std::string::npos;
+			// bool isDay3800 = gameVer.find("day3800") != std::string::npos;
+			// bool isDay3900 = gameVer.find("day3900") != std::string::npos;
+			if (isDay1820)
+				addressSet = isJp ? mgsvtpp_adresses_1_0_15_3_jp : mgsvtpp_adresses_1_0_15_3_en;
+			else
+				addressSet = isJp ? mgsvtpp_adresses_1_0_15_4_jp : mgsvtpp_adresses_1_0_15_4_en;
+			//if lang
 
 			auto tstart = std::chrono::high_resolution_clock::now();
 
@@ -427,6 +413,9 @@ namespace IHHook {
 		//1.0.15.4:
 		//Tpp_steam_mst_en_day3800Mgo_patch_0525_2221
 		//Tpp_steam_mst_jp_day3800Mgo_patch_0525_2221
+		//1.0.15.4a:
+		//Tpp_steam_mst_en_day3900Mgo_patch_0707_1632
+		//Tpp_steam_mst_jp_day3900Mgo_patch_0707_1632
 		std::string line;
 		std::string lang = "";
 		std::string gameVer = "";
@@ -435,10 +424,7 @@ namespace IHHook {
 			
 			gameVer = line.substr(0, 24);
 			spdlog::debug("Found gameVer: {}", gameVer);
-			if (gameVer=="Tpp_steam_mst_en_day1820"
-				||gameVer=="Tpp_steam_mst_jp_day1820"
-				||gameVer=="Tpp_steam_mst_en_day3800"
-				||gameVer=="Tpp_steam_mst_jp_day3800")
+			if (gameVer.find("Tpp_steam_mst") != std::string::npos)
 				return gameVer;
 			
 
