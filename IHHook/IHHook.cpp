@@ -398,12 +398,20 @@ namespace IHHook {
 		//rlc reworked to back compat support 1.0.15.3
 		//DEBUGNOW So jp voice version is actually different exe, so cant just rely on exe version info.
 		std::string versionInfoFileName = "version_info.txt";
-		std::ifstream infile(versionInfoFileName);
-		if (infile.fail()) {//tex likely pirated game, or user has some wierd setup, cant know actual version
-			spdlog::warn("Could not load ", versionInfoFileName);
-			spdlog::warn("Cannot differentiate what language version the exe is, so game may crash when hooking if exe version matches but using different sku.");
-			//any point using errormessages since if this is an actual lang exe mismatch its going to crash before it gets to the ui
-			//DEBUGNOW think what to do.
+		HMODULE hExe = GetModuleHandle(NULL);
+		WCHAR fullPath[MAX_PATH]{ 0 };
+		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
+		std::filesystem::path path(fullPath);
+		std::string exeName = path.filename().string();
+		std::ifstream infile(exeName+"_"+versionInfoFileName);//rlc prioritize potential exe-specific ver
+		if (infile.fail()) {
+			infile = std::ifstream(versionInfoFileName);
+			if (infile.fail()) {//tex likely pirated game, or user has some wierd setup, cant know actual version
+				spdlog::warn("Could not load ", exeName+"_"+versionInfoFileName);
+				spdlog::warn("Cannot differentiate what language version the exe is, so game may crash when hooking if exe version matches but using different sku.");
+				//any point using errormessages since if this is an actual lang exe mismatch its going to crash before it gets to the ui
+				//DEBUGNOW think what to do.
+			}
 		}
 
 		//REF
