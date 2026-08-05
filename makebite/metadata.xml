@@ -5,6 +5,7 @@
   <Description># IHHook
 Version r23 - 2026-08-04 (see github for full changes)
 version_info.txt version bump
+JP 15.4 Walker Gear address fix by suke0930
 
 Version r22 - 2026-06-14
 Fixed D-Walker hook addresses that made the game crash for some users on the English version.
