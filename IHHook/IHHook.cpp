@@ -403,7 +403,8 @@ namespace IHHook {
 		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
 		std::filesystem::path path(fullPath);
 		std::string exeName = path.filename().string();
-		std::ifstream infile(exeName+"_"+versionInfoFileName);//rlc prioritize potential exe-specific ver
+		std::string exeNameNoExt = exeName.substr(0, exeName.find_last_of("."));
+		std::ifstream infile(exeNameNoExt+"_"+versionInfoFileName);//rlc prioritize potential exe-specific ver
 		if (infile.fail()) {
 			infile = std::ifstream(versionInfoFileName);
 			if (infile.fail()) {//tex likely pirated game, or user has some wierd setup, cant know actual version
