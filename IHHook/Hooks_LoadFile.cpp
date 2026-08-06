@@ -14,12 +14,12 @@ namespace IHHook {
 		std::wstring logName = L"loadfile_log.txt";
 		std::shared_ptr<spdlog::logger> log;
 
-		uint64_t * LoadFileHook(uint64_t* fileSlotIndex, uint64_t filePath64) {
+		uint64_t * foxPathPathHook(uint64_t* fileSlotIndex, uint64_t filePath64) {
 			if (config.enableFnvHook) {
 				log->info(filePath64);
 			}
-			return LoadFile(fileSlotIndex, filePath64);
-		}//LoadFileHook		
+			return foxPathPath(fileSlotIndex, filePath64);
+		}//foxPathPathHook		
 		//TODO: move somewhere else
 		//UNUSED, only interesting for specific logging, but cityhash hook will catch everything otherwise
 		/*uint64_t PathCode64Hook(const char* path) {
@@ -27,14 +27,14 @@ namespace IHHook {
 			return hash;
 		}*/
 		//tex LoadFile Actual, the other LoadFile* functions call this, so it's the only one I'm logging at the moment
-		void LoadFileSubHook(PathCode64 filePath64, PathCode64 filePath64_01) {
+		void UpdateLocalPathStringHook(PathCode64 filePath64, PathCode64 filePath64_01) {
 			if (config.logFileLoad) {
 				log->info(filePath64);
 				log->info(filePath64_01);
 				log->info("");
 			}
-			return LoadFileSub(filePath64, filePath64_01);
-		}//LoadFileSubHook
+			return UpdateLocalPathString(filePath64, filePath64_01);
+		}//UpdateLocalPathStringHook
 
 		void CreateHooks() {
 			spdlog::debug("Hooks_LoadFile::CreateHooks");			
@@ -43,11 +43,11 @@ namespace IHHook {
 				log = spdlog::basic_logger_st("loadfile", logName);
 				log->set_pattern("%v");//tex raw logging
 					
-				CREATE_HOOK(LoadFileSub)
-				CREATE_HOOK(LoadFile)
+				CREATE_HOOK(UpdateLocalPathString)
+				CREATE_HOOK(foxPathPath)
 
-				ENABLEHOOK(LoadFileSub)
-				//ENABLEHOOK(LoadFile)
+				ENABLEHOOK(UpdateLocalPathString)
+				//ENABLEHOOK(foxPathPath)
 			}
 
 			//CREATE_HOOK(PathCode64)

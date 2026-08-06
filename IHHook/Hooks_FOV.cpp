@@ -57,7 +57,7 @@ namespace IHHook {
 		 *
 		 * Check the unmodified focal length and change to the appropriate new one
 		 */
-		void __fastcall UpdateFOVLerpHook(const uintptr_t thisptr) {
+		void __fastcall UpdateCameraHook(const uintptr_t thisptr) {
 			auto* target_focalLength = (float*)(thisptr + (game == gametype::mgo ? 0x2EC : 0x2FC));
 			//spdlog::trace("target_fov:{}",*target_focalLength);//DEBUGNOW
 			//DEBUGNOW crude, need a better way of idenifying what focalLength is being set
@@ -68,8 +68,8 @@ namespace IHHook {
 				*target_focalLength == default_cqc_fov ? new_cqc_fov :
 				*target_focalLength;
 
-			UpdateFOVLerp(thisptr);
-		}//UpdateFOVLerpHook
+			UpdateCamera(thisptr);
+		}//UpdateCameraHook
 
 		const auto deg2rad = 3.1415926F / 180.F;
 		const auto frame_width = 36.F;
@@ -136,13 +136,13 @@ namespace IHHook {
 			//then add the dereferenced rel32
 			//UpdateFOVLerpAddr = ((intptr_t)(updateFOVLerpRef)+ptrdiff_t(4)) + *updateFOVLerpRef;
 
-			if (addressSet["UpdateFOVLerp"] == NULL) {
-				spdlog::warn("FOV addr fail: UpdateFOVLerpAddr == NULL");
+			if (addressSet["UpdateCamera"] == NULL) {
+				spdlog::warn("FOV addr fail: UpdateCameraAddr == NULL");
 				return;
 			}
 
-			CREATE_HOOK(UpdateFOVLerp)
-			//DEBUGNOW ENABLEHOOK(UpdateFOVLerp)
+			CREATE_HOOK(UpdateCamera)
+			//DEBUGNOW ENABLEHOOK(UpdateCamera)
 		}//CreateHooks
 
 		void SetFocalLength(CamMode camMode, float focalLength) {
@@ -177,10 +177,10 @@ namespace IHHook {
 				new_shoulder_fov = default_shoulder_fov;
 				new_hiding_fov = default_hiding_fov;
 				new_cqc_fov = default_cqc_fov;
-				DISABLEHOOK(UpdateFOVLerp);
+				DISABLEHOOK(UpdateCamera);
 			}
 			else {
-				ENABLEHOOK(UpdateFOVLerp)
+				ENABLEHOOK(UpdateCamera)
 			}
 			return 0;
 		}//l_SetCamHook

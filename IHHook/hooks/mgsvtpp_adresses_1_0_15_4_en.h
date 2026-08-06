@@ -24,69 +24,69 @@ namespace IHHook {
 		//{"BlockMemoryAllocHeap", 0x143261bf0},
 		//{"GetCurrentBlockMemory", 0x14328e410},
 
-		{"GetStrCodeWithLength", 0x141a09ac0},//ff_stringid_hash_n
-		{"GetStrCode32", 0x1400234c0},//fox::FoxStrHash32
+		{"ff_stringid_hash_n", 0x141a09ac0},//ff_stringid_hash_n
+		{"FoxStrHash32", 0x1400234c0},//fox::FoxStrHash32
 		//tex TODO need to verify naming and purpose. 
 		//technically this is PathFileNameExt64, but given that PathCode - 
 		//without ext is likely less used than PathCode 
 		//would have been a better name for PathFileNameExt64
-		{"PathCode64Ext", 0x141a098e0},//path_hash_code
+		{"path_hash_code", 0x141a098e0},//path_hash_code
 		{"FNVHash32", 0x14033b9d0},//TODO find in prerelease map
 
-		{"GetFreeRoamLangId", 0x1409121c0},//tpp::ui::utility::GetFreeMissionNameKey
+		{"GetFreeMissionNameKey", 0x1409121c0},//tpp::ui::utility::GetFreeMissionNameKey
 		
 		//tex: TODO: verify the return AL>RAX
-		{"UpdateFOVLerp", 0x141115ed0},//tpp::gamecore::camera::Player2CameraController::UpdateCamera
+		{"UpdateCamera", 0x141115ed0},//tpp::gamecore::camera::Player2CameraController::UpdateCamera
 		
 		//tex: Some info printing function that has been stubbed out
-		{"UnkPrintFuncStubbedOut", 0x14002ab70},//fox::printf
+		{"foxprintf", 0x14002ab70},//fox::printf
 		
 		//tex: another retail stubb out to wrangle
 		{"l_StubbedOut", 0x141c658e0},//char * __cdecl tpp::ef::OutOfMissionRangeEffectLua::SetupInterp(uint param_1,uint param_2)
 		//tex: another retail stubb out to wrangle
-		{"nullsub_2", 0x140645940},//re::voidreturn	
+		{"voidreturn", 0x140645940},//re::voidreturn	
 
-		{"LoadFile", 0x140085700},//Path * fox::Path::Path(Path *path,PathCode64 hash)
-		{"LoadFileSub", 0x140040c60},//fox::fs::Path::UpdateLocalPathString
-		{"Path_Copy", 0x1400855e0},//Path * __thiscall fox::Path::Path(Path *this,Path *rhs)
-		{"GetEmptyPath", 0x140085990},//Path * fox::Path::Empty(void)
+		{"foxPathPath", 0x140085700},//Path * fox::Path::Path(Path *path,PathCode64 hash)
+		{"UpdateLocalPathString", 0x140040c60},//fox::fs::Path::UpdateLocalPathString
+		{"foxPathPathB", 0x1400855e0},//Path * __thiscall fox::Path::Path(Path *this,Path *rhs)
+		{"foxPathEmpty", 0x140085990},//Path * fox::Path::Empty(void)
 
-		{"LoadPlayerPartsFpk", 0x140ae9a20},//tpp::gm::player::ResourceTable::GetPartsFpkPath
-		{"LoadPlayerPartsParts", 0x140ae9980},//tpp::gm::player::ResourceTable::GetPartsFpkPath
-		{"LoadPlayerCamoFpk", 0x140ae9080},//tpp::gm::player::ResourceTable::GetCamoFpkPath
-		{"LoadPlayerCamoFv2", 0x140ae8fb0},//tpp::gm::player::ResourceTable::GetCamoFilePath
-		{"LoadPlayerFacialMotionFpk", 0x140ae9780},//tpp::gm::player::ResourceTable::GetFacialMtarFpkPath
-		{"LoadPlayerFacialMotionMtar", 0x140ae96e0},//tpp::gm::player::ResourceTable::GetFacialMtarFilePath
-		{"LoadPlayerBionicArmFpk", 0x140ae98d0},//tpp::gm::player::ResourceTable::GetHandFpkPath
-		{"LoadPlayerBionicArmFv2", 0x140ae9820},//tpp::gm::player::ResourceTable::GetHandFilePath
-		{"CheckPlayerPartsIfShouldApplySkinToneFv2", 0x140ae9be0},//tpp::gm::player::`anonymous_namespace'::_DoesNeedBodyFovaForDD
-		{"LoadPlayerPartsSkinToneFv2", 0x140ae8d40},//tpp::gm::player::ResourceTable::GetBodyFovaPath
-		{"IsHeadNeededForPartsType", 0x140ae8c90},//tpp::gm::player::ResourceTable::DoesNeedFaceFova
-		{"IsHeadNeededForPartsTypeAndAvatar", 0x140ae8ce0},//tpp::gm::player::ResourceTable::DoesNeedFaceFovaForAvatar
-		{"LoadPlayerSnakeFaceFpk", 0x140ae95d0},//tpp::gm::player::ResourceTable::GetFaceFpkPath
-		{"LoadPlayerSnakeFaceFv2", 0x140ae94c0},//tpp::gm::player::ResourceTable::GetFaceFilePath
+		{"GetPartsFpkPath", 0x140ae9a20},//tpp::gm::player::ResourceTable::GetPartsFpkPath
+		{"GetPartsFilePath", 0x140ae9980},//tpp::gm::player::ResourceTable::GetPartsFilePath
+		{"GetCamoFpkPath", 0x140ae9080},//tpp::gm::player::ResourceTable::GetCamoFpkPath
+		{"GetCamoFilePath", 0x140ae8fb0},//tpp::gm::player::ResourceTable::GetCamoFilePath
+		{"GetFacialMtarFpkPath", 0x140ae9780},//tpp::gm::player::ResourceTable::GetFacialMtarFpkPath
+		{"GetFacialMtarFilePath", 0x140ae96e0},//tpp::gm::player::ResourceTable::GetFacialMtarFilePath
+		{"GetHandFpkPath", 0x140ae98d0},//tpp::gm::player::ResourceTable::GetHandFpkPath
+		{"GetHandFilePath", 0x140ae9820},//tpp::gm::player::ResourceTable::GetHandFilePath
+		{"_DoesNeedBodyFovaForDD", 0x140ae9be0},//tpp::gm::player::`anonymous_namespace'::_DoesNeedBodyFovaForDD
+		{"GetBodyFovaPath", 0x140ae8d40},//tpp::gm::player::ResourceTable::GetBodyFovaPath
+		{"DoesNeedFaceFova", 0x140ae8c90},//tpp::gm::player::ResourceTable::DoesNeedFaceFova
+		{"DoesNeedFaceFovaForAvatar", 0x140ae8ce0},//tpp::gm::player::ResourceTable::DoesNeedFaceFovaForAvatar
+		{"GetFaceFpkPath", 0x140ae95d0},//tpp::gm::player::ResourceTable::GetFaceFpkPath
+		{"GetFaceFilePath", 0x140ae94c0},//tpp::gm::player::ResourceTable::GetFaceFilePath
 
-		{"LoadAvatarOgreHornFpk", 0x140ae7440},//tpp::gm::player::AvatarTppResourceTable::GetAvatarHoneFpkPath
-		{"LoadAvatarOgreHornFv2", 0x140ae73d0},//tpp::gm::player::AvatarTppResourceTable::GetAvatarHoneFilePath
+		{"GetAvatarHoneFpkPath", 0x140ae7440},//tpp::gm::player::AvatarTppResourceTable::GetAvatarHoneFpkPath
+		{"GetAvatarHoneFilePath", 0x140ae73d0},//tpp::gm::player::AvatarTppResourceTable::GetAvatarHoneFilePath
 
-		{"LoadBuddyMainFile", 0x140a46870},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetPathAtBuddyType
-		{"LoadBuddyQuietWeaponFpk", 0x140a465c0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyQuietWeaponFileFromBuddyBlock
-		{"LoadBuddyDogCommonFPK", 0x140a46d4a},//part of 140a46360 tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetPathAtSub
-		{"LoadBuddyHorseCommonFPK", 0x140a46d53},//ditto
-		{"LoadBuddyWalkerGearArmFpk", 0x140a46170},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearArmFile
-		{"LoadBuddyWalkerGearHeadFpk", 0x140a462e0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearHeadFile
-		{"LoadBuddyWalkerGearWeaponFpk", 0x140a46390},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearMainWeaponFile
-		//{"LoadDefaultFpksFunc", 0x143151e80},//int * fox::Block::Load(void *thisPtr,int *errorCode,ulonglong *pathID,uint param_4)
+		{"GetPathAtBuddyType", 0x140a46870},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetPathAtBuddyType
+		{"GetBuddyQuietWeaponFileFromBuddyBlock", 0x140a465c0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyQuietWeaponFileFromBuddyBlock
+		{"GetPathAtSub_BuddyDog", 0x140a46d4a},//part of 140a46360 tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetPathAtSub
+		{"GetPathAtSub_BuddyHorse", 0x140a46d53},//ditto
+		{"GetBuddyGearArmFile", 0x140a46170},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearArmFile
+		{"GetBuddyGearHeadFile", 0x140a462e0},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearHeadFile
+		{"GetBuddyGearMainWeaponFile", 0x140a46390},//tpp::gm::buddy::impl::Buddy2BlockControllerImpl::GetBuddyGearMainWeaponFile
+		//{"foxBlockLoad", 0x143151e80},//int * fox::Block::Load(void *thisPtr,int *errorCode,ulonglong *pathID,uint param_4)
 
-		{"PreparePlayerVehicleInSortie", 0x140b3abf0},//tpp::gm::vehicle::ReliefBlockController::LoadToExhibit
-		{"PreparePlayerVehicleInGame", 0x140b3ab50},//tpp::gm::vehicle::ReliefBlockController::Load
+		{"ReliefVehicleLoadToExhibit", 0x140b3abf0},//tpp::gm::vehicle::ReliefBlockController::LoadToExhibit
+		{"ReliefVehicleLoad", 0x140b3ab50},//tpp::gm::vehicle::ReliefBlockController::Load
 
-		{"LoadDefaultFpkPtrFunc", 0x14006d790},// fox::BlockGroup::GetBlockAtIndex
+		{"GetBlockAtIndex", 0x14006d790},// fox::BlockGroup::GetBlockAtIndex
 
-		{"LoadAllVehicleCamoFpks", 0x1405cef50},//tpp::gk::GetColoringSystem
-		{"CreateInPlace", 0x140016490},//string * __thiscall std::string::string(string *this,char *cStr)
+		{"gkGetColoringSystem", 0x1405cef50},//tpp::gk::GetColoringSystem
+		{"stdstringstring", 0x140016490},//string * __thiscall std::string::string(string *this,char *cStr)
 
-		{"BuddyCommandGetNameLangId", 0x14110d320},//tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandName
+		{"GetBuddyCommandName", 0x14110d320},//tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandName
 		{"BuddyCommandGetDescriptionLangId", 0x14110d0d0},//tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandHelpName
 
 		{"GetChangeLocationMenuParameterByLocationId",0x140926730},//tpp::ui::menu::MotherBaseMissionCommonData::GetChangeLocationMenuParameterByLocationId
@@ -209,11 +209,11 @@ namespace IHHook {
 		{"luaL_pushresult", 0x141a17f70},
 		{"luaopen_base", 0x141a2f1f0},
 		{"luaopen_table", 0x141a2fe20},
-		{"luaopen_io", 0x141a310d0},
+		{"luaopen_io", 0x141a310d0},//48 89 5c 24 08 48 89 74 24 10
 		{"luaopen_os", 0x141a31eb0},
 		{"luaopen_string", 0x141a33330},
 		{"luaopen_math", 0x141a34ae0},
-		{"luaopen_debug", 0x141a35a10},
+		{"luaopen_debug", 0x141a35a10},//48 83 ec 28 4c 8d 05 b5 23 a8 00
 		{"luaopen_package", 0x141a364f0},
 		{"luaL_openlibs", 0x141a16980},
 		

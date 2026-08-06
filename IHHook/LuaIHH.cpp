@@ -212,7 +212,7 @@ namespace IHHook {
 				int locationCode = (int)lua_tointeger(L, -2);
 				const char* langId = lua_tostring(L, -1);
 				luaLog->info("{}={}",locationCode,langId);
-				locationLangIds[locationCode] = GetStrCodeWithLength(langId, strlen(langId));
+				locationLangIds[locationCode] = ff_stringid_hash_n(langId, strlen(langId));
 				/* removes 'value'; keeps 'key' for next iteration */
 				lua_pop(L, 1);
 			}

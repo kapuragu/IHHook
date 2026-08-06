@@ -255,15 +255,15 @@ namespace IHHook {
 			return true;
 		}//IsBuddyTypeValid
 
-		ulonglong* LoadBuddyMainFileHook(ulonglong param_1, ulonglong* fileSlotIndex, unsigned int buddyType, ulonglong param_4) {
-			spdlog::debug("LoadBuddyMainFileHook buddyType:{}", buddyType);
+		ulonglong* GetPathAtBuddyTypeHook(ulonglong param_1, ulonglong* fileSlotIndex, unsigned int buddyType, ulonglong param_4) {
+			spdlog::debug("GetPathAtBuddyTypeHook buddyType:{}", buddyType);
 
 			if (!IsBuddyTypeValid(buddyType)) {
 				overrideBuddySystem = false;
 			}
 			//ZIP: No override or valid buddy? Fallback
 			if (!overrideBuddySystem ) {
-				return LoadBuddyMainFile(param_1, fileSlotIndex, buddyType, param_4);
+				return GetPathAtBuddyType(param_1, fileSlotIndex, buddyType, param_4);
 			}
 			switch (buddyType) {
 				case 1: //For D-Horse
@@ -278,9 +278,9 @@ namespace IHHook {
 						spdlog::debug("quietFpkPath: {}", filePath);
 						ulonglong filePath64 = PathCode64(filePath.c_str());
 						Path fileSlotIndex_02;
-						LoadFile(&fileSlotIndex_02.Hash, filePath64);
+						foxPathPath(&fileSlotIndex_02.Hash, filePath64);
 						//ZIP: TODO UnkLoadBuddyFileInHeliSpace
-						Path* fileSlotIndex_01 = Path_Copy((Path*)fileSlotIndex, &fileSlotIndex_02);
+						Path* fileSlotIndex_01 = foxPathPathB((Path*)fileSlotIndex, &fileSlotIndex_02);
 						return &fileSlotIndex_01->Hash;
 					}
 					break;
@@ -288,55 +288,55 @@ namespace IHHook {
 					if (buddy.walkerGearFpkPath != "") return GetFPKFromFilePath(buddy.walkerGearFpkPath, "walkerGearFpkPath", fileSlotIndex);
 					break;
 				default: //Isn't a buddy, but is loaded anyways.
-					Path* fileSlotIndex_01 = GetEmptyPath();
-					fileSlotIndex_01 = Path_Copy((Path*)fileSlotIndex, fileSlotIndex_01);
+					Path* fileSlotIndex_01 = foxPathEmpty();
+					fileSlotIndex_01 = foxPathPathB((Path*)fileSlotIndex, fileSlotIndex_01);
 					return &fileSlotIndex_01->Hash;
 					break;
 			}
 			return fileSlotIndex;
-		}//LoadBuddyMainFileHook
+		}//GetPathAtBuddyTypeHook
 		/*
 			Buddy equipment hooks
 		*/
-		ulonglong* LoadBuddyQuietWeaponFpkHook(ulonglong param_1, ulonglong* fileSlotIndex, short param_quietWeaponId) {
+		ulonglong* GetBuddyQuietWeaponFileFromBuddyBlockHook(ulonglong param_1, ulonglong* fileSlotIndex, short param_quietWeaponId) {
 			//ZIP: TODO GetVars for Quiet weapon type
 			if (!overrideBuddyEquipmentSystem || buddyEqp.quietWeaponFpk == "") {
-				return LoadBuddyQuietWeaponFpk(param_1, fileSlotIndex, param_quietWeaponId);
+				return GetBuddyQuietWeaponFileFromBuddyBlock(param_1, fileSlotIndex, param_quietWeaponId);
 			}
 			return GetFPKFromFilePath(buddyEqp.quietWeaponFpk, "quietWeaponFpk", fileSlotIndex);
-		}//LoadBuddyQuietWeaponFpkHook
-		ulonglong* LoadBuddyWalkerGearWeaponFpkHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
+		}//GetBuddyQuietWeaponFileFromBuddyBlockHook
+		ulonglong* GetBuddyGearMainWeaponFileHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
 			//ZIP: TODO GetVars for Walker Gear weapon type		
 			if (!overrideBuddyEquipmentSystem || buddyEqp.walkerGearWeaponFpk == "") {
-				return LoadBuddyWalkerGearWeaponFpk(param_1, fileSlotIndex, param_3, param_4);
+				return GetBuddyGearMainWeaponFile(param_1, fileSlotIndex, param_3, param_4);
 			}
 			return GetFPKFromFilePath(buddyEqp.walkerGearWeaponFpk, "walkerGearWeaponFpk", fileSlotIndex);
-		}//LoadBuddyWalkerGearWeaponFpkHook
+		}//GetBuddyGearMainWeaponFileHook
 		//ZIP: Main buddy FPKs contain head and arm content. Leaving this here, just in case.
-		ulonglong* LoadBuddyWalkerGearArmFpkHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
+		ulonglong* GetBuddyGearArmFileHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
 			if (!overrideBuddyEquipmentSystem || buddyEqp.walkerGearArmFpk == "") {
-				return LoadBuddyWalkerGearArmFpk(param_1, fileSlotIndex, param_3, param_4);
+				return GetBuddyGearArmFile(param_1, fileSlotIndex, param_3, param_4);
 			}
 			return GetFPKFromFilePath(buddyEqp.walkerGearArmFpk, "walkerGearArmFpk", fileSlotIndex);
-		}//LoadBuddyWalkerGearArmFpkHook
-		ulonglong* LoadBuddyWalkerGearHeadFpkHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
+		}//GetBuddyGearArmFileHook
+		ulonglong* GetBuddyGearHeadFileHook(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4) {
 			if (!overrideBuddyEquipmentSystem || buddyEqp.walkerGearHeadFpk == "") {
-				return LoadBuddyWalkerGearHeadFpk(param_1, fileSlotIndex, param_3, param_4);
+				return GetBuddyGearHeadFile(param_1, fileSlotIndex, param_3, param_4);
 			}
 			return GetFPKFromFilePath(buddyEqp.walkerGearHeadFpk, "walkerGearHeadFpk", fileSlotIndex);
-		}//LoadBuddyWalkerGearHeadFpkHook
-		void LoadBuddyDogCommonFPKHook(longlong param_1, ulonglong* fileSlotIndex) {
+		}//GetBuddyGearHeadFileHook
+		void GetPathAtSub_BuddyDogHook(longlong param_1, ulonglong* fileSlotIndex) {
 			if (!overrideBuddyEquipmentSystem || buddyEqp.dogCommonFpk == "") {
-				return LoadBuddyDogCommonFPK(param_1, fileSlotIndex);
+				return GetPathAtSub_BuddyDog(param_1, fileSlotIndex);
 			}
 			GetFPKFromFilePath(buddyEqp.dogCommonFpk, "dogCommonFpk", fileSlotIndex);
-		}//LoadBuddyDogCommonFPK
-		void LoadBuddyHorseCommonFPKHook(longlong param_1, ulonglong* fileSlotIndex) {
+		}//GetPathAtSub_BuddyDog
+		void GetPathAtSub_BuddyHorseHook(longlong param_1, ulonglong* fileSlotIndex) {
 			if (!overrideBuddyEquipmentSystem || buddyEqp.horseCommonFpk == "") {
-				return LoadBuddyHorseCommonFPK(param_1, fileSlotIndex);
+				return GetPathAtSub_BuddyHorse(param_1, fileSlotIndex);
 			}
 			GetFPKFromFilePath(buddyEqp.horseCommonFpk, "horseCommonFpk", fileSlotIndex);
-		}//LoadBuddyHorseCommonFPK
+		}//GetPathAtSub_BuddyHorse
 		/*void LoadBuddyWalkerGearCommonFPKHook(longlong param_1, ulonglong* fileSlotIndex) {
 			if (!overrideBuddyEquipmentSystem || buddyEqp.walkerGearCommonFpk == "") {
 				return LoadBuddyWalkerGearCommonFPK(param_1, fileSlotIndex);
@@ -346,7 +346,7 @@ namespace IHHook {
 		ulonglong* GetFPKFromFilePath(std::string filePath, std::string debugMsg, ulonglong* fileSlotIndex) {
 			spdlog::debug(debugMsg+": {}", filePath);
 			ulonglong filePath64 = PathCode64(filePath.c_str());
-			LoadFile(fileSlotIndex, filePath64);
+			foxPathPath(fileSlotIndex, filePath64);
 			return fileSlotIndex;
 		}
 
@@ -356,23 +356,23 @@ namespace IHHook {
 		void CreateHooks() {
 			spdlog::debug(__func__);
 
-			CREATE_HOOK(LoadBuddyMainFile)
-			CREATE_HOOK(LoadBuddyQuietWeaponFpk)
-			CREATE_HOOK(LoadBuddyWalkerGearArmFpk)
-			CREATE_HOOK(LoadBuddyWalkerGearHeadFpk)
-			CREATE_HOOK(LoadBuddyWalkerGearWeaponFpk)
+			CREATE_HOOK(GetPathAtBuddyType)
+			CREATE_HOOK(GetBuddyQuietWeaponFileFromBuddyBlock)
+			CREATE_HOOK(GetBuddyGearArmFile)
+			CREATE_HOOK(GetBuddyGearHeadFile)
+			CREATE_HOOK(GetBuddyGearMainWeaponFile)
 			//these crash the game
-			//CREATE_HOOK(LoadBuddyDogCommonFPK)
-			//CREATE_HOOK(LoadBuddyHorseCommonFPK)
+			//CREATE_HOOK(GetPathAtSub_BuddyDog)
+			//CREATE_HOOK(GetPathAtSub_BuddyHorse)
 			//CREATE_HOOK(LoadBuddyWalkerGearCommonFPK)
 
-			ENABLEHOOK(LoadBuddyMainFile)
-			ENABLEHOOK(LoadBuddyQuietWeaponFpk)
-			ENABLEHOOK(LoadBuddyWalkerGearArmFpk)
-			ENABLEHOOK(LoadBuddyWalkerGearHeadFpk)
-			ENABLEHOOK(LoadBuddyWalkerGearWeaponFpk)
-			//ENABLEHOOK(LoadBuddyDogCommonFPK)
-			//ENABLEHOOK(LoadBuddyHorseCommonFPK)
+			ENABLEHOOK(GetPathAtBuddyType)
+			ENABLEHOOK(GetBuddyQuietWeaponFileFromBuddyBlock)
+			ENABLEHOOK(GetBuddyGearArmFile)
+			ENABLEHOOK(GetBuddyGearHeadFile)
+			ENABLEHOOK(GetBuddyGearMainWeaponFile)
+			//ENABLEHOOK(GetPathAtSub_BuddyDog)
+			//ENABLEHOOK(GetPathAtSub_BuddyHorse)
 			//ENABLEHOOK(LoadBuddyWalkerGearCommonFPK)
 		}//CreateHooks
 

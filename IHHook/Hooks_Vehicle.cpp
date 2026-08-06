@@ -241,11 +241,11 @@ namespace IHHook {
 		}
 
 		//ZIP: Function that loads the player vehicle and the selected camo for deployment.
-		char PreparePlayerVehicleInGameHook(longlong param_1, ulonglong param_2){
-			spdlog::debug("PreparePlayerVehicleInGameHook");
+		char ReliefVehicleLoadHook(longlong param_1, ulonglong param_2){
+			spdlog::debug("ReliefVehicleLoadHook");
 
 			if (!overrideVehicleSystem) {
-				return PreparePlayerVehicleInGame(param_1, param_2);
+				return ReliefVehicleLoad(param_1, param_2);
 			}
 
 			if (param_2 == 0) {
@@ -257,18 +257,18 @@ namespace IHHook {
 			ulonglong newVehicleFpk = GetVehiclePartsFpk(vehicleType - 1);
 			if (newVehicleFpk == 0) {
 				//ZIP: If no vehicle parts returned, fallback
-				return PreparePlayerVehicleInGame(param_1, param_2);
+				return ReliefVehicleLoad(param_1, param_2);
 			}
 
-			return PreparePlayerVehicleInGame(param_1, newVehicleFpk);
-		}//PreparePlayerVehicleInGameHook
+			return ReliefVehicleLoad(param_1, newVehicleFpk);
+		}//ReliefVehicleLoadHook
 
 		//ZIP: Function that loads the player vehicle and all the camos applicable in sortie.
-		char PreparePlayerVehicleInSortieHook(longlong param_1) {
-			spdlog::debug("PreparePlayerVehicleInSortieHook");
+		char ReliefVehicleLoadToExhibitHook(longlong param_1) {
+			spdlog::debug("ReliefVehicleLoadToExhibitHook");
 
 			if (!overrideVehicleSystem) {
-				return PreparePlayerVehicleInSortie(param_1);
+				return ReliefVehicleLoadToExhibit(param_1);
 			}
 
 			ulonglong fileIndex[96];
@@ -276,10 +276,10 @@ namespace IHHook {
 			if (vehicleType != 0) {
 				fileIndex[0] = GetVehiclePartsFpk(vehicleType - 1); //ZIP: Load vehicle fpk first
 			}
-			void* loadPtrFunc = (void*)LoadDefaultFpkPtrFunc(*(longlong*)(param_1 + 0x50), 0);
+			void* loadPtrFunc = (void*)GetBlockAtIndex(*(longlong*)(param_1 + 0x50), 0);
 
 			//ZIP: Loads all camos for the player to choose from.
-			ulonglong* camoDatFpkArray = LoadAllVehicleCamoFpks();
+			ulonglong* camoDatFpkArray = gkGetColoringSystem();
 			ulonglong numOfCamos;
 			longlong maxCamoLength = 0x5f; //95
 			ulonglong camoIt = (ulonglong)(vehicleType != 0);
@@ -328,7 +328,7 @@ namespace IHHook {
 			//*(int*)(param_1 + 0x4c) = uVar7;
 
 			return 1;
-		}//PreparePlayerVehicleInSortieHook
+		}//ReliefVehicleLoadToExhibitHook
 
 		/*
 			IHHook setup
@@ -336,11 +336,11 @@ namespace IHHook {
 		void CreateHooks() {
 			spdlog::debug(__func__);
 
-			CREATE_HOOK(PreparePlayerVehicleInSortie)
-			CREATE_HOOK(PreparePlayerVehicleInGame)
+			CREATE_HOOK(ReliefVehicleLoadToExhibit)
+			CREATE_HOOK(ReliefVehicleLoad)
 
-			ENABLEHOOK(PreparePlayerVehicleInSortie)
-			ENABLEHOOK(PreparePlayerVehicleInGame)
+			ENABLEHOOK(ReliefVehicleLoadToExhibit)
+			ENABLEHOOK(ReliefVehicleLoad)
 		}//CreateHooks
 
 		int CreateLibs(lua_State* L) {

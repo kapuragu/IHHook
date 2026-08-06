@@ -68,7 +68,7 @@ namespace IHHook {
 		//searching for the hashes of the mentioned tpp_loc<> (kept for ref) in the exe finds this function
 		//returns strcode64
 		//IN: locationLangIds
-		long long* GetFreeRoamLangIdHook(long long* langId, short locationCode, short missionCode) {
+		long long* GetFreeMissionNameKeyHook(long long* langId, short locationCode, short missionCode) {
 			spdlog::trace(__func__);
 
 			//DEBUGNOW only missionCode entry in vanilla
@@ -105,10 +105,10 @@ namespace IHHook {
 			
 			*langId = 0xb8a0bf169f98;// "" empty string
 			return langId;
-		}//GetFreeRoamLangIdHook
+		}//GetFreeMissionNameKeyHook
 
 		//DEBUGNOW not really tpp only Hooks_Fox?
-		static void UnkPrintFuncStubbedOutHook(const char* fmt, ...) {
+		static void foxprintfHook(const char* fmt, ...) {
 			//spdlog::trace(__func__);
 			va_list args;
 			va_start(args, fmt);
@@ -133,22 +133,22 @@ namespace IHHook {
 					size *= 2;
 			}//while(1)
 
-			spdlog::debug("UnkPrintFuncStubbedOutHook: {}", message);
-		}//UnkPrintFuncStubbedOutHook
+			spdlog::debug("foxprintfHook: {}", message);
+		}//foxprintfHook
 
-		void nullsub_2Hook(const char* unkSomeIdStr, unsigned long long unkSomeIdNum) {
+		void voidreturnHook(const char* unkSomeIdStr, unsigned long long unkSomeIdNum) {
 			//spdlog::trace(__func__);
 			if (unkSomeIdStr != NULL) {
 				try {
 					char idStr[1024];
 					sprintf(idStr, "%s", unkSomeIdStr);
-					spdlog::debug("nullsub_2 {}", idStr);
+					spdlog::debug("voidreturn {}", idStr);
 				}
 				catch(...)  {
 
 				}
 			}
-		}//nullsub_2Hook
+		}//voidreturnHook
 
 		void CreateHooks() {
 			spdlog::trace(__func__);
@@ -172,13 +172,13 @@ namespace IHHook {
 			//	bool bleh = true;
 			//}
 
-			if (addressSet["GetStrCodeWithLength"] == NULL) {
-				spdlog::warn("addr fail: addressSet[\"GetStrCodeWithLength\"] == NULL");
+			if (addressSet["ff_stringid_hash_n"] == NULL) {
+				spdlog::warn("addr fail: addressSet[\"ff_stringid_hash_n\"] == NULL");
 			}
 			else {					
 				//DEBUGNOW TEST
 				char* langId = "tpp_loc_afghan";
-				long long tpp_loc_afghanS64 = GetStrCodeWithLength(langId, strlen(langId));
+				long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
 
 				std::stringstream stream;
 				stream << std::hex << tpp_loc_afghanS64;
@@ -192,19 +192,19 @@ namespace IHHook {
 					//{ 40,0x27376b6e62ff },//tpp_loc_gntn - caplags langid from his gntn addon
 			}
 
-			if (addressSet["GetFreeRoamLangId"] == NULL || addressSet["UnkPrintFuncStubbedOut"] == NULL || addressSet["nullsub_2"] == NULL) {
+			if (addressSet["GetFreeMissionNameKey"] == NULL || addressSet["foxprintf"] == NULL || addressSet["voidreturn"] == NULL) {
 				spdlog::warn("addr == NULL");
 			}
 			else {
-				CREATE_HOOK(GetFreeRoamLangId)
-				CREATE_HOOK(UnkPrintFuncStubbedOut)
-				CREATE_HOOK(nullsub_2)
+				CREATE_HOOK(GetFreeMissionNameKey)
+				CREATE_HOOK(foxprintf)
+				CREATE_HOOK(voidreturn)
 
-				ENABLEHOOK(GetFreeRoamLangId)
+				ENABLEHOOK(GetFreeMissionNameKey)
 
-				ENABLEHOOK(UnkPrintFuncStubbedOut) //DEBUGNOW
+				ENABLEHOOK(foxprintf) //DEBUGNOW
 #ifdef _DEBUG
-				//ENABLEHOOK(nullsub_2)//DEBUGNOW
+				//ENABLEHOOK(voidreturn)//DEBUGNOW
 #endif // DEBUG
 				CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
 				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
