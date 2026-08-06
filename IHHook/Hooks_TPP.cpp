@@ -19,8 +19,6 @@ namespace IHHook {
 		//DEBUGNOW proof of concept hack
 		//{40,0x27376b6e62ff},//tpp_loc_gntn - caplags langid from his gntn addon
 	};
-	std::map<int, PhotoInfoString> photoInfoAddon = {};
-	bool isCode102 = true;
 
 	namespace Hooks_TPP {
 		//tex from here
@@ -212,25 +210,8 @@ namespace IHHook {
 				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
 				CREATE_HOOK(GetPhotoAdditionalTextLangId)
 				ENABLEHOOK(GetPhotoAdditionalTextLangId)
-				//CREATE_HOOK(RegisterQuestAreaMarker)
-				//ENABLEHOOK(RegisterQuestAreaMarker)
-				//CREATE_HOOK(IsUseAreaIcon)
-				//ENABLEHOOK(IsUseAreaIcon)
-				//CREATE_HOOK(ConvertRadioTypeToSpeechLabel)
-				//ENABLEHOOK(ConvertRadioTypeToSpeechLabel)
-				//CREATE_HOOK(CallWithRadioType)
-				//ENABLEHOOK(CallWithRadioType)
-				//CREATE_HOOK(ConvertSpeechLabelToRadioType)
-				//ENABLEHOOK(ConvertSpeechLabelToRadioType)
-				//CREATE_HOOK(IsRaining)
-				//ENABLEHOOK(IsRaining)
-				//CREATE_HOOK(ConvertToVoiceType)
-				//ENABLEHOOK(ConvertToVoiceType)
+				
 			}//if addr
-
-			//DEBUGNOW
-			//CREATE_HOOK(UnkSomeUpdateFunc)
-			//ENABLEHOOK(UnkSomeUpdateFunc)
 		}//CreateHooks
 		ChangeLocationMenuParameter* GetChangeLocationMenuParameterByLocationIdHook(MotherBaseMissionCommonData* This, unsigned short locationCode)
 		{
@@ -258,81 +239,6 @@ namespace IHHook {
 			}
 			return nullptr;
 		}
-		/*static const enum PHOTO_TYPE : byte {
-			photo_type_h = 0,
-			photo_type_v = 1,
-			photo_type_v2 = 2,//??? ASSUMPTION
-		};
-		static const enum PHOTO_TEXT : byte {
-			target_type_rescue = 1,
-			target_type_recovery = 2,
-			target_type_exclusion = 3,
-			target_type_destruction = 4,
-			target_type_tracking = 5,
-			target_type_tailing = 6,
-		};
-		struct PhotoInfo {
-			unsigned short MissionCode;
-			byte PhotoId;
-			PHOTO_TYPE PhotoType;
-			PHOTO_TEXT TargetType;
-		};
-		PhotoInfo PHOTO_ADDITIONAL_TEXT[46]{
-		  {10020,  10,  photo_type_v,  target_type_rescue},
-		  {10036,  10,  photo_type_v,  target_type_exclusion},
-		  {10033,  10,  photo_type_v,  target_type_recovery},
-		  {10040,  10,  photo_type_h,  target_type_recovery},
-		  {10041,  20,  photo_type_v,  target_type_exclusion},
-		  {10041,  30,  photo_type_v,  target_type_exclusion},
-		  {10041,  40,  photo_type_v,  target_type_exclusion},
-		  {10044,  10,  photo_type_v,  target_type_exclusion},
-		  {10052,  10,  photo_type_v,  target_type_recovery},
-		  {10054,  10,  photo_type_h,  target_type_exclusion},
-		  {10070,  10,  photo_type_v,  target_type_recovery},
-		  {10080,  20,  photo_type_h,  target_type_destruction},
-		  {10080,  30,  photo_type_h,  target_type_destruction},
-		  {10086,  10,  photo_type_v,  target_type_rescue},
-		  {10086,  20,  photo_type_v,  target_type_tailing},
-		  {10082,  10,  photo_type_h,  target_type_exclusion},
-		  {10090,  10,  photo_type_h,  target_type_recovery},
-		  {10090,  20,  photo_type_h,  target_type_tracking},
-		  {10195,  10,  photo_type_v,  target_type_tailing},
-		  {10195,  20,  photo_type_v,  target_type_exclusion},
-		  {10091,  10,  photo_type_v,  target_type_rescue},
-		  {10091,  20,  photo_type_v,  target_type_rescue},
-		  {10100,  10,  photo_type_v,  target_type_exclusion},
-		  {10110,  10,  photo_type_v,  target_type_rescue},
-		  {10121,  10,  photo_type_v,  target_type_exclusion},
-		  {10121,  20,  photo_type_v,  target_type_tracking},
-		  {10115,  10,  photo_type_v,  target_type_exclusion},
-		  {10120,  10,  photo_type_v,  target_type_recovery},
-		  {10085,  10,  photo_type_v,  target_type_rescue},
-		  {10085,  20,  photo_type_v,  target_type_rescue},
-		  {10200,  10,  photo_type_v,  target_type_recovery},
-		  {10200,  20,  photo_type_v,  target_type_recovery},
-		  {10211,  10,  photo_type_v,  target_type_exclusion},
-		  {10081,  10,  photo_type_v,  target_type_rescue},
-		  {10130,  10,  photo_type_v,  target_type_recovery},
-		  {10150,  10,  photo_type_v,  target_type_exclusion},
-		  {10151,  10,  photo_type_v,  target_type_destruction},
-		  {10045,  10,  photo_type_v,  target_type_recovery},
-		  {10093,  10,  photo_type_v,  target_type_recovery},
-		  {10093,  20,  photo_type_v,  target_type_recovery},
-		  {10171,  10,  photo_type_h,  target_type_exclusion},
-		  {10171,  20,  photo_type_h,  target_type_exclusion},
-		  {10171,  30,  photo_type_h,  target_type_exclusion},
-		  {10171,  40,  photo_type_h,  target_type_exclusion},
-		  {10171,  50,  photo_type_h,  target_type_exclusion},
-		  {10260,  10,  photo_type_v,  target_type_recovery},
-		};
-		static const std::map<byte, ulonglong> PHOTO_TEXT_LANGID{
-			{target_type_rescue,0xa59d60747df1},//target_type_rescue			"Rescue Target"
-			{target_type_recovery,0x3fc178c7269a},//target_type_recovery		"Extraction Target"
-			{target_type_exclusion,0xd158f6869064},//target_type_exclusion		"Elimination Target"
-			{target_type_destruction,0x2404a0893924},//target_type_destruction	"Destruction Target"
-			{target_type_tracking,0xe3b11024560e},//target_type_tracking		"Tracking Target"
-			{target_type_tailing,0xc1ad14dff6fc},//target_type_tailing			"Tailing Target"
-		};*/
 		std::list<PhotoInfo> addPhotoInfos{};
 		unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(MotherBaseMissionCommonData* This, StringId* ret, unsigned short missionCode, unsigned char photoId, unsigned char photoType)
 		{
@@ -345,20 +251,21 @@ namespace IHHook {
 					{
 						if (i.PhotoType == photoType)
 						{
-							spdlog::info("GetPhotoAdditionalTextLangIdHook return {:x}\n", *ret);
+							spdlog::info("photo exists, replace langid {:x}", *ret);
 							*ret = i.TargetTypeLangId;
 							return *ret;
 						}
 					}
 				}
 			}
-			spdlog::info("GetPhotoAdditionalTextLangIdHook return 3 {:x}", *ret);
+			//spdlog::info("get vanilla langid {:x}", *ret);
 			return GetPhotoAdditionalTextLangId(This,ret,missionCode,photoId,photoType);
 		}
 
 		void AddPhotoAdditionalText(unsigned short missionCode, unsigned char photoId, unsigned char photoType, const char* targetTypeLangIdStr)
 		{
-			unsigned long long hash = GetStrCodeWithLength(targetTypeLangIdStr, strlen(targetTypeLangIdStr));
+			spdlog::info("AddPhotoAdditionalText %s",missionCode,photoId,photoType,targetTypeLangIdStr);
+			unsigned long long hash = ff_stringid_hash_n(targetTypeLangIdStr, strlen(targetTypeLangIdStr));
 			for (std::list<PhotoInfo>::iterator it = addPhotoInfos.begin(); it != addPhotoInfos.end(); ++it){
 				if (it->MissionCode == missionCode)
 				{
@@ -366,7 +273,7 @@ namespace IHHook {
 					{
 						if (it->PhotoType == photoType)
 						{
-							spdlog::info("[GitmoHook] AddPhotoAdditionalText replaced %d %d %d with %s\n",missionCode,photoId,photoType,targetTypeLangIdStr);
+							spdlog::info("replaced");
 							it->TargetTypeLangId = hash;
 							return;
 						}
@@ -380,82 +287,7 @@ namespace IHHook {
 				hash,
 			};
 			addPhotoInfos.push_back(photoInfo);
-			spdlog::info("[GitmoHook] AddPhotoAdditionalText added %d %d %d with %s\n",missionCode,photoId,photoType,targetTypeLangIdStr);
+			spdlog::info("added");
 		}
-		//bool IsUseAreaIconHook(void* MbDvcMapCallbackIconImpl, uint param_1, uint flags, bool param_3, bool param_4, bool param_5, bool param_6)
-		//{
-		//	if (param_1 == 0x31)//quest markers in location change menu
-		//	{
-		//		//spdlog::info("IsUseAreaIconHook param_1={},param_2={},param_3={},param_4={},param_5={},param_6={}", param_1, flags, param_3, param_4, param_5, param_6);
-
-		//		bool flag29 = flags >> 0x1d & 1; //always false?
-		//		bool flag30 = flags >> 0x1e & 1; //returning this only shows africa ops
-		//		bool flag23 = flags >> 0x17 & 1; //returning this only shows mtbs ops
-		//		//both false shows only afgh and addons, and only in afgh
-		//		// 
-		//		//!flag30 && !flag23 - afghanistan and addons in afghanistan
-		//		//flag30 - africa everywhere
-		//		//flag23 - mtbs everywhere
-
-		//		//return true;
-		//	}
-		//	return IsUseAreaIcon(MbDvcMapCallbackIconImpl, param_1, flags, param_3, param_4, param_5, param_6);
-		//};
-		//static void RegisterQuestAreaMarkerHook(MbDvcSideOpsCallbackImpl* This, SideOpsInfo* sideOpsInfo)
-		//{
-		//	spdlog::info("RegisterQuestAreaMarkerHook");
-		//	spdlog::info("sideOpsInfo: questId={}, locationId={}", sideOpsInfo->questId, sideOpsInfo->locationId);
-		//	spdlog::info("sideOpsInfo: iconPos={}, paddingA={}", (ulong)sideOpsInfo->iconPos, (ubyte)sideOpsInfo->paddingA);
-		//	spdlog::info("sideOpsInfo: paddingB={}", (ubyte)sideOpsInfo->paddingB);
-		//	SideOpsInfo* sideOpInfos = This->sideOpInfo;
-		//	for (int i = 0; i < This->questCount; i++)
-		//	{
-		//		//spdlog::info("MbDvcSideOpsCallbackImpl: i={}, questId={}, locationId={}", i, (sideOpInfos+i)->questId, (sideOpInfos + i)->locationId);
-		//	}
-		//	//RegisterQuestAreaMarker(This, sideOpsInfo);
-		//};
-		/*std::map<ubyte, uint> RadioTypeToSpeechLabel = {
-			{0x5a,0x5437f13a},//CPR0038
-		};
-		uint ConvertRadioTypeToSpeechLabelHook(ubyte radioType)
-		{
-			if (isCode102)
-			{
-				if (radioType == 0x5a)
-				{
-					return GetStrCode32("CPR0038_102");
-				}
-			}
-			auto ret = ConvertRadioTypeToSpeechLabel(radioType);
-			spdlog::info("ConvertRadioTypeToSpeechLabel({})={}", radioType, ret);
-			return ret;
-		};
-		ubyte ConvertSpeechLabelToRadioTypeHook(uint speechLabel)
-		{
-			if (isCode102)
-			{
-				if (speechLabel == GetStrCode32("CPR0038_102"))
-				{
-					return 0x5a;
-				}
-			}
-			auto ret = ConvertSpeechLabelToRadioType(speechLabel);
-			spdlog::info("ConvertSpeechLabelToRadioType({})={}", speechLabel, ret);
-			return ret;
-		};
-		bool IsRainingHook(void* Soldier2, uint param_2)
-		{
-			bool ret = IsRaining(Soldier2, param_2);
-			spdlog::info("IsRaining({})={}", param_2, ret);
-			return false;
-		};
-		uint ConvertToVoiceTypeHook(uint voiceTypeS32)
-		{
-			//if (voiceTypeS32 == GetStrCode32("chico"))
-				//return FNVHash32("chico");
-			uint ret = ConvertToVoiceType(voiceTypeS32);
-			spdlog::info("ConvertToVoiceType({})={}", voiceTypeS32, ret);
-			return ret;
-		}*/
 	}//Hooks_TPP
 }//namespace IHHook
