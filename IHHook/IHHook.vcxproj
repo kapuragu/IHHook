@@ -5,6 +5,14 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release ASI|x64">
+      <Configuration>Release ASI</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Plugin|x64">
+      <Configuration>Release Plugin</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -53,6 +61,20 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
@@ -71,6 +93,12 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -84,6 +112,12 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -157,9 +191,86 @@
     <ProjectReference />
     <PostBuildEvent>
       <Command>copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)makebite\GameDir\dinput8.dll"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt" "$(SolutionDir)makebite\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt" "$(SolutionDir)makebite\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt"
 copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\GameDir\mod\docs\IHHook\Readme.txt"
 copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite\GameDir\mod\docs\IHHook\Changelog.txt"
-copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite\GameDir\mod\fonts\Cousine-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite\GameDir\mod\fonts\Karla-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.lua" "$(SolutionDir)makebite\GameDir\mod\guiStyles\Default.lua"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite\GameDir\ihhook_config.lua"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite\GameDir\ihhook_config-defaults.lua"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"
+copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite\metadata.xml</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;IHHOOK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;./lua;./MinHook;./imgui</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)makebite-asi\GameDir\$(TargetName).asi"  
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt" "$(SolutionDir)makebite-asi\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt" "$(SolutionDir)makebite-asi\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-asi\GameDir\mod\docs\IHHook\Readme.txt"
+copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite-asi\GameDir\mod\docs\IHHook\Changelog.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\Cousine-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\Karla-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\guiStyles\Default.ttf"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-asi\GameDir\ihhook_config.lua"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-asi\GameDir\ihhook_config-defaults.lua"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-asi\Readme.txt"
+copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-asi\metadata.xml</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;IHHOOK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;./lua;./MinHook;./imgui</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)makebite-plugin\GameDir\plugins\$(TargetName).dll"  
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt" "$(SolutionDir)makebite-plugin\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt" "$(SolutionDir)makebite-plugin\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-plugin\GameDir\mod\docs\IHHook\Readme.txt"
+copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite-plugin\GameDir\mod\docs\IHHook\Changelog.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\Cousine-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\Karla-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\guiStyles\Default.ttf"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-plugin\GameDir\ihhook_config.lua"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-plugin\GameDir\ihhook_config-defaults.lua"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-plugin\Readme.txt"
+copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\metadata.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -244,6 +355,12 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="Hooks_FNVHash.cpp" />
     <ClCompile Include="Hooks_FOV.cpp" />
@@ -283,6 +400,8 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Hooks_TPP.cpp" />
     <ClCompile Include="StyleEditor.cpp" />

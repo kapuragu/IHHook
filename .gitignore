@@ -347,8 +347,11 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
-makebite/GameDir/dinput8.dll
-makebite/Readme.txt
+makebite/
+
+makebite-asi/
+
+makebite-plugin/
 
 # Rider
 .idea/
