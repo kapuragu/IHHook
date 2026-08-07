@@ -18,7 +18,17 @@ bool D3D11Hook::hook() {
 
     g_d3d11_hook = this;
 
-    HWND h_wnd = GetDesktopWindow();
+    // GetDesktopWindow() was used here originally, matching the stock
+    // RE2Framework technique. That works against real D3D11
+    // process does not own. It does not work against DXVK: DXVK's
+    // Vulkan-backed swapchain creation returns VK_ERROR_INITIALIZATION_FAILED
+    // when asked to build a surface/swapchain against a window it doesn't control 
+    HWND h_wnd = CreateWindowExW(0, L"STATIC", L"", 0, 0, 0, 1, 1, HWND_MESSAGE, nullptr, GetModuleHandleW(nullptr), nullptr);
+    if (h_wnd == nullptr) {
+        spdlog::error("Failed to create dummy window for D3D11 hook. GetLastError={0:x}", GetLastError());
+        return false;
+    }
+
     IDXGISwapChain* swap_chain = nullptr;
     ID3D11Device* device = nullptr;
     D3D_FEATURE_LEVEL device_max_feature_level = D3D_FEATURE_LEVEL_9_1;
@@ -42,6 +52,7 @@ bool D3D11Hook::hook() {
     HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, &feature_level, 1, D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, &device, &device_max_feature_level, &context);
     if (FAILED(hr)) {  
         spdlog::error("Failed to create dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
+        DestroyWindow(h_wnd);
         return false;
     }
     spdlog::info("Created dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
@@ -54,6 +65,7 @@ bool D3D11Hook::hook() {
     device->Release();
     context->Release();
     swap_chain->Release();
+    DestroyWindow(h_wnd);
     spdlog::info("Released dummy D3D11 device");
 
     m_hooked = m_present_hook->create() && m_resize_buffers_hook->create();
