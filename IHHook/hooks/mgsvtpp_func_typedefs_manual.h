@@ -44,7 +44,7 @@ using PathId = ulong;
 using StrCode32 = uint;
 
 typedef uint64_t StringId;
-typedef struct ChangeLocationMenuParameter {
+struct ChangeLocationMenuParameter {
 	unsigned short LocationId;
 	unsigned short MissionId;
 	byte paddingA[0x4];
@@ -53,7 +53,7 @@ typedef struct ChangeLocationMenuParameter {
 	byte MbStageBaseId;
 	byte paddingB[0x6];
 };
-typedef struct MotherBaseMissionCommonData {
+struct MotherBaseMissionCommonData {
 	byte paddingA[0x111];
 	byte ChangeLocationMenuParamCount;
 	byte paddingB[0x6];
@@ -61,7 +61,7 @@ typedef struct MotherBaseMissionCommonData {
 	byte paddingC[0x88];
 };
 
-static const enum TppLocationId : ushort {
+const enum TppLocationId : ushort {
 	afgh = 10,
 	mafr = 20,
 	mtbs = 50,

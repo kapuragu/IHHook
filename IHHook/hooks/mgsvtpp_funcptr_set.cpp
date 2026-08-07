@@ -189,6 +189,12 @@ namespace IHHook {
 		StateRadio = (StateRadioFunc*)addressSet["StateRadio"];
 		IsRaining = (IsRainingFunc*)addressSet["IsRaining"];
 		ConvertToVoiceType = (ConvertToVoiceTypeFunc*)addressSet["ConvertToVoiceType"];*/
+		io_open = (io_openFunc*)addressSet["io_open"];
+		io_popen = (io_popenFunc*)addressSet["io_popen"];
+		io_close = (io_closeFunc*)addressSet["io_close"];
+		f_read = (f_readFunc*)addressSet["f_read"];
+		f_write = (f_writeFunc*)addressSet["f_write"];
+		
 	}//SetFuncPtrs
 
 }//namespace IHHook

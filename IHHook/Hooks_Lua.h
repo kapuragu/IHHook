@@ -15,5 +15,13 @@ namespace IHHook {
 		std::map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename);
 		double FoxBlockProcessHook(void* Block, void* TaskContext, void* BlockProcessState);
 		int* FoxBlockLoadHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count);
+		extern bool open_io_override;
+		void CreateHooksForTppMod();
+		int luaopen_ioHook(lua_State* L);
+		longlong io_openHook(lua_State* L);
+		longlong io_popenHook(lua_State* L);
+		void io_closeHook(lua_State* L);
+		void f_readHook(lua_State* L);
+		void f_writeHook(lua_State* L);
 	}//namespace Hooks_Lua
 }//namespace IHHook

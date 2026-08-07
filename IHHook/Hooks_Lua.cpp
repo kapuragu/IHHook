@@ -31,6 +31,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Hooks_TPP.h"
+#include "patch.h"
 #include "util.h"
 
 extern void LoadImguiBindings(lua_State* lState);
@@ -141,6 +143,27 @@ namespace IHHook {
 		}//luaL_openlibsHook
 
 		int lua_loadHook(lua_State* L, lua_Reader reader,void* data, const char* chunkname) {
+			if (open_io_override)
+			{
+				bool isDrivePath = std::string(chunkname).rfind(":\\", 2)==2;
+				bool isGameDir = std::string(chunkname).rfind(OS::GetGameDirA(), 0)==0;
+				bool isFox = std::string(chunkname).rfind("Fox.", 0)==0;
+				std::string extension = std::string(chunkname).substr(std::string(chunkname).find_last_of(".") + 1);
+			
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+				
+				if (isDrivePath && !isGameDir)
+				{
+					spdlog::error("lua_loadHook tried to get file out of game directory: {}",std::string(chunkname));
+					return 1;
+				}
+				if (extension!="lua" && !isFox)
+				{
+					spdlog::error("lua_loadHook tried to get file that's not Lua: {}",extension);
+					return 2;
+				}
+			}
+			
 			spdlog::trace("lua_loadHook {}", chunkname);
 			int errcode = lua_load(L, reader, data, chunkname);
 			if (errcode != 0) {
@@ -333,6 +356,8 @@ namespace IHHook {
 				ENABLEHOOK(FoxBlockLoad)
 				//CREATE_HOOK(FoxBlockProcess)
 				//ENABLEHOOK(FoxBlockProcess)
+				
+				CreateHooksForTppMod();
 			}//if name##Addr != NULL
 		}//CreateHooks
 
@@ -584,6 +609,91 @@ namespace IHHook {
 			}
 			auto q = FoxBlockLoad(thisPtr, errorCode, pathID, count);
 			return q;
+		}
+		bool open_io_override = false;
+		void CreateHooksForTppMod()
+		{
+			//rlc tpp-mod compat
+			SIZE_T ptrSize = 8;
+			
+			//subcritical; used in ihhook alternatives
+			//std::uint8_t os_execute_orig[8] = {0x40, 0x53, 0x48, 0x83, 0xec, 0x20, 0x45, 0x33};
+			//if (!ComparePointerBytes(addressSet["os_execute"],os_execute_orig,ptrSize))
+				//TogglePatch(true,addressSet["os_execute"],ptrSize,os_execute_orig,os_execute_orig);
+			
+			//subcritical; called but not used for anything?
+			//std::uint8_t os_getenv_orig [8] = {0x40, 0x53, 0x48, 0x83, 0xec, 0x20, 0x45, 0x33};
+			//if (!ComparePointerBytes(addressSet["os_getenv"],os_getenv_orig,ptrSize))
+				//TogglePatch(true,addressSet["os_getenv"],ptrSize,os_getenv_orig,os_getenv_orig);
+			
+			//subcritical (not even used?)
+			//std::uint8_t gll_loadlib_orig [8] = {0x48, 0x89, 0x5c, 0x24, 0x08, 0x57, 0x48, 0x83};
+			//if (!ComparePointerBytes(addressSet["gll_loadlib"],gll_loadlib_orig,ptrSize))
+				//TogglePatch(true,addressSet["gll_loadlib"],ptrSize,gll_loadlib_orig,gll_loadlib_orig);
+			
+			//this being patched out causes crash/freeze - need to hook alternative to open.io that's safer
+			std::uint8_t luaopen_io_orig [8] = {0x48, 0x89, 0x5c, 0x24, 0x08, 0x48, 0x89, 0x74};
+			if (!ComparePointerBytes(addressSet["luaopen_io"],luaopen_io_orig,ptrSize))
+			{
+				TogglePatch(true,addressSet["luaopen_io"],ptrSize,luaopen_io_orig,luaopen_io_orig);
+				open_io_override=true;
+				
+				/*CREATE_HOOK(luaopen_io)
+				ENABLEHOOK(luaopen_io)
+				CREATE_HOOK(io_open)
+				ENABLEHOOK(io_open)
+				CREATE_HOOK(io_popen)
+				ENABLEHOOK(io_popen)
+				CREATE_HOOK(io_close)
+				ENABLEHOOK(io_close)
+				CREATE_HOOK(f_read)
+				ENABLEHOOK(f_read)
+				CREATE_HOOK(f_write)
+				ENABLEHOOK(f_write)*/
+			}
+			//subcritical for operation, used a few times for debug log reasons
+			//std::uint8_t luaopen_debug_orig [8] = {0x48, 0x83, 0xec, 0x28, 0x4c, 0x8d, 0x05, 0xb5};
+			//if (!ComparePointerBytes(addressSet["luaopen_debug"],luaopen_debug_orig,ptrSize))
+				//TogglePatch(true,addressSet["luaopen_debug"],ptrSize,luaopen_debug_orig,luaopen_debug_orig);
+			
+			//subcritical; not even used in xmlparser?
+			//std::uint8_t system_orig [8] = {0xc2, 0x07, 0x9e, 0x02, 0x00, 0x00, 0x00, 0x00};
+			//if (!ComparePointerBytes(addressSet["system"],system_orig,ptrSize))
+				//TogglePatch(true,addressSet["system"],ptrSize,system_orig,system_orig);
+		}
+		int luaopen_ioHook(lua_State* L)
+		{
+			spdlog::info("luaopen_ioHook");
+			return luaopen_io(L);
+		}
+		longlong io_openHook(lua_State* L)
+		{
+			spdlog::info("io_openHook");
+			return io_open(L);
+		}
+		longlong io_popenHook(lua_State* L)
+		{
+			spdlog::info("io_popenHook");
+			return io_open(L);
+		}
+		void io_closeHook(lua_State* L)
+		{
+			spdlog::info("io_closeHook");
+			io_close(L);
+		}
+		void f_readHook(lua_State* L)
+		{  
+			spdlog::info("f_readHook");
+			spdlog::info("read arg: {}", lua_tolstring(L,-1,NULL));
+			spdlog::info("read arg: {}", lua_tolstring(L,2,NULL));
+			f_read(L);
+		}
+		void f_writeHook(lua_State* L)
+		{ 
+			spdlog::info("f_writeHook");
+			spdlog::info("written content string a: {}", lua_tolstring(L,-1,NULL));
+			spdlog::info("written content string b: {}", lua_tolstring(L,-2,NULL));
+			f_write(L);
 		}
 	}//namespace Hooks_Lua
 }//namespace IHHoook

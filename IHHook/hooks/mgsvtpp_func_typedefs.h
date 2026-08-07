@@ -191,6 +191,11 @@ typedef void(__thiscall StateRadioFunc)(void* ActionControllerImpl, uint param_1
 typedef ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel);
 typedef bool (__cdecl IsRainingFunc)(void* Soldier2, uint param_2);
 typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);*/
+typedef longlong (__fastcall io_openFunc)(lua_State * L);
+typedef longlong (__fastcall io_popenFunc)(lua_State * L);
+typedef void (__fastcall io_closeFunc)(lua_State * L);
+typedef void (__fastcall f_readFunc)(lua_State * L);
+typedef void (__fastcall f_writeFunc)(lua_State * L);
 
 //tex the (extern of the) function pointers
 extern ff_stringid_hash_nFunc* ff_stringid_hash_n;
@@ -370,3 +375,8 @@ extern CallWithRadioTypeFunc* CallWithRadioType;
 extern StateRadioFunc* StateRadio;
 extern IsRainingFunc* IsRaining;
 extern ConvertToVoiceTypeFunc* ConvertToVoiceType;*/
+extern io_openFunc* io_open;
+extern io_popenFunc* io_popen;
+extern io_closeFunc* io_close;
+extern f_readFunc* f_read;
+extern f_writeFunc* f_write;

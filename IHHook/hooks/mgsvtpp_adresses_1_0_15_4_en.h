@@ -227,5 +227,23 @@ namespace IHHook {
 		
 		//{"LoadFile_02", 0x14319eb70},//void __thiscall fox::Path::~Path(Path *this)
 		//{"LoadFile_05", 0x14319ee10},//Path * __thiscall fox::Path::operator=(Path *this,Path *pathrhs)
+		
+		//compat with tpp-mod
+		//{"os_execute", 0x141A31640},//lua::os_execute 40 53 48 83 ec 20 45 33 c9
+		//{"os_exit", 0x141A31E90},//lua::os_exit
+		//{"os_getenv", 0x141A317A0},//lua::os_getenv 40 53 48 83 ec 20 45 33 c0
+		//{"os_remove", 0x141A31680},//lua::os_remove
+		//{"os_rename", 0x141A316D0},//lua::os_rename
+		//{"os_setlocale", 0x141A31E20},//lua::os_setlocale
+		//{"os_tmpname", 0x141A31730},//lua::os_tmpname
+		//{"gll_loadlib", 0x141A35A40},//lua::ll_loadlib 48 89 5c 24 08 57 48 83 ec 20
+		
+		//{"system", 0x14208DC60},//MSVCR110.DLL::system c2 07 9e 02 00 00 00 00
+		
+		{"io_open", 0x1418990e0},
+		{"io_popen", 0x1418991e0},
+		{"io_close", 0x141a2ff20},
+		{"f_read", 0x141a30540},
+		{"f_write", 0x141a30610},
 	};//map mgsvtpp_adresses_1_0_15_4_en
 }//namespace IHHook

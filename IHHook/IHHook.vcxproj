@@ -207,6 +207,7 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
     <ClInclude Include="MinHook\trampoline.h" />
     <ClInclude Include="ntdll.h" />
     <ClInclude Include="OS.h" />
+    <ClInclude Include="patch.h" />
     <ClInclude Include="PipeServer.h" />
     <ClInclude Include="RawInput.h" />
     <ClInclude Include="resource.h" />
@@ -274,6 +275,7 @@ copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite\Readme.txt"</Command>
     <ClCompile Include="MinHook\hook.c" />
     <ClCompile Include="MinHook\trampoline.c" />
     <ClCompile Include="OS.cpp" />
+    <ClCompile Include="patch.cpp" />
     <ClCompile Include="PipeServer.cpp" />
     <ClCompile Include="RawInput.cpp" />
     <ClCompile Include="stdafx.cpp">

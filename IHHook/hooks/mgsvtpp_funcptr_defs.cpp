@@ -186,3 +186,8 @@ CallWithRadioTypeFunc* CallWithRadioType;
 StateRadioFunc* StateRadio;
 IsRainingFunc* IsRaining;
 ConvertToVoiceTypeFunc* ConvertToVoiceType;*/
+io_openFunc* io_open;
+io_popenFunc* io_popen;
+io_closeFunc* io_close;
+f_readFunc* f_read;
+f_writeFunc* f_write;

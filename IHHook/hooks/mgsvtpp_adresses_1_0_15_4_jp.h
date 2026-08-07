@@ -227,5 +227,23 @@ namespace IHHook {
 				
 		//{"LoadFile_02", 0x143227e40},//void __thiscall fox::Path::~Path(Path *this)
 		//{"LoadFile_05", 0x143228120},//Path * __thiscall fox::Path::operator=(Path *this,Path *pathrhs)
+		
+		//compat with tpp-mod
+		/*{"os_execute", NO_USE},
+		{"os_exit", NO_USE},
+		{"os_getenv", NO_USE},
+		{"os_remove", NO_USE},
+		{"os_rename", NO_USE},
+		{"os_setlocale", NO_USE},
+		{"os_tmpname", NO_USE},
+		{"ll_loadlib", NO_USE},
+		
+		{"system", NO_USE},*/
+				
+		/*{"io_open", NO_USE},
+		{"io_popen", NO_USE},
+		{"io_close", NO_USE},
+		{"f_read", NO_USE},
+		{"f_write", NO_USE},*/
 	};//map mgsvtpp_adresses_1_0_15_4_jp
 }//namespace IHHook
