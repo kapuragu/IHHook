@@ -1,15 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ModEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="IHHook" Version="r24" Author="TinManTex" Website="https://www.nexusmods.com/metalgearsolidvtpp/mods/1226/">
-  <MGSVersion Version="1.0.15.4" />
-  <SBVersion Version="0.0.0.0" />
-  <Description># IHHook
-Version r24 - 2026-08-07 (see github for full changes)
+# IHHook
+Version r24 - 2026-08-06 (see github for full changes)
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
-Compatibility with alicealys's tpp-mod.
+Compatibility with tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
 Cleaned up my (rlc) additions.
 Renamed internal functions to match real names.
-Added dxvk compatibility fix by choomraider.
 
 Version r23 - 2026-08-04
 version_info.txt version bump
@@ -53,7 +48,7 @@ https://aka.ms/vs/17/release/VC_redist.x64.exe
 ### Development
 MSVS v141 - VS 2017 C++ x64/x86 build tools (v14.16)  
 Windows 10 SDK (10.0.17763.0)  
-(Install via Visual Studio Installer &gt; Individual Components)  
+(Install via Visual Studio Installer > Individual Components)  
 
 ## IHHook features
 See this youtube playlist for features that are visually demonstratable  
@@ -75,7 +70,7 @@ Has it's own seperate log for debug/info output.
 
 
 Named Pipe server: Starts up a threaded Named Pipe server with two pipes mgsv_in, mgsv_out.  
-Currently used by Infinite Heaven to improve performance when using IHExt and should open further posibilities I was reluctant to persue due to old text file based IH&gt;IHExt communication.  
+Currently used by Infinite Heaven to improve performance when using IHExt and should open further posibilities I was reluctant to persue due to old text file based IH>IHExt communication.  
 
 
 CityHash logging (currently has to be compiled in with a #define) using emooses cityhash logging (though using spdlog for better performance) that IHHook was initially built off.  
@@ -91,9 +86,4 @@ zip for making me smooth out the release process, sorry about taking so long.
 sai for mentioning what he had done with ghidra which helped me get past a few hurdles to start finding MGSVs lua functions.  
 emoose for CityHook which provided a base to start IHHook from.
 Half Way Lambda for imgui contributions in r18
-Yazed0071 for the addresses in 1.0.15.4</Description>
-  <QarEntries />
-  <FpkEntries />
-  <FileEntries />
-  <WmvEntries />
-</ModEntry>
+Yazed0071 for the addresses in 1.0.15.4

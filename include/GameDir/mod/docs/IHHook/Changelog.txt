@@ -1,9 +1,9 @@
 IHHook changelog 
 - just broad sweep changes, otherwise just look at the github commits.
 
-Version r24 - 2026-08-07 (see github for full changes)
+Version r24 - 2026-08-06 (see github for full changes)
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
-Compatibility with alicealys's tpp-mod.
+Compatibility with tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
 Cleaned up my (rlc) additions.
 Renamed internal functions to match real names.

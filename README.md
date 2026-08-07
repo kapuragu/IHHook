@@ -1,5 +1,13 @@
 # IHHook
-Version r23 - 2026-08-04 (see github for full changes)
+Version r24 - 2026-08-07 (see github for full changes)
+Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
+Compatibility with alicealys's tpp-mod.
+Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
+Cleaned up my (rlc) additions.
+Renamed internal functions to match real names.
+Added dxvk compatibility fix by choomraider.
+
+Version r23 - 2026-08-04
 version_info.txt version bump
 JP 15.4 Walker Gear address fix by suke0930
 
