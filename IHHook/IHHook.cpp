@@ -363,6 +363,7 @@ namespace IHHook {
 	}//SetupLog
 
 	void IHH::CreateD3DHook() {
+		d3d11Hook.reset();
 		d3d11Hook = std::make_unique<D3D11Hook>();
 		d3d11Hook->on_present([this](D3D11Hook& hook) { OnFrame(); });
 		d3d11Hook->on_resize_buffers([this](D3D11Hook& hook) { OnReset(); });

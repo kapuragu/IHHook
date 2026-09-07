@@ -1,105 +1,90 @@
-//D3D11Hook.cpp - from RE2Framework
-//Hooks by creating a dummy device and swapchain to get the addresses of present and resizebuffers from the swapchains dummy swapchain's virtual method table
+// D3D11Hook.cpp - from RE2Framework
+// Hooks by creating a dummy device and swapchain to get the addresses of present and resizebuffers from the swapchains dummy swapchain's virtual method table
 #include <algorithm>
 #include <spdlog/spdlog.h>
 
 #include "D3D11Hook.hpp"
+#include "Hooking.Patterns/Hooking.Patterns.h"
 
 using namespace std;
 
 static D3D11Hook* g_d3d11_hook = nullptr;
 
-D3D11Hook::~D3D11Hook() {
-    unhook();
-}
+D3D11Hook::~D3D11Hook() { unhook(); }
 
-bool D3D11Hook::hook() {
+bool D3D11Hook::hook()
+{
     spdlog::info("Hooking D3D11");
 
     g_d3d11_hook = this;
 
-    // GetDesktopWindow() was used here originally, matching the stock
-    // RE2Framework technique. That works against real D3D11
-    // process does not own. It does not work against DXVK: DXVK's
-    // Vulkan-backed swapchain creation returns VK_ERROR_INITIALIZATION_FAILED
-    // when asked to build a surface/swapchain against a window it doesn't control 
-    HWND h_wnd = CreateWindowExW(0, L"STATIC", L"", 0, 0, 0, 1, 1, HWND_MESSAGE, nullptr, GetModuleHandleW(nullptr), nullptr);
-    if (h_wnd == nullptr) {
-        spdlog::error("Failed to create dummy window for D3D11 hook. GetLastError={0:x}", GetLastError());
-        return false;
-    }
+    ID3D11Device* pDevice = hook::get_address<ID3D11Device*>(hook::get_pattern<uint8_t>("85 C0 0F 88 CB 00 00 00 48 8B", 0xA)); // static ptr to the games D3D11 device
 
-    IDXGISwapChain* swap_chain = nullptr;
-    ID3D11Device* device = nullptr;
-    D3D_FEATURE_LEVEL device_max_feature_level = D3D_FEATURE_LEVEL_9_1;
-    ID3D11DeviceContext* context = nullptr;
+    uint8_t* present_fn = hook::get_address<uint8_t*>(hook::get_pattern<uint8_t>("E8 ? ? ? ? 85 C0 75 12 38 43 69", 1)); // games own wrapper around IDXGISwapChain::Present
 
-    D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-    DXGI_SWAP_CHAIN_DESC swap_chain_desc;
+    uint8_t* resize_buffers_fn = hook::get_address<uint8_t*>(hook::get_pattern<uint8_t>("BA 03 00 00 00 48 8B 4F 20",0xA)); // games own wrapper around IDXGISwapChain::ResizeBuffers
 
-    ZeroMemory(&swap_chain_desc, sizeof(swap_chain_desc));
+    m_device = pDevice;
 
-    swap_chain_desc.BufferCount = 1;
-    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swap_chain_desc.OutputWindow = h_wnd;
-    swap_chain_desc.SampleDesc.Count = 1;
-    swap_chain_desc.Windowed = TRUE;
-    swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-    spdlog::info("Creating dummy D3D11 device.");
-    HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, &feature_level, 1, D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, &device, &device_max_feature_level, &context);
-    if (FAILED(hr)) {  
-        spdlog::error("Failed to create dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
-        DestroyWindow(h_wnd);
-        return false;
-    }
-    spdlog::info("Created dummy D3D11 device. HRESULT={0:x} max_feature={1:x}", hr, device_max_feature_level);
-
-    auto present_fn = (*(uintptr_t**)swap_chain)[8];
-    auto resize_buffers_fn = (*(uintptr_t**)swap_chain)[13];
     m_present_hook = std::make_unique<FunctionHook>(present_fn, (uintptr_t)&D3D11Hook::present);
     m_resize_buffers_hook = std::make_unique<FunctionHook>(resize_buffers_fn, (uintptr_t)&D3D11Hook::resize_buffers);
 
-    device->Release();
-    context->Release();
-    swap_chain->Release();
-    DestroyWindow(h_wnd);
-    spdlog::info("Released dummy D3D11 device");
 
     m_hooked = m_present_hook->create() && m_resize_buffers_hook->create();
 
     return m_hooked;
 }
 
-bool D3D11Hook::unhook() {
-    return true;
+bool D3D11Hook::unhook()
+{
+    if (!m_hooked)
+    {
+        return true;
+    }
+
+    spdlog::info("Unhooking D3D11");
+
+    if (m_present_hook->remove() && m_resize_buffers_hook->remove())
+    {
+        m_hooked = false;
+        return true;
+    }
+
+    return false;
 }
 
-HRESULT WINAPI D3D11Hook::present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags) {
+HRESULT WINAPI D3D11Hook::present(__int64 a1, __int64 SyncInterval)
+{
     auto d3d11 = g_d3d11_hook;
 
+    // a1 is some struct or class that contains a pointer to the swapchain at offset 0x18, so we can get the swapchain from it
+
+    IDXGISwapChain* swap_chain = reinterpret_cast<IDXGISwapChain*>(*reinterpret_cast<uintptr_t*>(a1 + 0x18));
+
     d3d11->m_swap_chain = swap_chain;
+
     swap_chain->GetDevice(__uuidof(d3d11->m_device), (void**)&d3d11->m_device);
 
-    if (d3d11->m_on_present) {
+    if (d3d11->m_on_present)
+    {
         d3d11->m_on_present(*d3d11);
     }
 
     auto present_fn = d3d11->m_present_hook->get_original<decltype(D3D11Hook::present)>();
 
-    return present_fn(swap_chain, sync_interval, flags);
+    return present_fn(a1, SyncInterval);
 }
 
-HRESULT WINAPI D3D11Hook::resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags) {
+HRESULT WINAPI D3D11Hook::resize_buffers(__int64 a1, unsigned int buffer_count, unsigned int width, unsigned int height, int new_format, int swap_chain_flags)
+{
     auto d3d11 = g_d3d11_hook;
 
-    if (d3d11->m_on_resize_buffers) {
+    if (d3d11->m_on_resize_buffers)
+    {
         d3d11->m_on_resize_buffers(*d3d11);
     }
 
     auto resize_buffers_fn = d3d11->m_resize_buffers_hook->get_original<decltype(D3D11Hook::resize_buffers)>();
 
-    return resize_buffers_fn(swap_chain, buffer_count, width, height, new_format, swap_chain_flags);
+    return resize_buffers_fn(a1, buffer_count, width, height, new_format, swap_chain_flags);
 }
