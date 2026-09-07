@@ -1,15 +1,17 @@
-//D3D11Hook.hpp - from RE2Framework
+// D3D11Hook.hpp - from RE2Framework
 #pragma once
 
 #include <functional>
 
 #include <d3d11.h>
 #include <dxgi.h>
+#include <memory>
 
 #include "utility/FunctionHook.hpp"
 
-class D3D11Hook {
-public:
+class D3D11Hook
+{
+  public:
     typedef std::function<void(D3D11Hook&)> OnPresentFn;
     typedef std::function<void(D3D11Hook&)> OnResizeBuffersFn;
 
@@ -25,16 +27,16 @@ public:
     ID3D11Device* get_device() { return m_device; }
     IDXGISwapChain* get_swap_chain() { return m_swap_chain; }
 
-protected:
-    ID3D11Device* m_device{ nullptr };
-    IDXGISwapChain* m_swap_chain{ nullptr };
-    bool m_hooked{ false };
+  protected:
+    ID3D11Device* m_device{nullptr};
+    IDXGISwapChain* m_swap_chain{nullptr};
+    bool m_hooked{false};
 
     std::unique_ptr<FunctionHook> m_present_hook{};
     std::unique_ptr<FunctionHook> m_resize_buffers_hook{};
-    OnPresentFn m_on_present{ nullptr };
-    OnResizeBuffersFn m_on_resize_buffers{ nullptr };
+    OnPresentFn m_on_present{nullptr};
+    OnResizeBuffersFn m_on_resize_buffers{nullptr};
 
-    static HRESULT WINAPI present(IDXGISwapChain* swap_chain, UINT sync_interval, UINT flags);
-    static HRESULT WINAPI resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags);
+    static HRESULT WINAPI present(__int64 a1, __int64 SyncInterval);
+    static HRESULT WINAPI resize_buffers(__int64 a1, unsigned int buffer_count, unsigned int width, unsigned int height, int new_format, int swap_chain_flags);
 };
