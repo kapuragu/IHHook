@@ -6,10 +6,10 @@
 // NO_USE - something we dont really want to use for whatever reason
 // USING_CODE - using the default lapi code implementation instead of hooking
 
-#include <map>
+#include <unordered_map>
 
 namespace IHHook {
-	std::map<std::string, int64_t> mgsvtpp_adresses_1_0_15_3_jp{
+	std::unordered_map<std::string, uint64_t> mgsvtpp_adresses_1_0_15_3_jp{
 		//{"BlockHeapAlloc", NO_USE},
 		//{"BlockHeapFree", NO_USE},
 		{"FoxBlockProcess", 0x14006e0a0},//double fox::Block::Process(BlockMemory *blockMemory,undefined8 param_2,longlong *param_3)

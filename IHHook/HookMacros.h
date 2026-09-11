@@ -3,13 +3,14 @@
 #include "MinHook.h"
 #include "MemoryUtils.h"
 #include <map>
+#include <unordered_map>
 
 #include "Hooking.Patterns/Hooking.Patterns.h"//DEBUGNOW
 
 #include "spdlog/spdlog.h"
 
 namespace IHHook {
-	extern std::map<std::string, int64_t> addressSet;
+	extern std::unordered_map<std::string, uint64_t> addressSet;
 }
 
 //DEBUGNOW put this somewhere or CULL

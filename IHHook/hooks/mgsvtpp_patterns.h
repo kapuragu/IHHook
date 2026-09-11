@@ -5,7 +5,7 @@
 // NO_USE - something we dont really want to use for whatever reason
 // USING_CODE - using the default lapi code implementation instead of hooking
 namespace IHHook {
-	std::map<std::string, std::string> mgsvtpp_patterns{
+	std::unordered_map<std::string, std::string> mgsvtpp_patterns{
 			
 		{"FoxBlockProcess", "48 8b c4 4c 89 40 18 55 56 57 41 54 41 55 41 56 41 57 48 8d 68 98 48 81 ec 30 01 00 00"},
 		
