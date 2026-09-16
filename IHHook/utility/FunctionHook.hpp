@@ -40,3 +40,5 @@ private:
     uintptr_t m_destination{ 0 };
     uintptr_t m_original{ 0 };
 };
+
+extern bool g_isMinHookInitialized;
