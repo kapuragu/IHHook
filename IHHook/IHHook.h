@@ -51,6 +51,7 @@ return this
 #include <spdlog/spdlog.h>
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
+#include "IHMenu.h"
 
 namespace IHHook {
 	struct Config {
@@ -179,6 +180,8 @@ namespace IHHook {
 		std::unique_ptr<D3D11Hook> d3d11Hook{};
 		std::unique_ptr<WindowsMessageHook> windowsMessageHook;
 		std::shared_ptr<spdlog::logger> log;
+
+		ImGuiContext* p_imguiContext{ nullptr };
 
 		std::string errorString{ "" };
 

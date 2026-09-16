@@ -14,9 +14,6 @@ namespace IHHook {
 
 		typedef unsigned __int64(__fastcall* cityHash_func)(char* str, unsigned int len);
 
-		uint8_t* CityHash1Addr = hook::get_address<uint8_t*>(hook::get_pattern("49 8B D8 F6 C1 07", 9));
-		uint8_t* CityHash2Addr = hook::get_address<uint8_t*>(hook::get_pattern("F6 C1 07 74 07", 0xD));
-
 		cityHash_func origCityHash1;
 		cityHash_func origCityHash2;
 
@@ -157,6 +154,9 @@ namespace IHHook {
 				spdlog::debug("!enableCityHook, returning");
 				return;
 			}
+
+				uint8_t* CityHash1Addr = hook::get_address<uint8_t*>(hook::get_pattern("49 8B D8 F6 C1 07", 9));
+				uint8_t* CityHash2Addr = hook::get_address<uint8_t*>(hook::get_pattern("F6 C1 07 74 07", 0xD));
 
 			if (*CityHash2Addr == 0xE9)
 			{
