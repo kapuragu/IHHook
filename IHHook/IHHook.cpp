@@ -48,8 +48,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 std::unique_ptr<IHHook::IHH> g_ihhook{};
 
-
-
 namespace IHHook {
 	//mgsvtpp_funcptr_set.cpp
 	extern void SetFuncPtrs();
@@ -208,49 +206,56 @@ namespace IHHook {
 			}
 		}
 
-		auto* base = reinterpret_cast<uint8_t*>(thisModule);
-		const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
-		const auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
+       auto* base = reinterpret_cast<uint8_t*>(thisModule);
+       const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+       const auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
 
-		// we will use SizeOfInitializedData as SizeOfImage can change with anyting like modifying resource headers
-		// or adding new sections SizeOfInitializedData is more reliable and is hard to modify
-		const auto sz = nt->OptionalHeader.SizeOfInitializedData;
 
-		switch (sz)
-		{
-		case 0x019E200:
-			addressSet = mgsvtpp_adresses_1_0_15_4_en;
-			isTargetExe = true;
-			log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN)");
-			break;
-		case 0x019E000: //not sure about this one, someone with jp exe needs to verify
-			addressSet = mgsvtpp_adresses_1_0_15_4_jp;
-			isTargetExe = true;
-			log->info("dectected mgsvtpp.exe version 1.0.15.4 (JP)");
-			break;
-		case 0x0002B400:
-			addressSet = mgsvtpp_adresses_1_0_15_3_en;
-			isTargetExe = true;
-			log->info("dectected mgsvtpp.exe version 1.0.15.3 (EN)");
-			break;
-		case 0x0002B200:
-			addressSet = mgsvtpp_adresses_1_0_15_3_jp;
-			isTargetExe = true;
-			log->info("dectected mgsvtpp.exe version 1.0.15.3 (JP)");
-			break;
-		default:
-			isTargetExe = false;
-			errorMessages.push_back("ERROR: executable version mismatch");
-			errorMessages.push_back("Infinite Heaven will continue to load");
-			errorMessages.push_back("but it may not work correctly or it might crash the game");
-			errorMessages.push_back("including this menu not working in-game.");
-			for (const auto& message : errorMessages) 
-			{
-				log->error(message);
-			}
-			SetCursor(true);
-			break;
-		}
+       const auto sz = nt->OptionalHeader.SizeOfImage;
+
+       switch (sz)
+       {
+       case 0xA01D000u:
+           addressSet = mgsvtpp_adresses_1_0_15_4_en;
+           isTargetExe = true;
+           log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN)");
+           break;
+       case 0xA01E000u:
+           addressSet = mgsvtpp_adresses_1_0_15_4_en;
+           isTargetExe = true;
+           log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN) pirated");
+           errorMessages.push_back("Warning: pirated version dectected");
+           errorMessages.push_back("Infinite Heaven is not supported on pirated versions");
+           errorMessages.push_back("it may not work correctly or it might crash the game");
+           break;
+       case 0xA080000u:
+           addressSet = mgsvtpp_adresses_1_0_15_4_jp;
+           isTargetExe = true;
+           log->info("dectected mgsvtpp.exe version 1.0.15.4 (JP)");
+           break;
+       case 0xDB7B000u:
+           addressSet = mgsvtpp_adresses_1_0_15_3_en;
+           isTargetExe = true;
+           log->info("dectected mgsvtpp.exe version 1.0.15.3 (EN)");
+           break;
+       case 0xE15C000u:
+           addressSet = mgsvtpp_adresses_1_0_15_3_jp;
+           isTargetExe = true;
+           log->info("dectected mgsvtpp.exe version 1.0.15.3 (JP)");
+           break;
+       default:
+           isTargetExe = false;
+           errorMessages.push_back("ERROR: executable version mismatch");
+           errorMessages.push_back("Infinite Heaven will continue to load");
+           errorMessages.push_back("but it may not work correctly or it might crash the game");
+           errorMessages.push_back("including this menu not working in-game.");
+           for (const auto& message : errorMessages)
+           {
+               log->error(message);
+           }
+           SetCursor(true);
+           break;
+       }
 
 		bool doHooks = isTargetExe;
 
@@ -263,6 +268,8 @@ namespace IHHook {
 			Hooks_Lua::SetupLog();
 
 			MH_Initialize();
+
+			g_isMinHookInitialized = true;
 
 			auto tstart = std::chrono::high_resolution_clock::now();
 
@@ -299,8 +306,6 @@ namespace IHHook {
 		log->info("mod uninitialized IHHook unloaded");
 		spdlog::shutdown();
 	}//~IHH
-
-
 
 	void IHH::Initialize() {
 		CreateD3DHook();
@@ -379,7 +384,7 @@ namespace IHHook {
 	//GOTCHA: this is blocking to actual d3d Present, so keep performance in mind
 	void IHH::OnFrame() {
 		//spdlog::trace("OnFrame");
-		auto frameTimeStart = std::chrono::high_resolution_clock::now();
+		//auto frameTimeStart = std::chrono::high_resolution_clock::now();
 
 		//GOTCHA: frameInitialized is reset in OnReset, so if you want something to run only once a session use firstFrame in FramInisialize instead
 		if (!frameInitialized) {
@@ -421,8 +426,8 @@ namespace IHHook {
 
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		auto frameTimeEnd = std::chrono::high_resolution_clock::now();
-		auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(frameTimeEnd - frameTimeStart).count();
+		//auto frameTimeEnd = std::chrono::high_resolution_clock::now();
+		//auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(frameTimeEnd - frameTimeStart).count();
 		//spdlog::trace("frame time microseconds: {}", frameDuration);//DEBUGNOW
 	}//OnFrame
 
@@ -556,30 +561,6 @@ namespace IHHook {
 			IHMenu::AddMenuCommands();
 
 			InitCursorHook();
-
-			//spdlog::info("Starting game data initialization thread");
-
-			//// Game specific initialization stuff
-			//std::thread init_thread([this]() {
-			//	m_types = std::make_unique<RETypes>();
-			//	m_globals = std::make_unique<REGlobals>();
-			//	m_mods = std::make_unique<Mods>();
-
-			//	auto e = m_mods->on_initialize();
-
-			//	if (e) {
-			//		if (e->empty()) {
-			//			m_error = "An unknown error has occurred.";
-			//		}
-			//		else {
-			//			m_error = *e;
-			//		}
-			//	}
-
-			//	m_game_data_initialized = true;
-			//});
-
-			//init_thread.detach();
 
 			InitStyleEditor();//StyleEditor
 
