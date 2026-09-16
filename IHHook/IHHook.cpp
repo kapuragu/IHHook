@@ -142,7 +142,7 @@ namespace IHHook {
 	//see Initialize for stuff after
 
 	IHH::IHH()
-		: thisModule{ GetModuleHandle(0) } {
+		: thisModule{ *reinterpret_cast<HMODULE*>(__readgsqword(0x60) + 0x10) } {
 
 		signal(SIGABRT, &AbortHandler);//tex signal handler for SIGABRT which is thrown by abort()
 		terminate_Original = set_terminate(TerminateHandler);
@@ -213,35 +213,35 @@ namespace IHHook {
 
        const auto sz = nt->OptionalHeader.SizeOfImage;
 
-       switch (sz)
+	   switch (sz)
        {
        case 0xA01D000u:
            addressSet = mgsvtpp_adresses_1_0_15_4_en;
            isTargetExe = true;
-           log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN)");
+           log->info("detected mgsvtpp.exe version 1.0.15.4 (EN)");
            break;
        case 0xA01E000u:
            addressSet = mgsvtpp_adresses_1_0_15_4_en;
            isTargetExe = true;
-           log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN) pirated");
-           errorMessages.push_back("Warning: pirated version dectected");
+           log->info("detected mgsvtpp.exe version 1.0.15.4 (EN) pirated");
+           errorMessages.push_back("Warning: pirated version detected");
            errorMessages.push_back("Infinite Heaven is not supported on pirated versions");
            errorMessages.push_back("it may not work correctly or it might crash the game");
            break;
        case 0xA080000u:
            addressSet = mgsvtpp_adresses_1_0_15_4_jp;
            isTargetExe = true;
-           log->info("dectected mgsvtpp.exe version 1.0.15.4 (JP)");
+           log->info("detected mgsvtpp.exe version 1.0.15.4 (JP)");
            break;
        case 0xDB7B000u:
            addressSet = mgsvtpp_adresses_1_0_15_3_en;
            isTargetExe = true;
-           log->info("dectected mgsvtpp.exe version 1.0.15.3 (EN)");
+           log->info("detected mgsvtpp.exe version 1.0.15.3 (EN)");
            break;
        case 0xE15C000u:
            addressSet = mgsvtpp_adresses_1_0_15_3_jp;
            isTargetExe = true;
-           log->info("dectected mgsvtpp.exe version 1.0.15.3 (JP)");
+           log->info("detected mgsvtpp.exe version 1.0.15.3 (JP)");
            break;
        default:
            isTargetExe = false;
@@ -297,9 +297,14 @@ namespace IHHook {
 	}//IHH
 
 	IHH::~IHH() {
-		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
+        if (p_imguiContext != nullptr)
+        {
+            ImGui::SetCurrentContext(p_imguiContext);
+            ImGui_ImplDX11_Shutdown();
+            ImGui_ImplWin32_Shutdown();
+            ImGui::DestroyContext(p_imguiContext);
+            p_imguiContext = nullptr;
+        }
 		MH_DisableHook(MH_ALL_HOOKS);
 		MH_RemoveHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
@@ -383,8 +388,6 @@ namespace IHHook {
 	//D3D11Hook->present
 	//GOTCHA: this is blocking to actual d3d Present, so keep performance in mind
 	void IHH::OnFrame() {
-		//spdlog::trace("OnFrame");
-		//auto frameTimeStart = std::chrono::high_resolution_clock::now();
 
 		//GOTCHA: frameInitialized is reset in OnReset, so if you want something to run only once a session use firstFrame in FramInisialize instead
 		if (!frameInitialized) {
@@ -398,22 +401,13 @@ namespace IHHook {
 			return;//tex give it an extra frame to settle I guess?
 		}
 
+
+		ImGuiContext* previousContext = ImGui::GetCurrentContext();
+        ImGui::SetCurrentContext(p_imguiContext);
+
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-
-		//DEBUGNOW
-		//if (m_error.empty() && m_game_data_initialized) {
-		//	m_mods->on_frame();
-		//}
-
-
-		//DEBUGNOW test frame impact
-		//bool boop = false;
-		//for (int i = 0; i < 10000000; i++) {
-		//	boop = !boop;
-		//}
-
 
 		DrawUI();
 
@@ -426,9 +420,7 @@ namespace IHHook {
 
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		//auto frameTimeEnd = std::chrono::high_resolution_clock::now();
-		//auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(frameTimeEnd - frameTimeStart).count();
-		//spdlog::trace("frame time microseconds: {}", frameDuration);//DEBUGNOW
+		ImGui::SetCurrentContext(previousContext);
 	}//OnFrame
 
 	//D3D11Hook
@@ -462,13 +454,20 @@ namespace IHHook {
 
 		bool handledMessage = !RawInput::OnMessage(wnd, message, w_param, l_param);
 
-		if (drawUI && ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) {
-			//RE2FW: If the user is interacting with the UI we block the message from going to the game.
+		if (drawUI) {
+
+			ImGuiContext* previousContext = ImGui::GetCurrentContext();
+            ImGui::SetCurrentContext(p_imguiContext);
+
+			if(ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0) {
 			auto& io = ImGui::GetIO();
 
 			if (io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantTextInput) {
 				handledMessage = true;
+				}
 			}
+
+			ImGui::SetCurrentContext(previousContext);
 		}
 
 		if (handledMessage) {
@@ -525,7 +524,9 @@ namespace IHHook {
 			log->info("Initializing ImGui");
 
 			IMGUI_CHECKVERSION();
-			ImGui::CreateContext();
+			p_imguiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(p_imguiContext);
+			
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
