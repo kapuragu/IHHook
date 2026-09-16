@@ -4,6 +4,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "IHHook.h"//BaseAddr,enableCityHook
 #include "MinHook/MinHook.h"
+#include "Hooking.Patterns/Hooking.Patterns.h"
 
 
 namespace IHHook {
@@ -13,8 +14,9 @@ namespace IHHook {
 
 		typedef unsigned __int64(__fastcall* cityHash_func)(char* str, unsigned int len);
 
-		const size_t CityHash1BaseAddr = 0x141a08ee0; //<//1.0.15.3 //1.0.15.2> 0x141a08ec0;
-		const size_t CityHash2BaseAddr = 0x14c1bc140;//<//1.0.15.3 //1.0.15.2> 0x14bcbdfa0;
+		uint8_t* CityHash1Addr = hook::get_address<uint8_t*>(hook::get_pattern("49 8B D8 F6 C1 07", 9));
+		uint8_t* CityHash2Addr = hook::get_address<uint8_t*>(hook::get_pattern("F6 C1 07 74 07", 0xD));
+
 		cityHash_func origCityHash1;
 		cityHash_func origCityHash2;
 
@@ -156,6 +158,11 @@ namespace IHHook {
 				return;
 			}
 
+			if (*CityHash2Addr == 0xE9)
+			{
+				CityHash2Addr = hook::get_address<uint8_t*>(CityHash2Addr + 0x1);
+			}
+
 			cityLog = spdlog::basic_logger_st("cityhash", cityLogName);
 			// NMC: default thread pool settings can be modified *before* creating the async logger:
 			// spdlog::init_thread_pool(8192, 1); // queue with 8k items and 1 backing thread.
@@ -166,18 +173,15 @@ namespace IHHook {
 			//logger = spdlog::basic_logger_mt<spdlog::async_factory>("cityhash", logName);
 			cityLog->set_pattern("%v");//tex raw logging
 
-			if (isTargetExe) {//DEBUGNOW
-				// CityHash1BaseAddr / CityHash2BaseAddr addresses are from IDA, which uses the ImageBase field in the exe as the base address (usually 0x140000000)
-				// the real base address changes every time the game is run though, so we have to remove that base address and add the real one
-				void* CityHash1_rebased = (void*)((CityHash1BaseAddr - BaseAddr) + RealBaseAddr);
-				void* CityHash2_rebased = (void*)((CityHash2BaseAddr - BaseAddr) + RealBaseAddr);
+			if (isTargetExe) {
 
-				MH_CreateHook(CityHash1_rebased, CityHash1Hook, (LPVOID*)&origCityHash1);
-				MH_CreateHook(CityHash2_rebased, CityHash2Hook, (LPVOID*)&origCityHash2);
+
+				MH_CreateHook(CityHash1Addr, CityHash1Hook, (LPVOID*)&origCityHash1);
+				MH_CreateHook(CityHash2Addr, CityHash2Hook, (LPVOID*)&origCityHash2);
 
 				if (config.enableCityHook) {
-					MH_EnableHook(CityHash1_rebased);
-					MH_EnableHook(CityHash2_rebased);
+					MH_EnableHook(CityHash1Addr);
+					MH_EnableHook(CityHash2Addr);
 				}
 			}
 		}//CreateHooks

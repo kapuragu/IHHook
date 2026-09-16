@@ -230,23 +230,42 @@ namespace IHHook {
 			buttonActions[vKey]->push_back(action);
 		}//RegisterAction
 
-		void UnRegisterAction(USHORT vKey) {
-			if (buttonActions[vKey] == nullptr) {
-				spdlog::warn("RawInput UnRegisterAction: No actions for vKey {}", vKey);
-				return;
-			}
-			else { // HWL TODO: haven't checked if this works properly
-				delete buttonActions[vKey];
-				buttonActions[vKey] = nullptr;
-			}
+        void UnRegisterAction(USHORT vKey, ButtonAction buttonAction)
+        {
+            if (buttonActions[vKey] == NULL)
+            {
+                spdlog::warn("RawInput UnRegisterAction: No actions for vKey {}", vKey);
+                return;
+            }
 
-			//for vkey actions
-			//remove action
+            // Find and remove the action from the list
+            auto& actionList = *buttonActions[vKey];
+            auto it = std::find(actionList.begin(), actionList.end(), buttonAction);
+            if (it != actionList.end())
+            {
+                actionList.erase(it);
+                spdlog::info("RawInput UnRegisterAction: Action removed for vKey {}", vKey);
 
-			//if actions empty
-			//delete buttonActions[vKey]
-			//buttonActions[vKey] = NULL;
-		}//UnRegisterAction
+                // If the list is empty, clean up the memory
+                if (actionList.empty())
+                {
+                    delete buttonActions[vKey];
+                    buttonActions[vKey] = NULL;
+                    spdlog::info("RawInput UnRegisterAction: Deleted empty list for vKey {}", vKey);
+                }
+            }
+            else
+            {
+                spdlog::warn("RawInput UnRegisterAction: Action not found for vKey {}", vKey);
+            }
+
+            // for vkey actions
+            // remove action
+
+            // if actions empty
+            // delete buttonActions[vKey]
+            // buttonActions[vKey] = NULL;
+        } // UnRegisterAction
 
 		//DEBUG
 		void TestAction(BUTTONEVENT buttonEvent) {
@@ -411,6 +430,13 @@ namespace IHHook {
 			//block[VK_LBUTTON] = true;
 			//block[VK_SPACE] = true;
 		}//InitializeInput
+
+		void UninitializeInput()
+        {
+            UnRegisterAction(VK_F2, ToggleCursor); // DEBUGNOW
+            UnRegisterAction(VK_F3, ToggleMenu);   // DEBUGNOW
+            UnRegisterAction(VK_ESCAPE, MenuOff);  // DEBUGNOW
+        }
 
 		//CULL not needed, the game will have set up it's own
 		//Could use it to allow funky controllers though

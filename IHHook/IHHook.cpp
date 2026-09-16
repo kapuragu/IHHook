@@ -62,10 +62,9 @@ namespace IHHook {
 
 	std::vector<std::string> errorMessages{};
 
-	size_t RealBaseAddr;
 	bool isTargetExe = false;
-	std::map<std::string, int64_t> addressSet{};
-	std::map<std::string, char*> patterns{};
+	std::unordered_map<std::string, uint64_t> addressSet{};
+	std::unordered_map<std::string, char*> patterns{};
 
 	terminate_function terminate_Original;
 
@@ -137,15 +136,15 @@ namespace IHHook {
 	void Shutdown() {
 		spdlog::debug("IHHook DLL_PROCESS_DETACH");
 		doShutDown = true;
+		RawInput::UninitializeInput();
 		PipeServer::ShutDownPipeServer();
-		spdlog::shutdown();
 	}//Shutdown
 
 	//GOTCHA: only set up stuff that can be done in this point of fox engine execution (when it's loading this dinput8.dll proxy)
 	//see Initialize for stuff after
+
 	IHH::IHH()
 		: thisModule{ GetModuleHandle(0) } {
-		RealBaseAddr = (size_t)GetModuleHandle(NULL);
 
 		signal(SIGABRT, &AbortHandler);//tex signal handler for SIGABRT which is thrown by abort()
 		terminate_Original = set_terminate(TerminateHandler);
@@ -183,19 +182,18 @@ namespace IHHook {
 		SetupLog();
 
 		//tex DEBUGNOW mgo is a seperate exe in the same dir, so bail out on exe name
-		HMODULE hExe = GetModuleHandle(NULL);
 		WCHAR fullPath[MAX_PATH]{ 0 };
-		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
+		GetModuleFileNameW(thisModule, fullPath, MAX_PATH);
 		std::filesystem::path path(fullPath);
 		std::wstring exeName = path.filename().c_str();
 		if (exeName.find(L"mgo")!= std::wstring::npos) {
-			spdlog::warn("IHHook is not for mgo");
+			log->warn("IHHook is not for mgo");
 			return;
 		}
 		//
 
-		spdlog::debug(L"Original CurrentDir: {}", currentDir.c_str());
-		spdlog::debug(L"gameDir: {}", gameDir);
+		log->debug(L"Original CurrentDir: {}", currentDir.c_str());
+		log->debug(L"gameDir: {}", gameDir);
 
 #ifdef _DEBUG
 		std::vector<std::string> modFileNames = OS::GetFileNames("./mod");
@@ -205,68 +203,57 @@ namespace IHHook {
 		if (!std::filesystem::exists("./mod/modules")) {//tex GOTCHA: since this continues ih_log will be created thus ./mod will actually exist. so check modules instead
 			errorMessages.push_back("ERROR: IH mod folder not found.");
 
-			for each (std::string message in errorMessages) {
-				spdlog::error(message);
+			for (const auto& message : errorMessages) {
+				log->error(message);
 			}
 		}
 
-		RealBaseAddr = (size_t)GetModuleHandle(NULL);
+		auto* base = reinterpret_cast<uint8_t*>(thisModule);
+		const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+		const auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
 
+		// we will use SizeOfInitializedData as SizeOfImage can change with anyting like modifying resource headers
+		// or adding new sections SizeOfInitializedData is more reliable and is hard to modify
+		const auto sz = nt->OptionalHeader.SizeOfInitializedData;
 
-		//tex Much of IHHooks hooks are based on direct addresses, so if the exe is different the user needs to know
-		//can just hope that konami actually keeps updating the exe version properly and not release multiple updates with no exe version change like they have in the past
-		//but version_info.txt should help there too
-
-		std::string gameVer = GetGameVersion();
-
-		std::string exeVersionStr = "";
-		int versionDelta = OS::CheckVersionDelta(IHHook::GameVersion, exeVersionStr);
-		if (gameVer=="" && versionDelta != 0) {
+		switch (sz)
+		{
+		case 0x019E200:
+			addressSet = mgsvtpp_adresses_1_0_15_4_en;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.4 (EN)");
+			break;
+		case 0x019E000: //not sure about this one, someone with jp exe needs to verify
+			addressSet = mgsvtpp_adresses_1_0_15_4_jp;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.4 (JP)");
+			break;
+		case 0x0002B400:
+			addressSet = mgsvtpp_adresses_1_0_15_3_en;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.3 (EN)");
+			break;
+		case 0x0002B200:
+			addressSet = mgsvtpp_adresses_1_0_15_3_jp;
+			isTargetExe = true;
+			log->info("dectected mgsvtpp.exe version 1.0.15.3 (JP)");
+			break;
+		default:
 			isTargetExe = false;
-
-			errorMessages.push_back("ERROR: IHHook->exe version mismatch");
+			errorMessages.push_back("ERROR: executable version mismatch");
 			errorMessages.push_back("Infinite Heaven will continue to load");
-			errorMessages.push_back("with some limitations.");
-			errorMessages.push_back("Including this menu not working in-game.");
-			if (versionDelta > 0) {
-				errorMessages.push_back("Please update MGSV.");
+			errorMessages.push_back("but it may not work correctly or it might crash the game");
+			errorMessages.push_back("including this menu not working in-game.");
+			for (const auto& message : errorMessages) 
+			{
+				log->error(message);
 			}
-			else if (versionDelta < 0) {
-				errorMessages.push_back("Please update Infinte Heaven.");
-			}
-			errorMessages.push_back("Click on the x to close this window.");
+			SetCursor(true);
+			break;
+		}
 
-			for each (std::string message in errorMessages) {
-				spdlog::error(message);
-			}
-			SetCursor(true);//tex DEBUGNOW imgui window currently wont auto dismiss, so give user cursor
-		} 
-		else {
-			if (gameVer.find("Tpp_steam_mst") == std::string::npos ) {
-				isTargetExe = false;
+		bool doHooks = isTargetExe;
 
-				errorMessages.push_back("WARNING: Unknown lang version");
-				errorMessages.push_back("Infinite Heaven will continue to load");
-				errorMessages.push_back("with some limitations.");
-				errorMessages.push_back("Including this menu not working in-game.");
-				errorMessages.push_back("Click on the x to close this window.");
-				errorMessages.push_back("Game version: `"+gameVer+"`");
-
-				for each (std::string message in errorMessages) {
-					spdlog::error(message);
-				}
-				SetCursor(true);//tex DEBUGNOW imgui window currently wont auto dismiss, so give user cursor
-			}
-			else {
-				//tex for using listed address vs sigscan (but not actually currently doing so, see doHooks comment)
-				isTargetExe = true;
-			}//
-		}// ChecKVersion
-
-		bool doHooks = isTargetExe;//tex not actually doing hooks if not target exe. in theory could fall back to signature scanning, however it takes a litteral minute for 100+ signatures to be found 
-		//plus if you did go that route you'd have to put it at an earlier blocking point (like off dllmain itself)
-		//since this function we're in is run by a thread so the exe will continue past the point we need our hooks up and running
-		//But heres a config option to test
 		if (config.forceUsePatterns) {
 			isTargetExe = false;//tex use sig scanning instead
 			doHooks = true;
@@ -277,24 +264,12 @@ namespace IHHook {
 
 			MH_Initialize();
 
-			//GAMEVERSION
-			//DEBUGNOW TODO: an adresset map too I guess
-			bool isJp = gameVer.find("mst_jp") != std::string::npos;
-			bool isDay1820 = gameVer.find("day1820") != std::string::npos;
-			// bool isDay3800 = gameVer.find("day3800") != std::string::npos;
-			// bool isDay3900 = gameVer.find("day3900") != std::string::npos;
-			if (isDay1820)
-				addressSet = isJp ? mgsvtpp_adresses_1_0_15_3_jp : mgsvtpp_adresses_1_0_15_3_en;
-			else
-				addressSet = isJp ? mgsvtpp_adresses_1_0_15_4_jp : mgsvtpp_adresses_1_0_15_4_en;
-			//if lang
-
 			auto tstart = std::chrono::high_resolution_clock::now();
 
 			bool foundAllAddresses = RebaseAddresses();
 
 			if (!foundAllAddresses) {
-				spdlog::warn("Could not find all addresses");
+				log->warn("Could not find all addresses");
 			}
 			else {
 				SetFuncPtrs();
@@ -305,24 +280,31 @@ namespace IHHook {
 
 			auto tend = std::chrono::high_resolution_clock::now();
 			auto durationShort = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-			spdlog::debug("IHHook::CreateHooks total time(microseconds): {}�s", durationShort);
+			log->debug("IHHook::CreateHooks total time(microseconds): {}μs", durationShort);
 		}//if doHooks
 
 		PipeServer::StartPipeServer();
 
-		spdlog::debug("IHH ctor complete");
+		log->debug("IHH ctor complete");
 		log->flush();
 	}//IHH
 
 	IHH::~IHH() {
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+		MH_DisableHook(MH_ALL_HOOKS);
+		MH_RemoveHook(MH_ALL_HOOKS);
 		MH_Uninitialize();
+		log->info("mod uninitialized IHHook unloaded");
+		spdlog::shutdown();
 	}//~IHH
 
-	//CALLER: thread spawned by dllmain
-	//GOTCHA: KLUDGE: see comment in dllmain
+
+
 	void IHH::Initialize() {
 		CreateD3DHook();
-	}//
+	}
 
 	//OUT/SIDE: log file, log file prev
 	//OUT/SIDE: log
@@ -352,14 +334,12 @@ namespace IHHook {
 			spdlog::flush_on(spdlog::level::err);
 		}
 
-		std::time_t currentTime = time(0);
-		std::tm now;
-		localtime_s(&now, &currentTime);
-		char datestr[100];
-		std::strftime(datestr, sizeof(datestr), "Started: %Y/%m/%d %H:%M:%S", &now);
-		spdlog::info(datestr);
-		log->flush();
-		spdlog::debug("Note: ihhook_log is multithreaded to accept logging from multiple threads so order of entries may not be sequential.");
+    SYSTEMTIME st = {};
+    GetLocalTime(&st);
+
+    log->info("Started: {:04}/{:02}/{:02} {:02}:{:02}:{:02}", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    log->debug("Note: ihhook_log is multithreaded to accept logging from multiple threads so order of entries may not be sequential.");
+    log->flush();
 	}//SetupLog
 
 	void IHH::CreateD3DHook() {
@@ -370,7 +350,7 @@ namespace IHHook {
 
 		d3dHooked = d3d11Hook->hook();
 		if (d3dHooked) {
-			spdlog::info("Hooked D3D11");
+			log->info("Hooked D3D11");
 		}
 		else {
 			if (std::filesystem::exists("d3d11.dll")) {
@@ -395,74 +375,6 @@ namespace IHHook {
 		}//d3dHooked
 	}//CreateD3DHook
 
-	std::string IHH::GetGameVersion() {
-		//rlc reworked to back compat support 1.0.15.3
-		//DEBUGNOW So jp voice version is actually different exe, so cant just rely on exe version info.
-		std::string versionInfoFileName = "version_info.txt";
-		HMODULE hExe = GetModuleHandle(NULL);
-		WCHAR fullPath[MAX_PATH]{ 0 };
-		GetModuleFileNameW(hExe, fullPath, MAX_PATH);
-		std::filesystem::path path(fullPath);
-		std::string exeName = path.filename().string();
-		std::string exeNameNoExt = exeName.substr(0, exeName.find_last_of("."));
-		std::ifstream infile(exeNameNoExt+"_"+versionInfoFileName);//rlc prioritize potential exe-specific ver
-		if (infile.fail()) {
-			infile = std::ifstream(versionInfoFileName);
-			if (infile.fail()) {//tex likely pirated game, or user has some wierd setup, cant know actual version
-				spdlog::warn("Could not load ", exeName+"_"+versionInfoFileName);
-				spdlog::warn("Cannot differentiate what language version the exe is, so game may crash when hooking if exe version matches but using different sku.");
-				//any point using errormessages since if this is an actual lang exe mismatch its going to crash before it gets to the ui
-				//DEBUGNOW think what to do.
-			}
-		}
-
-		//REF
-		//1.0.15.3:
-		//Tpp_steam_mst_en_day1820Mgo_patch_0212_1307
-		//Tpp_steam_mst_jp_day1820Mgo_patch_0212_1307
-		//1.0.15.4:
-		//Tpp_steam_mst_en_day3800Mgo_patch_0525_2221
-		//Tpp_steam_mst_jp_day3800Mgo_patch_0525_2221
-		//1.0.15.4a:
-		//Tpp_steam_mst_en_day3900Mgo_patch_0707_1632
-		//Tpp_steam_mst_jp_day3900Mgo_patch_0707_1632
-		std::string line;
-		std::string lang = "";
-		std::string gameVer = "";
-		while (std::getline(infile, line)) {
-			std::istringstream iss(line);
-			
-			gameVer = line.substr(0, 24);
-			spdlog::debug("Found gameVer: {}", gameVer);
-			if (gameVer.find("Tpp_steam_mst") != std::string::npos)
-				return gameVer;
-			
-
-			if (line.length() < std::string("Tpp_steam_mst_en").length()) {
-				spdlog::warn("Unexpected version string, string shorter than expected");
-				break;
-			}
-
-			std::string prefix = "Tpp_steam_mst_";
-			std::size_t found = line.find(prefix);
-			if (found == std::string::npos) {
-				spdlog::warn("Unexpected version string, could not find {}", prefix);
-				break;
-			}
-
-			lang = line.substr(prefix.length(), 2);//en,jp etc
-			spdlog::debug("Found lang: {}", lang);
-
-			if (lang != "en" && lang != "jp") {
-				spdlog::warn("Unexpected lang version");
-			}
-			else {
-				break;
-			}
-		}//while infile
-		return lang;
-	}//GetGameVersion
-
 	//D3D11Hook->present
 	//GOTCHA: this is blocking to actual d3d Present, so keep performance in mind
 	void IHH::OnFrame() {
@@ -472,11 +384,11 @@ namespace IHHook {
 		//GOTCHA: frameInitialized is reset in OnReset, so if you want something to run only once a session use firstFrame in FramInisialize instead
 		if (!frameInitialized) {
 			if (!FrameInitialize()) {
-				spdlog::error("Failed to frame initialize IHHook");
+				log->error("Failed to frame initialize IHHook");
 				return;
 			}
 
-			spdlog::info("IHHook frame initialized");
+			log->info("IHHook frame initialized");
 			frameInitialized = true;
 			return;//tex give it an extra frame to settle I guess?
 		}
@@ -502,7 +414,6 @@ namespace IHHook {
 
 		ImGui::EndFrame();
 		ImGui::Render();
-
 		ID3D11DeviceContext* context = nullptr;
 		d3d11Hook->get_device()->GetImmediateContext(&context);
 
@@ -517,7 +428,7 @@ namespace IHHook {
 
 	//D3D11Hook
 	void IHH::OnReset() {
-		spdlog::info("OnReset");
+		log->info("OnReset");
 		//DEBUGNOW
 		auto log = spdlog::get("ihhook");
 		if (log != NULL) {
@@ -529,7 +440,7 @@ namespace IHHook {
 		frameInitialized = false;
 
 		//DEBUGNOW
-		spdlog::info("OnReset done");
+		log->info("OnReset done");
 		if (log != NULL) {
 			log->flush();
 		}
@@ -572,14 +483,14 @@ namespace IHHook {
 			return true;
 		}
 
-		spdlog::info("Attempting to frame initialize");
+		log->info("Attempting to frame initialize");
 
 		auto device = d3d11Hook->get_device();
 		auto swapChain = d3d11Hook->get_swap_chain();
 
 		// Wait.
 		if (device == nullptr || swapChain == nullptr) {
-			spdlog::info("Device or SwapChain null. DirectX 12 may be in use. A crash may occur.");
+			log->info("Device or SwapChain null. DirectX 12 may be in use. A crash may occur.");
 			return false;
 		}
 
@@ -598,15 +509,15 @@ namespace IHHook {
 			return OnMessage(wnd, msg, wParam, lParam);
 		};
 
-		spdlog::info("Creating render target");
+		log->info("Creating render target");
 
 		CreateRenderTarget();
 
-		spdlog::info("Window Handle: {0:x}", (uintptr_t)hwnd);
+		log->info("Window Handle: {0:x}", (uintptr_t)hwnd);
 
 		if (!ImGuiInitialized)
 		{
-			spdlog::info("Initializing ImGui");
+			log->info("Initializing ImGui");
 
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
@@ -614,17 +525,17 @@ namespace IHHook {
 			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-			spdlog::info("Initializing ImGui Win32");
+			log->info("Initializing ImGui Win32");
 
 			if (!ImGui_ImplWin32_Init(hwnd)) {
-				spdlog::error("Failed to initialize ImGui.");
+				log->error("Failed to initialize ImGui.");
 				return false;
 			}
 
-			spdlog::info("Initializing ImGui D3D11");
+			log->info("Initializing ImGui D3D11");
 
 			if (!ImGui_ImplDX11_Init(device, context)) {
-				spdlog::error("Failed to initialize ImGui.");
+				log->error("Failed to initialize ImGui.");
 				return false;
 			}
 			ImGuiInitialized = true;
@@ -690,7 +601,7 @@ namespace IHHook {
 	}//CreateRenderTarget
 
 	void IHH::CleanupRenderTarget() {
-		spdlog::trace("CleanupRenderTarget");
+		log->trace("CleanupRenderTarget");
 		//DEBUGNOW
 		auto log = spdlog::get("ihhook");
 		if (log != NULL) {
@@ -870,14 +781,14 @@ namespace IHHook {
 		for (auto const& entry : addressSet) {
 			std::string name = entry.first;
 			if (isTargetExe) {
-				spdlog::info("isTargetExe, rebasing addr {}", name);
-				int64_t addr = entry.second;
-				int64_t rebasedAddr = (addr - BaseAddr) + RealBaseAddr;
+				log->info("isTargetExe, rebasing addr {}", name);
+				uint64_t addr = entry.second;
+				uint64_t rebasedAddr = (addr - BaseAddr) + (int64_t)thisModule;
 				addressSet[name] = rebasedAddr;
 			}
 			else {
 				//tex fall back to sig scan
-				spdlog::info("!isTargetExe, sig scanning");
+				log->info("!isTargetExe, sig scanning");
 				addressSet[name] = 0;
 				auto it = mgsvtpp_patterns.find(name);
 				if (it != mgsvtpp_patterns.end()) {
@@ -892,17 +803,17 @@ namespace IHHook {
 					auto tend = std::chrono::high_resolution_clock::now();
 					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
 					if (addr == NULL) {
-						spdlog::debug("sigscan not found {} in(microseconds): {}", name, duration);
+						log->debug("sigscan not found {} in(microseconds): {}", name, duration);
 						foundAllAddresses = false;
 					}
 					else {
-						spdlog::debug("sigscan found {} at 0x{:x} in(microseconds): {}", name, addr, duration);//DEBUGNOW dump addr
+						log->debug("sigscan found {} at 0x{:x} in(microseconds): {}", name, addr, duration);//DEBUGNOW dump addr
 					}
 
 					addressSet[name] = addr;
 				}
 				else {
-					spdlog::warn("Could not find sig for {}", name);
+					log->warn("Could not find sig for {}", name);
 				}
 			}//if isTargetExe
 		}//for addressSet

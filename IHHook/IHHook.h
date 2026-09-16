@@ -77,8 +77,7 @@ namespace IHHook {
 	static const std::wstring pipeInName = L"\\\\.\\pipe\\mgsv_in";
 	static const std::wstring pipeOutName = L"\\\\.\\pipe\\mgsv_out";
 
-	static const size_t BaseAddr = 0x140000000; // from ImageBase field in the EXE
-	extern size_t RealBaseAddr; // Current base address of the EXE
+	static constexpr const size_t BaseAddr = 0x140000000; // from ImageBase field in the EXE
 
 	extern bool isTargetExe;//DEBUGNOW try direct addresses, or sig matching
 

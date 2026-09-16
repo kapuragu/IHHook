@@ -26,5 +26,6 @@ namespace IHHook {
 		void UnBlockMouseClick();
 		void BlockKeyboard();
 		void UnBlockKeyboard();
+		void UninitializeInput();
 	}//namespace RawInput
 }//namespace IHHook
