@@ -490,13 +490,13 @@ namespace IHHook {
 	//DEBUGNOW
 	//style editor windows>
 	std::string stylesPath = "mod\\guiStyles\\";
-	std::string currentStyleFileName = stylesPath + "CurrentStyle.ini";
+	std::string currentStyle = "Default";//DEBUGNOW
+	std::string currentStyleFileName = stylesPath + currentStyle + ".lua";
 
 	int selectedSetting = -1;
 	std::vector<std::filesystem::path> fileList{};
 	char inputBuffer[1024] = "";//SaveBox
 	bool showSaveBox = false;
-	std::string currentStyle = "Default";//DEBUGNOW
 
 	int FindIndexForCurrentStyle() {
 		int index = -1;
