@@ -5,7 +5,7 @@
 #include "Hooks_FOV.h" //DEBUGNOW
 
 HMODULE g_thisModule;
-extern HMODULE origDll; // dinputproxy
+extern HMODULE g_origDll; // dinputproxy
 
 static void initialize()
 {
@@ -35,9 +35,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         IHHook::Shutdown();
         // DInputProxy
-        if (origDll)
+        if (g_origDll)
         {
-            FreeLibrary(origDll);
+            FreeLibrary(g_origDll);
         }
     }
 
