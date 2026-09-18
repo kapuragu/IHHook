@@ -379,6 +379,7 @@ copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\meta
     <ClInclude Include="OS.h" />
     <ClInclude Include="patch.h" />
     <ClInclude Include="PipeServer.h" />
+     <ClInclude Include="plugin_loader.hpp" />
     <ClInclude Include="RawInput.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SafeQueue.h" />
@@ -394,6 +395,7 @@ copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\meta
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
+    <ClCompile Include="plugin_loader.cpp" />
     <ClCompile Include="DInputProxy.cpp" />
     <ClCompile Include="Hooking.Patterns\Hooking.Patterns.cpp" />
     <ClCompile Include="hooks\mgsvtpp_funcptr_defs.cpp" />
