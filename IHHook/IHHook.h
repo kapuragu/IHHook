@@ -52,6 +52,7 @@ return this
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
 #include "IHMenu.h"
+#include "imgui/imgui.h"
 
 namespace IHHook {
 	struct Config {
@@ -63,6 +64,7 @@ namespace IHHook {
 		bool forceUsePatterns{ false };
 		bool logFoxStringCreateInPlace{ false }; //ZIP: Fox hooks
 		bool logTime{ false };//prefix |time| before log (used to be default) time is good for figuring out how long between steps, but makes it harder to compare similar logs. TODO: might be better to have a SetPattern lua call for more control?
+		bool enable_dll_loader {false };
 	};
 	extern struct Config config;
 	static const std::string hookConfigName = "ihhook_config.lua";
@@ -93,6 +95,8 @@ namespace IHHook {
 		virtual ~IHH();
 
 		void Initialize();
+
+		void Load_Dlls();
 
 		HMODULE GetModule() {
 			return thisModule;

@@ -180,10 +180,7 @@ namespace IHHook {
 				char* langId = "tpp_loc_afghan";
 				long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
 
-				std::stringstream stream;
-				stream << std::hex << tpp_loc_afghanS64;
-				std::string result(stream.str());
-				spdlog::debug("Str64 tpp_loc_afghan:0x{}", result);
+				spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", tpp_loc_afghanS64);
 
 				//0x1b094033d45d//tpp_loc_afghan
 					//{ 20,0x7114b69e71e7 },//mafr,tpp_loc_africa

@@ -1,14 +1,10 @@
 #pragma once
-#include "windowsapi.h"
-#include <filesystem>
-#include <fstream>
-#include <string>
-#include <vector>
-#include "spdlog/spdlog.h"
 
-namespace PluginLoader
+namespace IHHook
 {
-    void LoadPlugins();
-    void UnloadPlugins();
+    namespace Plugin_Loader
+    {
+        void LoadPlugins();
+        void UnloadPlugins();
+    }
 }
-

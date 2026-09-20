@@ -43,6 +43,8 @@
 #include "hooks/mgsvtpp_adresses_1_0_15_4_jp.h"
 #include "hooks/mgsvtpp_patterns.h"
 
+#include "plugin_loader.hpp"
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);//tex see note in imgui_impl_win32.h
 
@@ -54,7 +56,7 @@ namespace IHHook {
 	extern void CreateHooks();
 
 	struct Config config;
-	bool ParseConfig(std::string fileName);
+	bool ParseConfig(const std::string& fileName);
 
 	std::atomic<bool> doShutDown = false;
 
@@ -136,6 +138,9 @@ namespace IHHook {
 		doShutDown = true;
 		RawInput::UninitializeInput();
 		PipeServer::ShutDownPipeServer();
+		if (config.enable_dll_loader) {
+            Plugin_Loader::UnloadPlugins();
+        }
 	}//Shutdown
 
 	//GOTCHA: only set up stuff that can be done in this point of fox engine execution (when it's loading this dinput8.dll proxy)
@@ -413,14 +418,13 @@ namespace IHHook {
 
 		ImGui::EndFrame();
 		ImGui::Render();
-		ID3D11DeviceContext* context = nullptr;
-		d3d11Hook->get_device()->GetImmediateContext(&context);
+		
+		d3d11Hook->get_context()->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
 
-		context->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        ImGui::SetCurrentContext(previousContext);
 
-		ImGui::SetCurrentContext(previousContext);
 	}//OnFrame
 
 	//D3D11Hook
@@ -491,15 +495,13 @@ namespace IHHook {
 
 		auto device = d3d11Hook->get_device();
 		auto swapChain = d3d11Hook->get_swap_chain();
+		ID3D11DeviceContext* context = d3d11Hook->get_context();
 
 		// Wait.
 		if (device == nullptr || swapChain == nullptr) {
 			log->info("Device or SwapChain null. DirectX 12 may be in use. A crash may occur.");
 			return false;
 		}
-
-		ID3D11DeviceContext* context = nullptr;
-		device->GetImmediateContext(&context);
 
 		DXGI_SWAP_CHAIN_DESC swapDesc{};
 		swapChain->GetDesc(&swapDesc);
@@ -654,7 +656,7 @@ namespace IHHook {
 
 	//TODO: move to own file
 	//tex: even though it's saved as valid lua, we'll just parse it as text on IHHook side rather than dealing with back and forth through lua, and so IHHook can use it before lua is stood up
-	bool ParseConfig(std::string fileName) {
+	bool ParseConfig(const std::string& fileName) {
 		spdlog::debug("ParseConfig {}", fileName);
 		std::ifstream infile(fileName);
 		if (infile.fail()) {
@@ -669,6 +671,7 @@ namespace IHHook {
 		config.logFileLoad = false;
 		config.forceUsePatterns = false;
 		config.logFoxStringCreateInPlace = false; //ZIP: Fox hooks
+		config.enable_dll_loader = false;
 
 		std::string line;
 		while (std::getline(infile, line)) {
@@ -749,6 +752,9 @@ namespace IHHook {
 			else if (varName == "logTime") {
 				config.logTime = valueStr == "true";
 			}
+			else if (varName == "enable_dll_loader") {
+                config.enable_dll_loader = valueStr == "true";
+            }
 		}//while line
 
 		return true;
@@ -801,6 +807,14 @@ namespace IHHook {
 		}//for addressSet
 		return foundAllAddresses;
 	}//RebaseAddresses
+
+	void IHH::Load_Dlls() {
+        if (!config.enable_dll_loader) {
+            spdlog::info("DLL loader is disabled in config, skipping plugin loading...");
+            return;
+        }
+        Plugin_Loader::LoadPlugins();
+    }
 
 	typedef DWORD(WINAPI* CREATEHOOKS)();
 	void IHH::CreateAllHooks() {
