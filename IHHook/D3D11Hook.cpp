@@ -94,6 +94,10 @@ HRESULT WINAPI D3D11Hook::present(__int64 a1, __int64 SyncInterval)
         {
             swap_chain->GetDevice(__uuidof(ID3D11Device), (void**)&d3d11->m_device);
         }
+        else
+        {
+          d3d11->m_device->AddRef();
+        }
         d3d11->m_device_acquired = true;
         spdlog::info("ID3D11Device ptr at: {:p}", static_cast<void*>(d3d11->m_device));
     }
@@ -104,6 +108,10 @@ HRESULT WINAPI D3D11Hook::present(__int64 a1, __int64 SyncInterval)
         if (d3d11->m_device_context == nullptr)
         {
             d3d11->m_device->GetImmediateContext(&d3d11->m_device_context);
+        }
+        else
+        {
+         d3d11->m_device_context->AddRef();
         }
         d3d11->m_context_acquired = true; 
         spdlog::info("ID3D11DeviceContext ptr at: {:p}", static_cast<void*>(d3d11->m_device_context));
