@@ -1,9 +1,19 @@
 IHHook changelog 
 - just broad sweep changes, otherwise just look at the github commits.
 
-Version r24 - 2026-08-06 (see github for full changes)
+Version r25 - 2026-09-21 (see github for full changes)
+Patched dx11 anti-hook measures
+Version check optimized
+CityHash hook fixed
+Fixed imgui not initializing on unsupported game versions
+Added new imgui style "sakura"
+Added xinput1_3 feature
+Added dll/asi loading from /plugins/ with a toggle in config
+Various improvements
+
+Version r24 - 2026-08-07
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
-Compatibility with tpp-mod.
+Compatibility with alicealys's tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
 Cleaned up my (rlc) additions.
 Renamed internal functions to match real names.

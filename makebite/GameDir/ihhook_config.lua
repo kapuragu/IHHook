@@ -15,5 +15,6 @@ local this={
 	forceUsePatterns=false,
 	logFoxStringCreateInPlace=false,
 	logTime=false,--prefix |time| before log. time is good for figuring out how long between steps, but makes it harder to compare similar logs.
+	enable_dll_loader=true,
 }--this
 return this

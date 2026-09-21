@@ -169,7 +169,7 @@
       <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)copytogame.bat "$(TargetDir)" "$(TargetFileName)"</Command>
+      <Command></Command>
     </PostBuildEvent>
     <ProjectReference />
   </ItemDefinitionGroup>

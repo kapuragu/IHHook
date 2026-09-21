@@ -1,5 +1,15 @@
 # IHHook
-Version r24 - 2026-08-07 (see github for full changes)
+Version r25 - 2026-09-21 (see github for full changes)
+Patched dx11 anti-hook measures
+Version check optimized
+CityHash hook fixed
+Fixed imgui not initializing on unsupported game versions
+Added new imgui style "sakura"
+Added xinput1_3 feature
+Added dll/asi loading from /plugins/ with a toggle in config
+Various improvements
+
+Version r24 - 2026-08-07
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
 Compatibility with alicealys's tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
@@ -40,6 +50,8 @@ Infinite Heaven mod: https://www.nexusmods.com/metalgearsolidvtpp/mods/45
 ## Description 
 A proxy dll (of dinput8.dll) that loads with MGSV to provide extended features for modding.
 
+Allows for loading .dll and .asi plugins in /MGS_TPP/plugins/.
+Note that Reshade can’t be loaded as reshade64.dll, but it loads as .asi.
 
 ## Dependencies
 ### Runtime
@@ -80,7 +92,7 @@ CityHash logging (currently has to be compiled in with a #define) using emooses 
 RawInput keyboard processing and blocking (proof of concept)  
 
 ## Further info
-See IHHHook.h for some comments about the project.
+See IHHook.h for some comments about the project.
 
 ## Thanks
 zip for making me smooth out the release process, sorry about taking so long.
@@ -88,3 +100,4 @@ sai for mentioning what he had done with ghidra which helped me get past a few h
 emoose for CityHook which provided a base to start IHHook from.
 Half Way Lambda for imgui contributions in r18
 Yazed0071 for the addresses in 1.0.15.4
+0xFADED/ClearEdge for contributions at r25
