@@ -1,12 +1,13 @@
 // D3D11Hook.hpp - from RE2Framework
 #pragma once
 
-#include "utility/FunctionHook.hpp"
+#include <functional>
 
 #include <d3d11.h>
 #include <dxgi.h>
-#include <functional>
 #include <memory>
+
+#include "utility/FunctionHook.hpp"
 
 class D3D11Hook
 {
@@ -33,21 +34,14 @@ public:
     {
         return m_device;
     }
-
     IDXGISwapChain* get_swap_chain()
     {
         return m_swap_chain;
     }
 
-    ID3D11DeviceContext* get_context()
-    {
-        return m_device_context;
-    }
-
 protected:
     ID3D11Device* m_device{ nullptr };
     IDXGISwapChain* m_swap_chain{ nullptr };
-    ID3D11DeviceContext* m_device_context { nullptr };
     bool m_hooked{ false };
 
     std::unique_ptr<FunctionHook> m_present_hook{};
@@ -57,10 +51,4 @@ protected:
 
     static HRESULT WINAPI present(__int64 a1, __int64 SyncInterval);
     static HRESULT WINAPI resize_buffers(__int64 a1, unsigned int buffer_count, unsigned int width, unsigned int height, int new_format, int swap_chain_flags);
-
-private:
-    ID3D11Device** pDevice { false };
-    ID3D11DeviceContext** pDeviceContext { false };
-    bool m_device_acquired{ false };
-    bool m_context_acquired { false };
 };

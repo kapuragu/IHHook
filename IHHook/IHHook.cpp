@@ -418,8 +418,11 @@ namespace IHHook {
 
 		ImGui::EndFrame();
 		ImGui::Render();
-		
-		d3d11Hook->get_context()->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+
+		ID3D11DeviceContext* context = nullptr;
+        d3d11Hook->get_device()->GetImmediateContext(&context);
+
+        context->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
 
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -495,13 +498,15 @@ namespace IHHook {
 
 		auto device = d3d11Hook->get_device();
 		auto swapChain = d3d11Hook->get_swap_chain();
-		ID3D11DeviceContext* context = d3d11Hook->get_context();
 
 		// Wait.
 		if (device == nullptr || swapChain == nullptr) {
 			log->info("Device or SwapChain null. DirectX 12 may be in use. A crash may occur.");
 			return false;
 		}
+
+	    ID3D11DeviceContext* context = nullptr;
+        device->GetImmediateContext(&context);
 
 		DXGI_SWAP_CHAIN_DESC swapDesc{};
 		swapChain->GetDesc(&swapDesc);
