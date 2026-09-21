@@ -48,7 +48,7 @@ return this
 #include <vector>
 #include <atomic>
 #include <mutex>
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
 #include "D3D11Hook.hpp"
 #include "WindowsMessageHook.hpp"
 #include "IHMenu.h"
