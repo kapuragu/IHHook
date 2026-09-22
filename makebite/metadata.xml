@@ -3,7 +3,17 @@
   <MGSVersion Version="1.0.15.4" />
   <SBVersion Version="0.0.0.0" />
   <Description># IHHook
-Version r24 - 2026-08-07 (see github for full changes)
+Version r25 - 2026-09-21 (see github for full changes)
+Patched dx11 anti-hook measures
+Version check optimized
+CityHash hook fixed
+Fixed imgui not initializing on unsupported game versions
+Added new imgui style "sakura"
+Added xinput1_3 feature
+Added dll/asi loading from /plugins/ with a toggle in config
+Various improvements
+
+Version r24 - 2026-08-07
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
 Compatibility with alicealys's tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
@@ -44,6 +54,8 @@ Infinite Heaven mod: https://www.nexusmods.com/metalgearsolidvtpp/mods/45
 ## Description 
 A proxy dll (of dinput8.dll) that loads with MGSV to provide extended features for modding.
 
+Allows for loading .dll and .asi plugins in /MGS_TPP/plugins/.
+Note that Reshade can’t be loaded as reshade64.dll, but it loads as .asi.
 
 ## Dependencies
 ### Runtime
@@ -53,7 +65,7 @@ https://aka.ms/vs/17/release/VC_redist.x64.exe
 ### Development
 MSVS v141 - VS 2017 C++ x64/x86 build tools (v14.16)  
 Windows 10 SDK (10.0.17763.0)  
-(Install via Visual Studio Installer > Individual Components)  
+(Install via Visual Studio Installer &gt; Individual Components)  
 
 ## IHHook features
 See this youtube playlist for features that are visually demonstratable  
@@ -75,7 +87,7 @@ Has it's own seperate log for debug/info output.
 
 
 Named Pipe server: Starts up a threaded Named Pipe server with two pipes mgsv_in, mgsv_out.  
-Currently used by Infinite Heaven to improve performance when using IHExt and should open further posibilities I was reluctant to persue due to old text file based IH>IHExt communication.  
+Currently used by Infinite Heaven to improve performance when using IHExt and should open further posibilities I was reluctant to persue due to old text file based IH&gt;IHExt communication.  
 
 
 CityHash logging (currently has to be compiled in with a #define) using emooses cityhash logging (though using spdlog for better performance) that IHHook was initially built off.  
@@ -84,7 +96,7 @@ CityHash logging (currently has to be compiled in with a #define) using emooses 
 RawInput keyboard processing and blocking (proof of concept)  
 
 ## Further info
-See IHHHook.h for some comments about the project.
+See IHHook.h for some comments about the project.
 
 ## Thanks
 zip for making me smooth out the release process, sorry about taking so long.
@@ -92,8 +104,7 @@ sai for mentioning what he had done with ghidra which helped me get past a few h
 emoose for CityHook which provided a base to start IHHook from.
 Half Way Lambda for imgui contributions in r18
 Yazed0071 for the addresses in 1.0.15.4
-suke0930 for D-Walker hook address fix
-choomraider for dxvk compatibility fix</Description>
+0xFADED/ClearEdge for contributions at r25</Description>
   <QarEntries />
   <FpkEntries />
   <FileEntries />
