@@ -394,7 +394,7 @@ namespace IHHook
             menuItems.push_back("If it doesn't there may");
             menuItems.push_back("be an issue with IH");
             menuItems.push_back("If IH is not installed then");
-            menuItems.push_back("delete MGS_TPP\\dinput8.dll");
+            menuItems.push_back("delete MGS_TPP\\dinput8.dll or xinput1_3.dll or mfreadwrite.dll");
             menuItems.push_back("to remove IHHook");
             menuItems.push_back("");
 
