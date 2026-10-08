@@ -138,7 +138,7 @@ namespace IHHook {
 		doShutDown = true;
 		RawInput::UninitializeInput();
 		PipeServer::ShutDownPipeServer();
-		if (config.enable_dll_loader) {
+		if (config.enable_dll_loader && isTargetExe) {
             Plugin_Loader::UnloadPlugins();
         }
 	}//Shutdown
@@ -191,6 +191,7 @@ namespace IHHook {
 		std::wstring exeName = path.filename().c_str();
 		if (exeName.find(L"mgo")!= std::wstring::npos) {
 			log->warn("IHHook is not for mgo");
+			isTargetExe = false;
 			return;
 		}
 		//
@@ -814,8 +815,8 @@ namespace IHHook {
 	}//RebaseAddresses
 
 	void IHH::Load_Dlls() {
-        if (!config.enable_dll_loader) {
-            spdlog::info("DLL loader is disabled in config, skipping plugin loading...");
+        if (!config.enable_dll_loader && !isTargetExe) {
+            spdlog::info("DLL loader is disabled in config or not targeting the main executable, skipping plugin loading...");
             return;
         }
         Plugin_Loader::LoadPlugins();
