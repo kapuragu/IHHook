@@ -7,6 +7,7 @@
 #include "IHHook.h"
 #include "StyleEditor.h"
 #include "Util.h"
+#include "plf_list/plf_list.h"
 
 #include <filesystem>
 #include <imgui/imgui.h>
@@ -61,7 +62,7 @@ namespace IHHook
     }
 
     // Dumps style except for Colors
-    void GetStyle(std::list<std::string>& savedStyle, ImGuiStyle* src)
+    void GetStyle(plf::list<std::string>& savedStyle, ImGuiStyle* src)
     {
         ImGuiStyle* style = src ? src : &ImGui::GetStyle();
 
@@ -160,7 +161,7 @@ namespace IHHook
         "ImGuiCol_COUNT",
     }; // ImGuiCol_str
 
-    void GetColors(std::list<std::string>& savedColors, ImGuiStyle* src)
+    void GetColors(plf::list<std::string>& savedColors, ImGuiStyle* src)
     {
         ImGuiStyle* style = src ? src : &ImGui::GetStyle();
         ImVec4* colors = style->Colors;
@@ -182,7 +183,7 @@ namespace IHHook
     } // GetColors
 
     // tex not part of style struct
-    void GetOther(std::list<std::string>& savedOther, ImGuiStyle* src)
+    void GetOther(plf::list<std::string>& savedOther, ImGuiStyle* src)
     {
         ImGuiIO& io = ImGui::GetIO();
         ImFont* font_default = io.FontDefault; // tex is set in ShowFontSelector
@@ -196,11 +197,11 @@ namespace IHHook
     {
         spdlog::debug("SaveGuiStyle {}", fileName);
 
-        std::list<std::string> dumpedStyle{};
+        plf::list<std::string> dumpedStyle{};
         GetStyle(dumpedStyle, NULL);
-        std::list<std::string> dumpedColors{};
+        plf::list<std::string> dumpedColors{};
         GetColors(dumpedColors, NULL);
-        std::list<std::string> dumpedOther{};
+        plf::list<std::string> dumpedOther{};
         GetOther(dumpedOther, NULL);
 
         std::ofstream styleFile;
@@ -789,7 +790,7 @@ namespace IHHook
         }
 
         // tex yeah I'm aware that I'm doing common font pt sizes which arent pixel sizes
-        auto fontSizes = std::list<int>{
+        auto fontSizes = plf::list<int>{
             10,
             13, // imguis default font is 13
             15, 18, 24, 36, 48, 60, 72,

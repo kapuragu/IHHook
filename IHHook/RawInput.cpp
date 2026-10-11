@@ -12,6 +12,7 @@
 #include "IHHook.h"
 #include "IHMenu.h"
 #include "spdlog/spdlog.h"
+#include "plf_list/plf_list.h"
 
 namespace IHHook
 {
@@ -21,7 +22,7 @@ namespace IHHook
         USHORT currFlags[vKeyMax];               // tex: indexed by Virtual Keycode
         bool ignore[vKeyMax] = { false };        // tex: don't process key, set up in InitIgnoreKeys
         bool blockGameKeys[vKeyMax] = { false }; // tex: block game from recieving message
-        std::list<ButtonAction>* buttonActions[vKeyMax] = { nullptr };
+        plf::list<ButtonAction>* buttonActions[vKeyMax] = { nullptr };
 
         void BlockMouseClick()
         {
@@ -240,11 +241,11 @@ namespace IHHook
         // IN/SIDE: buttonActions
         void DoActions(USHORT vKey, RawInput::BUTTONEVENT buttonEvent)
         {
-            std::list<ButtonAction>* actions = buttonActions[vKey];
+            plf::list<ButtonAction>* actions = buttonActions[vKey];
             if (actions != nullptr)
             {
                 spdlog::debug("RawInput DoActions for vKey:{}", vKey);
-                for (std::list<ButtonAction>::iterator it = actions->begin(); it != actions->end(); ++it)
+                for (plf::list<ButtonAction>::iterator it = actions->begin(); it != actions->end(); ++it)
                 {
                     ButtonAction Action = *it;
                     Action(buttonEvent);
@@ -258,7 +259,7 @@ namespace IHHook
             spdlog::debug("RawInput RegisterAction for vKey:{}", vKey);
             if (buttonActions[vKey] == nullptr)
             {
-                buttonActions[vKey] = new std::list<ButtonAction>();
+                buttonActions[vKey] = new plf::list<ButtonAction>();
             }
 
             buttonActions[vKey]->push_back(action);

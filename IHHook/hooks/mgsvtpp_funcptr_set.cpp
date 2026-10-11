@@ -8,7 +8,7 @@
 
 #include "mgsvtpp_func_typedefs.h"
 
-extern std::unordered_map<std::string, uint64_t> addressSet;
+extern ankerl::unordered_dense::map<std::string, uint64_t> addressSet;
 
 namespace IHHook
 {

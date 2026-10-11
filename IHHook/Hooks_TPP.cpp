@@ -4,6 +4,7 @@
 #include "IHHook.h" //BaseAddr
 #include "MinHook/MinHook.h"
 #include "spdlog/spdlog.h"
+#include "plf_list/plf_list.h"
 
 #include <iostream>
 #include <map>
@@ -220,7 +221,7 @@ namespace IHHook
             }
             return nullptr;
         }
-        std::list<PhotoInfo> addPhotoInfos{};
+        plf::list<PhotoInfo> addPhotoInfos{};
         unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(
             MotherBaseMissionCommonData* This,
             StringId* ret,
@@ -253,7 +254,7 @@ namespace IHHook
         {
             spdlog::info("AddPhotoAdditionalText %s", missionCode, photoId, photoType, targetTypeLangIdStr);
             unsigned long long hash = ff_stringid_hash_n(targetTypeLangIdStr, strlen(targetTypeLangIdStr));
-            for (std::list<PhotoInfo>::iterator it = addPhotoInfos.begin(); it != addPhotoInfos.end(); ++it)
+            for (plf::list<PhotoInfo>::iterator it = addPhotoInfos.begin(); it != addPhotoInfos.end(); ++it)
             {
                 if (it->MissionCode == missionCode)
                 {

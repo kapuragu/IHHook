@@ -6,11 +6,11 @@
 #include "spdlog/spdlog.h"
 
 #include <map>
-#include <unordered_map>
+#include "..\unordered_dense\include\ankerl\unordered_dense.h"
 
 namespace IHHook
 {
-    extern std::unordered_map<std::string, uint64_t> addressSet;
+    extern ankerl::unordered_dense::map<std::string, uint64_t> addressSet;
 }
 
 // DEBUGNOW put this somewhere or CULL

@@ -6,11 +6,11 @@
 // in the current exported address list NO_USE - something we dont really want to use for whatever reason USING_CODE -
 // using the default lapi code implementation instead of hooking
 
-#include <unordered_map>
+#include "..\unordered_dense\include\ankerl\unordered_dense.h"
 
 namespace IHHook
 {
-    std::unordered_map<std::string, uint64_t> mgsvtpp_adresses_1_0_15_4_en{
+    ankerl::unordered_dense::map<std::string, uint64_t> mgsvtpp_adresses_1_0_15_4_en{
         //{"BlockHeapAlloc", 0x1400dcb50},
         //{"BlockHeapFree", 0x1400dcbc0},
         { "FoxBlockProcess", 0x14006e4e0 }, // double fox::Block::Process(BlockMemory *blockMemory,undefined8 param_2,longlong *param_3)

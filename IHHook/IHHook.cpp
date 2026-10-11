@@ -60,8 +60,8 @@ namespace IHHook
     std::vector<std::string> errorMessages{};
 
     bool isTargetExe = false;
-    std::unordered_map<std::string, uint64_t> addressSet{};
-    std::unordered_map<std::string, char*> patterns{};
+    ankerl::unordered_dense::map<std::string, uint64_t> addressSet{};
+    ankerl::unordered_dense::map<std::string, char*> patterns{};
 
     terminate_function terminate_Original;
 
