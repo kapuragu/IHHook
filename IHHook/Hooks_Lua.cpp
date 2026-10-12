@@ -320,6 +320,18 @@ namespace IHHook
             return 0;
         } // l_StubbedOutHook
 
+        using ll_loadfunc_t = __int64(__fastcall*)(__int64 L, const CHAR* libname, const CHAR* funcname);
+
+        static ll_loadfunc_t ll_loadfunc_Orig = nullptr;
+
+        __int64 __fastcall ll_loadfunc_Hook(__int64 L, const CHAR* libname, const CHAR* funcname)
+        {
+            //package.loadlib trace
+            spdlog::trace("ll_loadfuncHook library='{}', symbol='{}'", libname ? libname : "(null)", funcname ? funcname : "(null)");
+
+            return ll_loadfunc_Orig(L, libname, funcname);
+        }
+
         void SetupLog()
         {
             // tex create ih_log
@@ -393,6 +405,13 @@ namespace IHHook
                 ENABLEHOOK(FoxBlockLoad)
                 // CREATE_HOOK(FoxBlockProcess)
                 // ENABLEHOOK(FoxBlockProcess)
+
+                auto ll_loadfunc_t_pattern = hook::get_pattern<uint8_t>("75 05 8D 47 01", -0x4A);
+                if (ll_loadfunc_t_pattern[0] == 0x48 && ll_loadfunc_t_pattern[1] == 0x89)
+                {
+                    MH_CreateHook(ll_loadfunc_t_pattern, ll_loadfunc_Hook, (LPVOID*)&ll_loadfunc_Orig);
+                    MH_EnableHook(ll_loadfunc_t_pattern);
+                }
 
                 CreateHooksForTppMod();
             } // if name##Addr != NULL
