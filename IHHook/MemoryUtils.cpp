@@ -257,58 +257,99 @@ namespace IHHook
          *
          * @Returns Address of the first occurence
          */
+         
         std::uint8_t* PatternScan(const char* pattern)
         {
-            static auto pattern_to_byte = [](const char* pattern)
+            static auto pattern_to_bytes = [](const char* pattern) -> std::vector<std::pair<std::uint8_t, std::uint8_t>>
             {
-                auto bytes = std::vector<int>{};
-                auto start = const_cast<char*>(pattern);
-                auto end = const_cast<char*>(pattern) + strlen(pattern);
+                std::vector<std::pair<std::uint8_t, std::uint8_t>> result;
 
-                for (auto current = start; current < end; ++current)
+                auto to_nibble = [](char c) noexcept -> int
                 {
+                    if (c >= '0' && c <= '9') return c - '0';
+                    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+                    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+                    return -1;
+                };
+
+                const char* end = pattern + std::char_traits<char>::length(pattern);
+
+                for (const char* current = pattern; current < end;)
+                {
+                    // skip whitespace
+                    while (current < end && (*current == ' ' || *current == '\t'))
+                        ++current;
+                    if (current >= end)
+                        break;
+
                     if (*current == '?')
                     {
                         ++current;
-                        if (*current == '?')
-                            ++current;
-                        bytes.push_back(-1);
+                        result.emplace_back(0x00, 0x00); // wildcard
                     }
                     else
                     {
-                        bytes.push_back(strtoul(current, &current, 16));
+                        int hi = to_nibble(*current++);
+                        if (current >= end)
+                            return {}; // incomplete byte
+
+                        int lo = to_nibble(*current++);
+                        if (hi < 0 || lo < 0)
+                            return {}; // invalid hex
+
+                        result.emplace_back(static_cast<std::uint8_t>((hi << 4) | lo), 0xFF);
                     }
                 }
-                return bytes;
+                return result;
             };
 
-            const auto module = GetModuleHandleA(NULL);
-            auto dosHeader = (PIMAGE_DOS_HEADER)module;
-            auto ntHeaders = (PIMAGE_NT_HEADERS)((std::uint8_t*)module + dosHeader->e_lfanew);
+            const auto module = *reinterpret_cast<HMODULE*>(__readgsqword(0x60) + 0x10);
+            auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(module);
+            auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<std::uint8_t*>(module) + dosHeader->e_lfanew);
 
-            auto sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
-            auto patternBytes = pattern_to_byte(pattern);
-            auto scanBytes = reinterpret_cast<std::uint8_t*>(module);
+            const std::size_t sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
+            auto patternBytes = pattern_to_bytes(pattern);
 
-            auto patternSize = patternBytes.size();
-            auto patternData = patternBytes.data();
+            auto* scanBytes = reinterpret_cast<std::uint8_t*>(module);
+            const auto* pat = patternBytes.data();
+            const std::size_t patSz = patternBytes.size();
 
-            for (auto i = 0ul; i < sizeOfImage - patternSize; ++i)
+            // skip leading wildcards
+            std::size_t first = 0;
+            while (first < patSz && pat[first].second == 0x00)
+                ++first;
+
+            // entire pattern is wildcards -> return base
+            if (first == patSz)
+                return scanBytes;
+
+            const std::uint8_t firstByte = pat[first].first;
+            const std::uint8_t firstMask = pat[first].second; //  0xFF 
+
+            const std::size_t limit = sizeOfImage - patSz;
+
+            for (std::size_t i = 0; i <= limit; ++i)
             {
+                // check the first non-wildcard byte
+                if ((scanBytes[i + first] & firstMask) != firstByte)
+                    continue;
+
+                // full comparison with masks
                 bool found = true;
-                for (auto j = 0ul; j < patternSize; ++j)
+                for (std::size_t j = 0; j < patSz; ++j)
                 {
-                    if (scanBytes[i + j] != patternData[j] && patternData[j] != -1)
+                    const auto& [expected, mask] = pat[j];
+                    if ((scanBytes[i + j] & mask) != (expected & mask))
                     {
                         found = false;
                         break;
                     }
                 }
+
                 if (found)
-                {
                     return &scanBytes[i];
-                }
             }
+
             return nullptr;
         } // PatternScan
 

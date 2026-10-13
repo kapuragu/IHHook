@@ -61,7 +61,6 @@ namespace IHHook
 
     bool isTargetExe = false;
     ankerl::unordered_dense::map<std::string, uint64_t> addressSet{};
-    ankerl::unordered_dense::map<std::string, char*> patterns{};
 
     terminate_function terminate_Original;
 
@@ -294,7 +293,7 @@ namespace IHHook
 
         if (config.forceUsePatterns)
         {
-            isTargetExe = false; // set true for sig scan
+            isTargetExe = false;
             doHooks = true;
         }
 
@@ -870,54 +869,59 @@ namespace IHHook
     // rebases the static addresses or sig scans for them
     bool IHH::RebaseAddresses()
     {
+        auto tstart = std::chrono::high_resolution_clock::now();
         bool foundAllAddresses = true;
+
         for (auto const& entry : addressSet)
         {
             std::string name = entry.first;
+
             if (isTargetExe)
             {
-                log->info("isTargetExe, rebasing addr {}", name);
+                log->info("rebasing addr {}", name);
                 uint64_t addr = entry.second;
                 uint64_t rebasedAddr = (addr - BaseAddr) + (uint64_t)thisModule;
                 addressSet[name] = rebasedAddr;
             }
             else
             {
-                // tex fall back to sig scan
-                log->info("!isTargetExe, sig scanning");
                 addressSet[name] = 0;
                 auto it = mgsvtpp_patterns.find(name);
                 if (it != mgsvtpp_patterns.end())
                 {
-                    // found
-                    // const char* sig = it->second;
-                    // const char* mask = mgsvtpp_masks[name];//ASSUMPTION: if sig exists then mask does
-                    // uintptr_t addr = MemoryUtils::sigscan(name.c_str(), sig, mask);//tex returns null if not found
+                    const PatternEntry& pe = it->second;
+                    uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pe.pattern.data());
 
-                    const char* pattern = it->second.c_str();
-                    auto tstart = std::chrono::high_resolution_clock::now();
-                    uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pattern); // tex returns null if not found
-                    auto tend = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-                    if (addr == NULL)
+
+                    if (addr == 0)
                     {
-                        log->debug("sigscan not found {} in(microseconds): {}", name, duration);
+                        log->error("pattern not found {}", name);
                         foundAllAddresses = false;
                     }
                     else
                     {
-                        log->debug("sigscan found {} at 0x{:x} in(microseconds): {}", name, addr,
-                                   duration); // DEBUGNOW dump addr
-                    }
+                        addr += pe.offset;
 
-                    addressSet[name] = addr;
+                        if (pe.adjust)
+                        {
+                            addr = reinterpret_cast<uintptr_t>(pe.adjust(reinterpret_cast<void*>(addr)));
+                        }
+
+                        log->debug("pattern found {} at 0x{:x}", name, addr);
+                        addressSet[name] = addr;
+                    }
                 }
                 else
                 {
-                    log->warn("Could not find sig for {}", name);
+                    log->warn("could not find pattern for {}", name);
+                    foundAllAddresses = false;
                 }
-            } // if isTargetExe
-        } // for addressSet
+            }
+        }
+
+        auto tend = std::chrono::high_resolution_clock::now();
+        auto tduration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+        log->info("total rebasing of memory addresses took(microseconds): {}µs", tduration);
         return foundAllAddresses;
     } // RebaseAddresses
 

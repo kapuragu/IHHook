@@ -250,11 +250,12 @@ namespace IHHook
         //{"gll_loadlib", 0x141A35A40},//lua::ll_loadlib 48 89 5c 24 08 57 48 83 ec 20
 
         //{"system", 0x14208DC60},//MSVCR110.DLL::system c2 07 9e 02 00 00 00 00
-
+            /**
         { "io_open", 0x1418990e0 },
         { "io_popen", 0x1418991e0 },
         { "io_close", 0x141a2ff20 },
         { "f_read", 0x141a30540 },
         { "f_write", 0x141a30610 },
+        **/
     }; // map mgsvtpp_adresses_1_0_15_4_en
 } // namespace IHHook
