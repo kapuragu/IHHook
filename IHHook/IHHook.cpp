@@ -64,7 +64,6 @@ namespace IHHook {
 
 	bool isTargetExe = false;
 	std::unordered_map<std::string, uint64_t> addressSet{};
-	std::unordered_map<std::string, char*> patterns{};
 
 	terminate_function terminate_Original;
 
@@ -769,49 +768,63 @@ namespace IHHook {
 	//IN: mgsvtpp_patterns
 	//SIDE: addressSet
 	//rebases the static addresses or sig scans for them
-	bool IHH::RebaseAddresses()	{
-		bool foundAllAddresses = true;
-		for (auto const& entry : addressSet) {
-			std::string name = entry.first;
-			if (isTargetExe) {
-				log->info("isTargetExe, rebasing addr {}", name);
-				uint64_t addr = entry.second;
-				uint64_t rebasedAddr = (addr - BaseAddr) + (int64_t)thisModule;
-				addressSet[name] = rebasedAddr;
-			}
-			else {
-				//tex fall back to sig scan
-				log->info("!isTargetExe, sig scanning");
-				addressSet[name] = 0;
-				auto it = mgsvtpp_patterns.find(name);
-				if (it != mgsvtpp_patterns.end()) {
-					//found
-					//const char* sig = it->second;
-					//const char* mask = mgsvtpp_masks[name];//ASSUMPTION: if sig exists then mask does
-					//uintptr_t addr = MemoryUtils::sigscan(name.c_str(), sig, mask);//tex returns null if not found
+    bool IHH::RebaseAddresses()
+    {
+        auto tstart = std::chrono::high_resolution_clock::now();
+        bool foundAllAddresses = true;
 
-					const char* pattern = it->second.c_str();
-					auto tstart = std::chrono::high_resolution_clock::now();
-					uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pattern);//tex returns null if not found
-					auto tend = std::chrono::high_resolution_clock::now();
-					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-					if (addr == NULL) {
-						log->debug("sigscan not found {} in(microseconds): {}", name, duration);
-						foundAllAddresses = false;
-					}
-					else {
-						log->debug("sigscan found {} at 0x{:x} in(microseconds): {}", name, addr, duration);//DEBUGNOW dump addr
-					}
+        for (auto const& entry : addressSet)
+        {
+            std::string name = entry.first;
 
-					addressSet[name] = addr;
-				}
-				else {
-					log->warn("Could not find sig for {}", name);
-				}
-			}//if isTargetExe
-		}//for addressSet
-		return foundAllAddresses;
-	}//RebaseAddresses
+            if (isTargetExe)
+            {
+                log->info("rebasing addr {}", name);
+                uint64_t addr = entry.second;
+                uint64_t rebasedAddr = (addr - BaseAddr) + (uint64_t)thisModule;
+                addressSet[name] = rebasedAddr;
+            }
+            else
+            {
+                addressSet[name] = 0;
+                auto it = mgsvtpp_patterns.find(name);
+                if (it != mgsvtpp_patterns.end())
+                {
+                    const PatternEntry& pe = it->second;
+                    uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pe.pattern.data());
+
+
+                    if (addr == 0)
+                    {
+                        log->error("pattern not found {}", name);
+                        foundAllAddresses = false;
+                    }
+                    else
+                    {
+                        addr += pe.offset;
+
+                        if (pe.adjust)
+                        {
+                            addr = reinterpret_cast<uintptr_t>(pe.adjust(reinterpret_cast<void*>(addr)));
+                        }
+
+                        log->debug("pattern found {} at 0x{:x}", name, addr);
+                        addressSet[name] = addr;
+                    }
+                }
+                else
+                {
+                    log->warn("could not find pattern for {}", name);
+                    foundAllAddresses = false;
+                }
+            }
+        }
+
+        auto tend = std::chrono::high_resolution_clock::now();
+        auto tduration = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+        log->info("total rebasing of memory addresses took(microseconds): {}µs", tduration);
+        return foundAllAddresses;
+    }//RebaseAddresses
 
 	void IHH::Load_Dlls() {
         if (!config.enable_dll_loader) {
