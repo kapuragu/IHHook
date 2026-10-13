@@ -418,7 +418,7 @@ namespace IHHook
         }*///LoadBuddyWalkerGearCommonFPK
         ulonglong* GetFPKFromFilePath(std::string filePath, std::string debugMsg, ulonglong* fileSlotIndex)
         {
-            spdlog::debug(debugMsg + ": {}", filePath);
+            spdlog::debug("{}: {}", debugMsg, filePath);
             ulonglong filePath64 = PathCode64(filePath.c_str());
             foxPathPath(fileSlotIndex, filePath64);
             return fileSlotIndex;

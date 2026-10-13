@@ -212,18 +212,18 @@ namespace IHHook
             styleFile << "-- " << fileName << "\n";
             styleFile << "-- Saved by gui style editor\n";
             styleFile << "local this={\n";
-            for each (std::string line in dumpedStyle)
+            for (const auto& line : dumpedStyle)
             {
                 styleFile << "\t" << line << ",\n";
             }
             // styleFile << "\tColors={\n";
-            for each (std::string line in dumpedColors)
+            for (const auto& line : dumpedColors)
             {
                 styleFile << "\t\t" << line << ",\n";
             }
             // styleFile << "\t},\n";
 
-            for each (std::string line in dumpedOther)
+            for (const auto& line : dumpedOther)
             {
                 styleFile << "\t" << line << ",\n";
             }
@@ -802,7 +802,7 @@ namespace IHHook
             if (extension == ".ttf" || extension == ".TTF")
             {
                 std::string fileName = entry.path().string();
-                for each (int fontSizePx in fontSizes)
+                for (const auto& fontSizePx : fontSizes)
                 {
                     io.Fonts->AddFontFromFileTTF(fileName.c_str(), (float)fontSizePx);
                 }

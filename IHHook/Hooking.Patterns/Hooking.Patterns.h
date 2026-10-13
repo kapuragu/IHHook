@@ -12,6 +12,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <Windows.h>
 
 #if defined(_CPPUNWIND) && !defined(PATTERNS_SUPPRESS_EXCEPTIONS)
 #define PATTERNS_ENABLE_EXCEPTIONS

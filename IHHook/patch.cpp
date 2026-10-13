@@ -9,13 +9,13 @@ void* GetTarget(uintptr_t pointer)
     void* target = reinterpret_cast<void*>(exeBase + (pointer - EXE_PREFERRED_BASE));
     if (pointer == NULL)
     {
-        spdlog::error("[Patch] GetTarget({:p}): ResolveGameAddress address is NULL", pointer);
+        spdlog::error("[Patch] GetTarget({:p}): ResolveGameAddress address is NULL", reinterpret_cast<const void*>(pointer));
         return NULL;
     }
 
     if (pointer == 0)
     {
-        spdlog::error("[Patch] GetTarget({:p}): ResolveGameAddress address is 0", pointer);
+        spdlog::error("[Patch] GetTarget({:p}): ResolveGameAddress address is 0", reinterpret_cast<const void*>(pointer));
         return NULL;
     }
     return target;
@@ -37,7 +37,7 @@ bool TogglePatch(bool isEnable, uintptr_t pointer, SIZE_T dwSize, std::uint8_t* 
     void* target = GetTarget(pointer);
     if (!target)
     {
-        spdlog::error("[Patch] TogglePatch(%s): ResolveGameAddress @{:p} null", isEnable ? "true" : "false", pointer);
+        spdlog::error("[Patch] TogglePatch(%s): ResolveGameAddress @{:p} null", isEnable ? "true" : "false", reinterpret_cast<const void*>(pointer));
         return false;
     }
 
@@ -53,7 +53,7 @@ bool TogglePatch(bool isEnable, uintptr_t pointer, SIZE_T dwSize, std::uint8_t* 
     DWORD oldProtect = 0;
     if (!VirtualProtect(target, dwSize, PAGE_EXECUTE_READWRITE, &oldProtect))
     {
-        spdlog::error("[Patch] TogglePatch(%s): VirtualProtect failed @{:p} (err={:p})", isEnable ? "true" : "false", pointer, GetLastError());
+        spdlog::error("[Patch] TogglePatch(%s): VirtualProtect failed @{:p} (err={:p})", isEnable ? "true" : "false", reinterpret_cast<const void*>(pointer), GetLastError());
         return false;
     }
 

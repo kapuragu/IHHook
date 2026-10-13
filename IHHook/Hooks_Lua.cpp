@@ -479,22 +479,22 @@ namespace IHHook
         // tex: Since these are stubbed out in normal we should only log them in debug.
         static int l_Fox_Log(lua_State* L)
         {
-            return FoxLog(spdlog::level::debug, "Log", L);
+            return FoxLog(spdlog::level::debug, (char*)"Log", L);
         }
 
         static int l_Fox_Caution(lua_State* L)
         {
-            return FoxLog(spdlog::level::debug, "Caution", L);
+            return FoxLog(spdlog::level::debug, (char*)"Caution", L);
         }
 
         static int l_Fox_Warning(lua_State* L)
         {
-            return FoxLog(spdlog::level::warn, "Warning", L);
+            return FoxLog(spdlog::level::warn, (char*)"Warning", L);
         }
 
         static int l_Fox_Error(lua_State* L)
         {
-            return FoxLog(spdlog::level::err, "Error", L);
+            return FoxLog(spdlog::level::err, (char*)"Error", L);
         }
 
         // game lua to IHHook callbacks>

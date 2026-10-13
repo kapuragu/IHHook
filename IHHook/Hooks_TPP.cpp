@@ -166,7 +166,7 @@ namespace IHHook
             else
             {
                 // DEBUGNOW TEST
-                char* langId = "tpp_loc_afghan";
+                const char* langId = "tpp_loc_afghan";
                 long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
 
                 spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", tpp_loc_afghanS64);

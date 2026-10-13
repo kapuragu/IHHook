@@ -297,7 +297,7 @@ namespace IHHook
         // DEBUG
         void TestAction(BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: TestAction", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: TestAction", static_cast<int>(buttonEvent));
             if (buttonEvent == BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("TestAction on ONDOWN");
@@ -314,7 +314,7 @@ namespace IHHook
 
         void ToggleUI(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleUI on ONDOWN");
@@ -324,7 +324,7 @@ namespace IHHook
 
         void ToggleCursor(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleCursor", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleCursor", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleCursor on ONDOWN");
@@ -342,7 +342,7 @@ namespace IHHook
 
         void ToggleMenu(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleMenu on ONDOWN");
@@ -353,7 +353,7 @@ namespace IHHook
 
         void ToggleImguiDemo(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleImguiDemo", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleImguiDemo", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleImguiDemo on ONDOWN");
@@ -363,7 +363,7 @@ namespace IHHook
 
         void ToggleStyleEditor(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleStyleEditor", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleStyleEditor", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleStyleEditor on ONDOWN");
@@ -378,7 +378,7 @@ namespace IHHook
         // just setting SetDrawUI(false) and menuoff will just run whenever DEBUGNOW rename, this is menuoff
         void MenuOff(RawInput::BUTTONEVENT buttonEvent)
         {
-            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", buttonEvent);
+            spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
                 spdlog::debug("ToggleMenu on ONDOWN");

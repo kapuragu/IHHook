@@ -471,7 +471,8 @@ namespace IHHook
                 spdlog::debug("GetPartsFilePathHook isPlayerPartsFpkForAvatarRequested:{}", isPlayerPartsFpkForAvatarRequested);
                 if (isPlayerPartsFpkForAvatarRequested)
                 {
-                    spdlog::debug("GetPartsFilePathHook character.playerType:{} playerType:{} character.playerPartsType:{}", character.playerType, playerType);
+                    spdlog::debug(
+                        "GetPartsFilePathHook character.playerType:{} playerType:{} character.playerPartsType:{}", character.playerType, playerType, character.playerPartsType);
                     isPlayerPartsFpkForAvatarRequested = false;
                     return GetPartsFilePath(fileSlotIndex, playerType, playerPartsType);
                 }
