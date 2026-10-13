@@ -65,18 +65,18 @@ namespace IHHook
 #define CREATE_HOOK(name)                                                                                                                                      \
     if (addressSet[#name] == NULL)                                                                                                                             \
     {                                                                                                                                                          \
-        spdlog::error(SPDLOG_FMT_RUNTIME("CREATE_HOOK addressSet[{}]==NULL", #name));                                                                                              \
+        spdlog::error("CREATE_HOOK addressSet[{}]==NULL", #name);                                                                                              \
     }                                                                                                                                                          \
     else                                                                                                                                                       \
     {                                                                                                                                                          \
         MH_STATUS name##CreateStatus = MH_CreateHook((LPVOID*)addressSet[#name], name##Hook, (LPVOID*)&name);                                                  \
         if (name##CreateStatus != MH_OK)                                                                                                                       \
         {                                                                                                                                                      \
-            spdlog::error(SPDLOG_FMT_RUNTIME("MH_CreateHook failed for {} with code {}", #name, name##CreateStatus));                                                              \
+            spdlog::error("MH_CreateHook failed for {} with code {}", #name, static_cast<int>(name##CreateStatus));                                                              \
         }                                                                                                                                                      \
         else                                                                                                                                                   \
         {                                                                                                                                                      \
-            spdlog::debug(SPDLOG_FMT_RUNTIME("MH_CreateHook MH_OK for {}", #name));                                                                                                \
+            spdlog::debug("MH_CreateHook MH_OK for {}", #name);                                                                                                \
         }                                                                                                                                                      \
     }
 // Example use:
@@ -92,11 +92,11 @@ namespace IHHook
     MH_STATUS name##EnableStatus = MH_EnableHook((LPVOID*)addressSet[#name]);                                                                                  \
     if (name##EnableStatus != MH_OK)                                                                                                                           \
     {                                                                                                                                                          \
-        spdlog::error(SPDLOG_FMT_RUNTIME("MH_EnableHook failed for {} with code {}", #name, name##EnableStatus));                                                                  \
+        spdlog::error("MH_EnableHook failed for {} with code {}", #name, static_cast<int>(name##EnableStatus));                                                                  \
     }                                                                                                                                                          \
     else                                                                                                                                                       \
     {                                                                                                                                                          \
-        spdlog::debug(SPDLOG_FMT_RUNTIME("MH_EnableHook MH_OK for {}", #name));                                                                                                    \
+        spdlog::debug("MH_EnableHook MH_OK for {}", #name);                                                                                                    \
     }
 // Example use:
 // ENABLEHOOK(lua_newstate);
@@ -111,11 +111,11 @@ namespace IHHook
     MH_STATUS name##DisableStatus = MH_DisableHook((LPVOID*)addressSet[#name]);                                                                                \
     if (name##DisableStatus != MH_OK)                                                                                                                          \
     {                                                                                                                                                          \
-        spdlog::error(SPDLOG_FMT_RUNTIME("MH_DisableHook failed for {} with code {}", #name, name##DisableStatus));                                                                \
+        spdlog::error("MH_DisableHook failed for {} with code {}", #name, static_cast<int>(name##DisableStatus));                                                                \
     }                                                                                                                                                          \
     else                                                                                                                                                       \
     {                                                                                                                                                          \
-        spdlog::debug(SPDLOG_FMT_RUNTIME("MH_DisableHook MH_OK for {}", #name));                                                                                                   \
+        spdlog::debug("MH_DisableHook MH_OK for {}", #name);                                                                                                   \
     }
 // Example use:
 // ENABLEHOOK(lua_newstate);
