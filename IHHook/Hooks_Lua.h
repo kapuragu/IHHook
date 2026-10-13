@@ -1,6 +1,7 @@
 #pragma once
 
 #include <lua.h>
+#include <flat_map>
 
 namespace IHHook
 {

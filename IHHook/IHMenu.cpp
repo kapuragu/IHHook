@@ -9,6 +9,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <flat_map>
 
 namespace IHHook
 {
@@ -312,7 +313,7 @@ namespace IHHook
         } // EnableCursor
 
         typedef void (*MenuCommandFunc)(std::vector<std::string> args);
-        std::map<std::string, MenuCommandFunc> menuCommands;
+        std::flat_map<std::string, MenuCommandFunc> menuCommands;
         void AddMenuCommands()
         {
             menuCommands["SetContent"] = SetContent;

@@ -641,12 +641,12 @@ namespace IHHook
         }
 
         // used for debugging, see docs/issue_7.md
-        std::map<void*, uint32_t> processCount{};
-        std::map<void*, std::string> blockNames{};
+        std::flat_map<void*, uint32_t> processCount{};
+        std::flat_map<void*, std::string> blockNames{};
         double FoxBlockProcessHook(void* Block, void* TaskContext, void* BlockProcessState)
         {
-            // this keeps crashing
-            DWORD tid = GetCurrentThreadId();
+            // this keeps crashing -> let's not use  GetCurrentThreadId();
+            DWORD tid = (DWORD)__readgsdword(0x48);
             if (processCount.find(Block) != processCount.end())
             {
                 processCount[Block]++;

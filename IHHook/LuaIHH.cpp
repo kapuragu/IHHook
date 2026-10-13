@@ -14,12 +14,13 @@
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
+#include <flat_map>
 
 namespace IHHook
 {
     extern std::shared_ptr<spdlog::logger> luaLog;
 
-    extern std::map<int, long long> locationLangIds;
+    extern std::flat_map<int, long long> locationLangIds;
 
     namespace LuaIHH
     {

@@ -7,13 +7,13 @@
 #include "plf_list/plf_list.h"
 
 #include <iostream>
-#include <map>
+#include <flat_map>
 #include <sstream>
 #include <string>
 
 namespace IHHook
 {
-    std::map<int, long long> locationLangIds{
+    std::flat_map<int, long long> locationLangIds{
         { 10, 0x1b094033d45d }, // afgh,tpp_loc_afghan
         { 20, 0x7114b69e71e7 }, // mafr,tpp_loc_africa
         { 50, 0xfa8eaa7758b1 }, // mtbs,tpp_loc_mb
