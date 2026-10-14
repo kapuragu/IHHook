@@ -13,6 +13,10 @@
       <Configuration>Release Plugin</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release xinput1_3|x64">
+      <Configuration>Release xinput1_3</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -75,6 +79,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
@@ -91,6 +102,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'" Label="PropertySheets">
@@ -114,6 +128,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -145,7 +162,6 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS ;_DEBUG;_WINDOWS;_USRDLL;IHHOOK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./;./lua;./MinHook;./imgui</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -241,6 +257,9 @@ copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite-asi\GameDir\mod\do
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\Cousine-Regular.ttf"
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\Karla-Regular.ttf"
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\CurrentStyle.ini" "$(SolutionDir)makebite-asi\GameDir\mod\guiStyles\CurrentStyle.ini"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.lua" "$(SolutionDir)makebite-asi\GameDir\mod\guiStyles\Default.lua"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\sakura.lua" "$(SolutionDir)makebite-asi\GameDir\mod\guiStyles\sakura.lua"
 copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.ttf" "$(SolutionDir)makebite-asi\GameDir\mod\guiStyles\Default.ttf"
 copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-asi\GameDir\ihhook_config.lua"
 copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-asi\GameDir\ihhook_config-defaults.lua"
@@ -275,11 +294,52 @@ copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite-plugin\GameDir\mod
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\Cousine-Regular.ttf"
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\Karla-Regular.ttf"
 copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\CurrentStyle.ini" "$(SolutionDir)makebite-plugin\GameDir\mod\guiStyles\CurrentStyle.ini"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.lua" "$(SolutionDir)makebite-plugin\GameDir\mod\guiStyles\Default.lua"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\sakura.lua" "$(SolutionDir)makebite-plugin\GameDir\mod\guiStyles\sakura.lua"
 copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.ttf" "$(SolutionDir)makebite-plugin\GameDir\mod\guiStyles\Default.ttf"
 copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-plugin\GameDir\ihhook_config.lua"
 copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-plugin\GameDir\ihhook_config-defaults.lua"
 copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-plugin\Readme.txt"
 copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\metadata.xml</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;IHHOOK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;./lua;./MinHook;./imgui</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)makebite-xinput1_3\GameDir\xinput1_3.dll"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\docs\IHHook\licenses\Lua Licence.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\docs\IHHook\licenses\MinHook Licence.txt"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\docs\IHHook\Readme.txt"
+copy /Y "$(SolutionDir)Changelog.txt" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\docs\IHHook\Changelog.txt"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Cousine-Regular.ttf" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\fonts\Cousine-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\Karla-Regular.ttf" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\fonts\Karla-Regular.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\fonts\ProggyClean.ttf" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\fonts\ProggyClean.ttf"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\CurrentStyle.ini" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\guiStyles\CurrentStyle.ini"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.lua" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\guiStyles\Default.lua"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\sakura.lua" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\guiStyles\sakura.lua"
+copy /Y "$(SolutionDir)include\GameDir\mod\guiStyles\Default.ttf" "$(SolutionDir)makebite-xinput1_3\GameDir\mod\guiStyles\Default.ttf"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-xinput1_3\GameDir\ihhook_config.lua"
+copy /Y "$(SolutionDir)include\GameDir\ihhook_config.lua" "$(SolutionDir)makebite-xinput1_3\GameDir\ihhook_config-defaults.lua"
+copy /Y "$(SolutionDir)Readme.md" "$(SolutionDir)makebite-xinput1_3\Readme.txt"
+copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-xinput1_3\metadata.xml</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -372,6 +432,9 @@ copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\meta
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="Hooks_FNVHash.cpp" />
     <ClCompile Include="Hooks_FOV.cpp" />
@@ -413,6 +476,7 @@ copy /Y "$(SolutionDir)include\metadata.xml" "$(SolutionDir)makebite-plugin\meta
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release ASI|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Plugin|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release xinput1_3|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Hooks_TPP.cpp" />
     <ClCompile Include="StyleEditor.cpp" />
