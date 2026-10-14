@@ -1,5 +1,5 @@
-//stdafx.h
-//precompiled header (tex not actually using currently)
+// stdafx.h
+// precompiled header (tex not actually using currently)
 #pragma once
 
 #include <SDKDDKVer.h>

@@ -225,6 +225,12 @@
     <ClInclude Include="hooks\mgsvtpp_adresses_1_0_15_3_en.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="patch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin_loader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -317,7 +323,7 @@
     <ClCompile Include="WindowsMessageHook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DInputProxy.cpp">
+    <ClCompile Include="Proxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IHMenu.cpp">
@@ -372,6 +378,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

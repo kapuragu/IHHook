@@ -1,203 +1,207 @@
 #pragma once
-//GENERATED: by ghidra script ExportHooksToHeader.py
-//via WriteFuncTypeDefHFile
-//Typdefs and externs for the function pointers as well as detour function declaration (not func ptrs)
+// GENERATED: by ghidra script ExportHooksToHeader.py
+// via WriteFuncTypeDefHFile
+// Typdefs and externs for the function pointers as well as detour function declaration (not func ptrs)
 
-//macros for ghidra data type names > c++
+// macros for ghidra data type names > c++
 #define longlong long long
 #define ulonglong unsigned long long
 #define uint unsigned int
 
 #include "mgsvtpp_func_typedefs_manual.h"
-//TODO: this is a per category thing/will likely want to manage includes 
-//as the number of functions being hooked with various data types expands
-#include "lua/lua.h"
+// TODO: this is a per category thing/will likely want to manage includes
+// as the number of functions being hooked with various data types expands
 #include "lua/lauxlib.h"
+#include "lua/lua.h"
 
-typedef StrCode (__fastcall ff_stringid_hash_nFunc)(const char * buf, longlong len);
-typedef StrCode32 (__fastcall FoxStrHash32Func)(const char * str);
-typedef ulonglong (__fastcall path_hash_codeFunc)(const char * inString);
-typedef uint (__fastcall FNVHash32Func)(const char * strToHash);
-typedef ulonglong * (__fastcall GetFreeMissionNameKeyFunc)(ulonglong * langId, short locationCode, short missionCode);
-typedef void (__fastcall UpdateCameraFunc)(ulonglong param_1);
-typedef void (__fastcall foxprintfFunc)(const char * fmt, void * param_2, void * param_3, void * param_4);
+typedef StrCode(__fastcall ff_stringid_hash_nFunc)(const char* buf, longlong len);
+typedef StrCode32(__fastcall FoxStrHash32Func)(const char* str);
+typedef ulonglong(__fastcall path_hash_codeFunc)(const char* inString);
+typedef uint(__fastcall FNVHash32Func)(const char* strToHash);
+typedef ulonglong*(__fastcall GetFreeMissionNameKeyFunc)(ulonglong* langId, short locationCode, short missionCode);
+typedef void(__fastcall UpdateCameraFunc)(ulonglong param_1);
+typedef void(__fastcall foxprintfFunc)(const char* fmt, void* param_2, void* param_3, void* param_4);
 // l_StubbedOut EXPORT_FUNC_FALSE
 // voidreturn EXPORT_FUNC_FALSE
-typedef ulonglong * (__fastcall foxPathPathFunc)(ulonglong * fileSlotIndex, ulonglong filePath64);
-typedef void (__fastcall UpdateLocalPathStringFunc)(PathCode64 pathA, PathCode64 pathB);
-typedef Path * (__thiscall foxPathPathBFunc)(Path * This, Path * rhs);
-typedef Path * (__fastcall foxPathEmptyFunc)();
-typedef ulonglong * (__fastcall GetPartsFpkPathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType);
-typedef ulonglong * (__fastcall GetPartsFilePathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType);
-typedef ulonglong * (__fastcall GetCamoFpkPathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerCamoType);
-typedef ulonglong * (__fastcall GetCamoFilePathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerCamoType);
-typedef ulonglong * (__fastcall GetFacialMtarFpkPathFunc)(ulonglong * fileSlotIndex, uint playerType);
-typedef ulonglong * (__fastcall GetFacialMtarFilePathFunc)(ulonglong * fileSlotIndex, int playerType);
-typedef ulonglong * (__fastcall GetHandFpkPathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerHandType);
-typedef ulonglong * (__fastcall GetHandFilePathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerHandType);
-typedef bool (__fastcall _DoesNeedBodyFovaForDDFunc)(uint playerType, uint playerPartsType);
-typedef ulonglong * (__fastcall GetBodyFovaPathFunc)(ulonglong * loadFile, uint playerType, uint playerPartsType);
-typedef bool (__fastcall DoesNeedFaceFovaFunc)(uint playerPartsType);
-typedef bool (__fastcall DoesNeedFaceFovaForAvatarFunc)(uint playerPartsType);
-typedef ulonglong * (__fastcall GetFaceFpkPathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerFaceId, char playerFaceEquipId);
-typedef ulonglong * (__fastcall GetFaceFilePathFunc)(ulonglong * fileSlotIndex, uint playerType, uint playerPartsType, uint playerFaceId, char playerFaceEquipId);
-typedef ulonglong * (__fastcall GetAvatarHoneFpkPathFunc)(ulonglong * fileSlotIndex, uint ogreLevel);
-typedef ulonglong * (__fastcall GetAvatarHoneFilePathFunc)(ulonglong * fileSlotIndex, uint ogreLevel);
-typedef ulonglong * (__fastcall GetPathAtBuddyTypeFunc)(ulonglong param_1, ulonglong * fileSlotIndex, uint buddyType, ulonglong param_4);
-typedef ulonglong * (__fastcall GetBuddyQuietWeaponFileFromBuddyBlockFunc)(ulonglong param_1, ulonglong * fileSlotIndex, short param_quietWeaponId);
-typedef void (__fastcall GetPathAtSub_BuddyDogFunc)(longlong param_1, ulonglong * fileSlotIndex);
-typedef void (__fastcall GetPathAtSub_BuddyHorseFunc)(longlong param_1, ulonglong * fileSlotIndex);
-typedef ulonglong * (__fastcall GetBuddyGearArmFileFunc)(ulonglong param_1, ulonglong * fileSlotIndex, ulonglong param_3, ulonglong param_4);
-typedef ulonglong * (__fastcall GetBuddyGearHeadFileFunc)(ulonglong param_1, ulonglong * fileSlotIndex, ulonglong param_3, ulonglong param_4);
-typedef ulonglong * (__fastcall GetBuddyGearMainWeaponFileFunc)(ulonglong param_1, ulonglong * fileSlotIndex, ulonglong param_3, ulonglong param_4);
-typedef int * (__fastcall FoxBlockLoadFunc)(void * param_1, int * param_2, ulonglong * param_3, uint param_4);
-typedef char (__fastcall ReliefVehicleLoadToExhibitFunc)(longlong param_1);
-typedef char (__fastcall ReliefVehicleLoadFunc)(longlong param_1, ulonglong param_2);
-typedef longlong (__fastcall GetBlockAtIndexFunc)(longlong param_1, uint param_2);
-typedef ulonglong * (__fastcall gkGetColoringSystemFunc)();
-typedef longlong * (__fastcall GetBuddyCommandNameFunc)(longlong * langId, uint commandType);
-typedef longlong * (__fastcall GetBuddyCommandHelpNameFunc)(longlong * langId, uint commandType);
-typedef lua_State * (__fastcall lua_newstateFunc)(lua_Alloc f, void * ud);
-typedef void (__fastcall lua_closeFunc)(lua_State * L);
-typedef lua_State * (__fastcall lua_newthreadFunc)(lua_State * L);
-typedef lua_CFunction (__fastcall lua_atpanicFunc)(lua_State * L, lua_CFunction panicf);
+typedef ulonglong*(__fastcall foxPathPathFunc)(ulonglong* fileSlotIndex, ulonglong filePath64);
+typedef void(__fastcall UpdateLocalPathStringFunc)(PathCode64 pathA, PathCode64 pathB);
+typedef Path*(__thiscall foxPathPathBFunc)(Path* This, Path* rhs);
+typedef Path*(__fastcall foxPathEmptyFunc)();
+typedef ulonglong*(__fastcall GetPartsFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType);
+typedef ulonglong*(__fastcall GetPartsFilePathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType);
+typedef ulonglong*(__fastcall GetCamoFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerCamoType);
+typedef ulonglong*(__fastcall GetCamoFilePathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerCamoType);
+typedef ulonglong*(__fastcall GetFacialMtarFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType);
+typedef ulonglong*(__fastcall GetFacialMtarFilePathFunc)(ulonglong* fileSlotIndex, int playerType);
+typedef ulonglong*(__fastcall GetHandFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerHandType);
+typedef ulonglong*(__fastcall GetHandFilePathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerHandType);
+typedef bool(__fastcall _DoesNeedBodyFovaForDDFunc)(uint playerType, uint playerPartsType);
+typedef ulonglong*(__fastcall GetBodyFovaPathFunc)(ulonglong* loadFile, uint playerType, uint playerPartsType);
+typedef bool(__fastcall DoesNeedFaceFovaFunc)(uint playerPartsType);
+typedef bool(__fastcall DoesNeedFaceFovaForAvatarFunc)(uint playerPartsType);
+typedef ulonglong*(__fastcall GetFaceFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerFaceId, char playerFaceEquipId);
+typedef ulonglong*(__fastcall GetFaceFilePathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType, uint playerFaceId, char playerFaceEquipId);
+typedef ulonglong*(__fastcall GetAvatarHoneFpkPathFunc)(ulonglong* fileSlotIndex, uint ogreLevel);
+typedef ulonglong*(__fastcall GetAvatarHoneFilePathFunc)(ulonglong* fileSlotIndex, uint ogreLevel);
+typedef ulonglong*(__fastcall GetPathAtBuddyTypeFunc)(ulonglong param_1, ulonglong* fileSlotIndex, uint buddyType, ulonglong param_4);
+typedef ulonglong*(__fastcall GetBuddyQuietWeaponFileFromBuddyBlockFunc)(ulonglong param_1, ulonglong* fileSlotIndex, short param_quietWeaponId);
+typedef void(__fastcall GetPathAtSub_BuddyDogFunc)(longlong param_1, ulonglong* fileSlotIndex);
+typedef void(__fastcall GetPathAtSub_BuddyHorseFunc)(longlong param_1, ulonglong* fileSlotIndex);
+typedef ulonglong*(__fastcall GetBuddyGearArmFileFunc)(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4);
+typedef ulonglong*(__fastcall GetBuddyGearHeadFileFunc)(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4);
+typedef ulonglong*(__fastcall GetBuddyGearMainWeaponFileFunc)(ulonglong param_1, ulonglong* fileSlotIndex, ulonglong param_3, ulonglong param_4);
+typedef int*(__fastcall FoxBlockLoadFunc)(void* param_1, int* param_2, ulonglong* param_3, uint param_4);
+typedef char(__fastcall ReliefVehicleLoadToExhibitFunc)(longlong param_1);
+typedef char(__fastcall ReliefVehicleLoadFunc)(longlong param_1, ulonglong param_2);
+typedef longlong(__fastcall GetBlockAtIndexFunc)(longlong param_1, uint param_2);
+typedef ulonglong*(__fastcall gkGetColoringSystemFunc)();
+typedef longlong*(__fastcall GetBuddyCommandNameFunc)(longlong* langId, uint commandType);
+typedef longlong*(__fastcall GetBuddyCommandHelpNameFunc)(longlong* langId, uint commandType);
+typedef lua_State*(__fastcall lua_newstateFunc)(lua_Alloc f, void* ud);
+typedef void(__fastcall lua_closeFunc)(lua_State* L);
+typedef lua_State*(__fastcall lua_newthreadFunc)(lua_State* L);
+typedef lua_CFunction(__fastcall lua_atpanicFunc)(lua_State* L, lua_CFunction panicf);
 // lua_gettop USING_CODE
-typedef void (__fastcall lua_settopFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_pushvalueFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_removeFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_insertFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_replaceFunc)(lua_State * L, int idx);
-typedef int (__fastcall lua_checkstackFunc)(lua_State * L, int sz);
-typedef void (__fastcall lua_xmoveFunc)(lua_State * from, lua_State * to, int n);
-typedef int (__fastcall lua_isnumberFunc)(lua_State * L, int idx);
-typedef int (__fastcall lua_isstringFunc)(lua_State * L, int idx);
-typedef int (__fastcall lua_iscfunctionFunc)(lua_State * L, int idx);
+typedef void(__fastcall lua_settopFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_pushvalueFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_removeFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_insertFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_replaceFunc)(lua_State* L, int idx);
+typedef int(__fastcall lua_checkstackFunc)(lua_State* L, int sz);
+typedef void(__fastcall lua_xmoveFunc)(lua_State* from, lua_State* to, int n);
+typedef int(__fastcall lua_isnumberFunc)(lua_State* L, int idx);
+typedef int(__fastcall lua_isstringFunc)(lua_State* L, int idx);
+typedef int(__fastcall lua_iscfunctionFunc)(lua_State* L, int idx);
 // lua_isuserdata USING_CODE
-typedef int (__fastcall lua_typeFunc)(lua_State * L, int idx);
+typedef int(__fastcall lua_typeFunc)(lua_State* L, int idx);
 // lua_typename USING_CODE
 // lua_equal NOT_FOUND
-typedef int (__fastcall lua_rawequalFunc)(lua_State * L, int idx1, int idx2);
-typedef int (__fastcall lua_lessthanFunc)(lua_State * L, int idx1, int idx2);
-typedef lua_Number (__fastcall lua_tonumberFunc)(lua_State * L, int idx);
-typedef lua_Integer (__fastcall lua_tointegerFunc)(lua_State * L, int idx);
-typedef int (__fastcall lua_tobooleanFunc)(lua_State * L, int idx);
-typedef char * (__fastcall lua_tolstringFunc)(lua_State * L, int idx, size_t * len);
-typedef size_t (__fastcall lua_objlenFunc)(lua_State * L, int idx);
-typedef lua_CFunction (__fastcall lua_tocfunctionFunc)(lua_State * L, int idx);
-typedef void * (__fastcall lua_touserdataFunc)(lua_State * L, int idx);
-typedef lua_State * (__fastcall lua_tothreadFunc)(lua_State * L, int idx);
-typedef void * (__fastcall lua_topointerFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_pushnilFunc)(lua_State * L);
-typedef void (__fastcall lua_pushnumberFunc)(lua_State * L, lua_Number n);
-typedef void (__fastcall lua_pushintegerFunc)(lua_State * L, lua_Integer n);
-typedef void (__fastcall lua_pushlstringFunc)(lua_State * L, const char * s, size_t l);
-typedef void (__fastcall lua_pushstringFunc)(lua_State * L, const char * s);
-typedef char * (__fastcall lua_pushvfstringFunc)(lua_State * L, const char * fmt, void * argp);
-typedef char * (__fastcall lua_pushfstringFunc)(lua_State * L, const char * fmt, ...);
-typedef void (__fastcall lua_pushcclosureFunc)(lua_State * L, lua_CFunction fn, int n);
-typedef void (__fastcall lua_pushbooleanFunc)(lua_State * L, int b);
-typedef void (__fastcall lua_pushlightuserdataFunc)(lua_State * L, void * p);
-typedef int (__fastcall lua_pushthreadFunc)(lua_State * L);
-typedef void (__fastcall lua_gettableFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_getfieldFunc)(lua_State * L, int idx, const char * k);
-typedef void (__fastcall lua_rawgetFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_rawgetiFunc)(lua_State * L, int idx, int n);
-typedef void (__fastcall lua_createtableFunc)(lua_State * L, int narr, int nrec);
-typedef void * (__fastcall lua_newuserdataFunc)(lua_State * L, size_t sz);
-typedef int (__fastcall lua_getmetatableFunc)(lua_State * L, int objindex);
-typedef void (__fastcall lua_getfenvFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_settableFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_setfieldFunc)(lua_State * L, int idx, const char * k);
-typedef void (__fastcall lua_rawsetFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_rawsetiFunc)(lua_State * L, int idx, int n);
-typedef int (__fastcall lua_setmetatableFunc)(lua_State * L, int objindex);
-typedef int (__fastcall lua_setfenvFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_callFunc)(lua_State * L, int nargs, int nresults);
-typedef int (__fastcall lua_pcallFunc)(lua_State * L, int nargs, int nresults, int errfunc);
-typedef int (__fastcall lua_cpcallFunc)(lua_State * L, lua_CFunction func, void * ud);
-typedef int (__fastcall lua_loadFunc)(lua_State * L, lua_Reader reader, void * dt, const char * chunkname);
-typedef int (__fastcall lua_dumpFunc)(lua_State * L, lua_Writer writer, void * data);
+typedef int(__fastcall lua_rawequalFunc)(lua_State* L, int idx1, int idx2);
+typedef int(__fastcall lua_lessthanFunc)(lua_State* L, int idx1, int idx2);
+typedef lua_Number(__fastcall lua_tonumberFunc)(lua_State* L, int idx);
+typedef lua_Integer(__fastcall lua_tointegerFunc)(lua_State* L, int idx);
+typedef int(__fastcall lua_tobooleanFunc)(lua_State* L, int idx);
+typedef char*(__fastcall lua_tolstringFunc)(lua_State* L, int idx, size_t* len);
+typedef size_t(__fastcall lua_objlenFunc)(lua_State* L, int idx);
+typedef lua_CFunction(__fastcall lua_tocfunctionFunc)(lua_State* L, int idx);
+typedef void*(__fastcall lua_touserdataFunc)(lua_State* L, int idx);
+typedef lua_State*(__fastcall lua_tothreadFunc)(lua_State* L, int idx);
+typedef void*(__fastcall lua_topointerFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_pushnilFunc)(lua_State* L);
+typedef void(__fastcall lua_pushnumberFunc)(lua_State* L, lua_Number n);
+typedef void(__fastcall lua_pushintegerFunc)(lua_State* L, lua_Integer n);
+typedef void(__fastcall lua_pushlstringFunc)(lua_State* L, const char* s, size_t l);
+typedef void(__fastcall lua_pushstringFunc)(lua_State* L, const char* s);
+typedef char*(__fastcall lua_pushvfstringFunc)(lua_State* L, const char* fmt, void* argp);
+typedef char*(__fastcall lua_pushfstringFunc)(lua_State* L, const char* fmt, ...);
+typedef void(__fastcall lua_pushcclosureFunc)(lua_State* L, lua_CFunction fn, int n);
+typedef void(__fastcall lua_pushbooleanFunc)(lua_State* L, int b);
+typedef void(__fastcall lua_pushlightuserdataFunc)(lua_State* L, void* p);
+typedef int(__fastcall lua_pushthreadFunc)(lua_State* L);
+typedef void(__fastcall lua_gettableFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_getfieldFunc)(lua_State* L, int idx, const char* k);
+typedef void(__fastcall lua_rawgetFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_rawgetiFunc)(lua_State* L, int idx, int n);
+typedef void(__fastcall lua_createtableFunc)(lua_State* L, int narr, int nrec);
+typedef void*(__fastcall lua_newuserdataFunc)(lua_State* L, size_t sz);
+typedef int(__fastcall lua_getmetatableFunc)(lua_State* L, int objindex);
+typedef void(__fastcall lua_getfenvFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_settableFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_setfieldFunc)(lua_State* L, int idx, const char* k);
+typedef void(__fastcall lua_rawsetFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_rawsetiFunc)(lua_State* L, int idx, int n);
+typedef int(__fastcall lua_setmetatableFunc)(lua_State* L, int objindex);
+typedef int(__fastcall lua_setfenvFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_callFunc)(lua_State* L, int nargs, int nresults);
+typedef int(__fastcall lua_pcallFunc)(lua_State* L, int nargs, int nresults, int errfunc);
+typedef int(__fastcall lua_cpcallFunc)(lua_State* L, lua_CFunction func, void* ud);
+typedef int(__fastcall lua_loadFunc)(lua_State* L, lua_Reader reader, void* dt, const char* chunkname);
+typedef int(__fastcall lua_dumpFunc)(lua_State* L, lua_Writer writer, void* data);
 // lua_yield USING_CODE
-typedef int (__fastcall lua_resumeFunc)(lua_State * L, int narg);
+typedef int(__fastcall lua_resumeFunc)(lua_State* L, int narg);
 // lua_status USING_CODE
-typedef int (__fastcall lua_gcFunc)(lua_State * L, int what, int data);
-typedef int (__fastcall lua_errorFunc)(lua_State * L);
-typedef int (__fastcall lua_nextFunc)(lua_State * L, int idx);
-typedef void (__fastcall lua_concatFunc)(lua_State * L, int n);
+typedef int(__fastcall lua_gcFunc)(lua_State* L, int what, int data);
+typedef int(__fastcall lua_errorFunc)(lua_State* L);
+typedef int(__fastcall lua_nextFunc)(lua_State* L, int idx);
+typedef void(__fastcall lua_concatFunc)(lua_State* L, int n);
 // lua_getallocf NO_USE
 // lua_setallocf NO_USE
 // lua_setlevel NO_USE
-typedef int (__fastcall lua_getstackFunc)(lua_State * L, int level, lua_Debug * ar);
-typedef int (__fastcall lua_getinfoFunc)(lua_State * L, const char * what, lua_Debug * ar);
-typedef char * (__fastcall lua_getlocalFunc)(lua_State * L, lua_Debug * ar, int n);
-typedef char * (__fastcall lua_setlocalFunc)(lua_State * L, lua_Debug * ar, int n);
-typedef char * (__fastcall lua_getupvalueFunc)(lua_State * L, int funcindex, int n);
-typedef char * (__fastcall lua_setupvalueFunc)(lua_State * L, int funcindex, int n);
-typedef int (__fastcall lua_sethookFunc)(lua_State * L, lua_Hook func, int mask, int count);
+typedef int(__fastcall lua_getstackFunc)(lua_State* L, int level, lua_Debug* ar);
+typedef int(__fastcall lua_getinfoFunc)(lua_State* L, const char* what, lua_Debug* ar);
+typedef char*(__fastcall lua_getlocalFunc)(lua_State* L, lua_Debug* ar, int n);
+typedef char*(__fastcall lua_setlocalFunc)(lua_State* L, lua_Debug* ar, int n);
+typedef char*(__fastcall lua_getupvalueFunc)(lua_State* L, int funcindex, int n);
+typedef char*(__fastcall lua_setupvalueFunc)(lua_State* L, int funcindex, int n);
+typedef int(__fastcall lua_sethookFunc)(lua_State* L, lua_Hook func, int mask, int count);
 // lua_gethook USING_CODE
 // lua_gethookmask USING_CODE
 // lua_gethookcount USING_CODE
-typedef void (__fastcall luaI_openlibFunc)(lua_State * L, const char * libName, const luaL_Reg * l, int nup);
+typedef void(__fastcall luaI_openlibFunc)(lua_State* L, const char* libName, const luaL_Reg* l, int nup);
 // luaL_register USING_CODE
-typedef int (__fastcall luaL_getmetafieldFunc)(lua_State * L, int obj, const char * e);
-typedef int (__fastcall luaL_callmetaFunc)(lua_State * L, int obj, const char * e);
-typedef int (__fastcall luaL_typerrorFunc)(lua_State * L, int narg, const char * tname);
-typedef int (__fastcall luaL_argerrorFunc)(lua_State * L, int numarg, const char * extramsg);
-typedef char * (__fastcall luaL_checklstringFunc)(lua_State * L, int numArg, size_t * l);
-typedef char * (__fastcall luaL_optlstringFunc)(lua_State * L, int numArg, const char * def, size_t * l);
-typedef lua_Number (__fastcall luaL_checknumberFunc)(lua_State * L, int numArg);
+typedef int(__fastcall luaL_getmetafieldFunc)(lua_State* L, int obj, const char* e);
+typedef int(__fastcall luaL_callmetaFunc)(lua_State* L, int obj, const char* e);
+typedef int(__fastcall luaL_typerrorFunc)(lua_State* L, int narg, const char* tname);
+typedef int(__fastcall luaL_argerrorFunc)(lua_State* L, int numarg, const char* extramsg);
+typedef char*(__fastcall luaL_checklstringFunc)(lua_State* L, int numArg, size_t* l);
+typedef char*(__fastcall luaL_optlstringFunc)(lua_State* L, int numArg, const char* def, size_t* l);
+typedef lua_Number(__fastcall luaL_checknumberFunc)(lua_State* L, int numArg);
 // luaL_optnumber USING_CODE
-typedef lua_Integer (__fastcall luaL_checkintegerFunc)(lua_State * L, int numArg);
-typedef lua_Integer (__fastcall luaL_optintegerFunc)(lua_State * L, int nArg, lua_Integer def);
-typedef void (__fastcall luaL_checkstackFunc)(lua_State * L, int sz, const char * msg);
-typedef void (__fastcall luaL_checktypeFunc)(lua_State * L, int narg, int t);
-typedef void (__fastcall luaL_checkanyFunc)(lua_State * L, int narg);
-typedef int (__fastcall luaL_newmetatableFunc)(lua_State * L, const char * tname);
-typedef void * (__fastcall luaL_checkudataFunc)(lua_State * L, int ud, const char * tname);
-typedef void (__fastcall luaL_whereFunc)(lua_State * L, int lvl);
-typedef int (__fastcall luaL_errorFunc)(lua_State * L, const char * fmt, ...);
-typedef int (__fastcall luaL_checkoptionFunc)(lua_State * L, int narg, const char * def, char * * lst);
+typedef lua_Integer(__fastcall luaL_checkintegerFunc)(lua_State* L, int numArg);
+typedef lua_Integer(__fastcall luaL_optintegerFunc)(lua_State* L, int nArg, lua_Integer def);
+typedef void(__fastcall luaL_checkstackFunc)(lua_State* L, int sz, const char* msg);
+typedef void(__fastcall luaL_checktypeFunc)(lua_State* L, int narg, int t);
+typedef void(__fastcall luaL_checkanyFunc)(lua_State* L, int narg);
+typedef int(__fastcall luaL_newmetatableFunc)(lua_State* L, const char* tname);
+typedef void*(__fastcall luaL_checkudataFunc)(lua_State* L, int ud, const char* tname);
+typedef void(__fastcall luaL_whereFunc)(lua_State* L, int lvl);
+typedef int(__fastcall luaL_errorFunc)(lua_State* L, const char* fmt, ...);
+typedef int(__fastcall luaL_checkoptionFunc)(lua_State* L, int narg, const char* def, char** lst);
 // luaL_ref USING_CODE
 // luaL_unref USING_CODE
-typedef int (__fastcall luaL_loadfileFunc)(lua_State * L, const char * filename);
-typedef int (__fastcall luaL_loadbufferFunc)(lua_State * L, const char * buff, size_t sz, const char * name);
+typedef int(__fastcall luaL_loadfileFunc)(lua_State* L, const char* filename);
+typedef int(__fastcall luaL_loadbufferFunc)(lua_State* L, const char* buff, size_t sz, const char* name);
 // luaL_loadstring USING_CODE
-typedef lua_State * (__fastcall luaL_newstateFunc)();
-typedef char * (__fastcall luaL_gsubFunc)(lua_State * L, const char * s, const char * p, const char * r);
-typedef char * (__fastcall luaL_findtableFunc)(lua_State * L, int idx, const char * fname, int szhint);
+typedef lua_State*(__fastcall luaL_newstateFunc)();
+typedef char*(__fastcall luaL_gsubFunc)(lua_State* L, const char* s, const char* p, const char* r);
+typedef char*(__fastcall luaL_findtableFunc)(lua_State* L, int idx, const char* fname, int szhint);
 // luaL_buffinit USING_CODE
-typedef char * (__fastcall luaL_prepbufferFunc)(luaL_Buffer * B);
-typedef void (__fastcall luaL_addlstringFunc)(luaL_Buffer * B, const char * s, size_t l);
+typedef char*(__fastcall luaL_prepbufferFunc)(luaL_Buffer* B);
+typedef void(__fastcall luaL_addlstringFunc)(luaL_Buffer* B, const char* s, size_t l);
 // luaL_addstring USING_CODE
-typedef void (__fastcall luaL_addvalueFunc)(luaL_Buffer * B);
-typedef void (__fastcall luaL_pushresultFunc)(luaL_Buffer * B);
-typedef int (__fastcall luaopen_baseFunc)(lua_State * L);
-typedef int (__fastcall luaopen_tableFunc)(lua_State * L);
-typedef int (__fastcall luaopen_ioFunc)(lua_State * L);
-typedef int (__fastcall luaopen_osFunc)(lua_State * L);
-typedef int (__fastcall luaopen_stringFunc)(lua_State * L);
-typedef int (__fastcall luaopen_mathFunc)(lua_State * L);
-typedef int (__fastcall luaopen_debugFunc)(lua_State * L);
-typedef int (__fastcall luaopen_packageFunc)(lua_State * L);
-typedef void (__fastcall luaL_openlibsFunc)(lua_State * L);
-typedef double (__fastcall FoxBlockProcessFunc)(void* Block, void* TaskContext, void* BlockProcessState);
-typedef ChangeLocationMenuParameter* (__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
-typedef ChangeLocationMenuParameter* (__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
-typedef unsigned long long (__thiscall GetPhotoAdditionalTextLangIdFunc)(MotherBaseMissionCommonData* self, unsigned long long* __return_storage_ptr__, unsigned short missionCode, unsigned char photoId, unsigned char photoType);
-/*typedef bool (__thiscall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3, bool param_4, bool param_5, bool param_6);
-typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
-typedef ushort (__thiscall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort radioType);
-typedef void(__thiscall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc);
-typedef ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel);
-typedef bool (__cdecl IsRainingFunc)(void* Soldier2, uint param_2);
-typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);*/
-typedef longlong (__fastcall io_openFunc)(lua_State * L);
-typedef longlong (__fastcall io_popenFunc)(lua_State * L);
-typedef void (__fastcall io_closeFunc)(lua_State * L);
-typedef void (__fastcall f_readFunc)(lua_State * L);
-typedef void (__fastcall f_writeFunc)(lua_State * L);
+typedef void(__fastcall luaL_addvalueFunc)(luaL_Buffer* B);
+typedef void(__fastcall luaL_pushresultFunc)(luaL_Buffer* B);
+typedef int(__fastcall luaopen_baseFunc)(lua_State* L);
+typedef int(__fastcall luaopen_tableFunc)(lua_State* L);
+typedef int(__fastcall luaopen_ioFunc)(lua_State* L);
+typedef int(__fastcall luaopen_osFunc)(lua_State* L);
+typedef int(__fastcall luaopen_stringFunc)(lua_State* L);
+typedef int(__fastcall luaopen_mathFunc)(lua_State* L);
+typedef int(__fastcall luaopen_debugFunc)(lua_State* L);
+typedef int(__fastcall luaopen_packageFunc)(lua_State* L);
+typedef void(__fastcall luaL_openlibsFunc)(lua_State* L);
+typedef double(__fastcall FoxBlockProcessFunc)(void* Block, void* TaskContext, void* BlockProcessState);
+typedef ChangeLocationMenuParameter*(__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
+typedef ChangeLocationMenuParameter*(__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
+typedef unsigned long long(__thiscall GetPhotoAdditionalTextLangIdFunc)(
+    MotherBaseMissionCommonData* self,
+    unsigned long long* __return_storage_ptr__,
+    unsigned short missionCode,
+    unsigned char photoId,
+    unsigned char photoType);
+/*typedef bool (__thiscall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3,
+bool param_4, bool param_5, bool param_6); typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
+typedef ushort (__thiscall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort
+radioType); typedef void(__thiscall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc); typedef
+ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel); typedef bool (__cdecl IsRainingFunc)(void*
+Soldier2, uint param_2); typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);*/
+typedef longlong(__fastcall io_openFunc)(lua_State* L);
+typedef longlong(__fastcall io_popenFunc)(lua_State* L);
+typedef void(__fastcall io_closeFunc)(lua_State* L);
+typedef void(__fastcall f_readFunc)(lua_State* L);
+typedef void(__fastcall f_writeFunc)(lua_State* L);
 
-//tex the (extern of the) function pointers
+// tex the (extern of the) function pointers
 extern ff_stringid_hash_nFunc* ff_stringid_hash_n;
 extern FoxStrHash32Func* FoxStrHash32;
 extern path_hash_codeFunc* path_hash_code;
@@ -245,7 +249,7 @@ extern lua_newstateFunc* lua_newstate;
 extern lua_closeFunc* lua_close;
 extern lua_newthreadFunc* lua_newthread;
 extern lua_atpanicFunc* lua_atpanic;
-//extern lua_gettopFunc* lua_gettop;//USING_CODE
+// extern lua_gettopFunc* lua_gettop;//USING_CODE
 extern lua_settopFunc* lua_settop;
 extern lua_pushvalueFunc* lua_pushvalue;
 extern lua_removeFunc* lua_remove;
@@ -256,10 +260,10 @@ extern lua_xmoveFunc* lua_xmove;
 extern lua_isnumberFunc* lua_isnumber;
 extern lua_isstringFunc* lua_isstring;
 extern lua_iscfunctionFunc* lua_iscfunction;
-//extern lua_isuserdataFunc* lua_isuserdata;//USING_CODE
+// extern lua_isuserdataFunc* lua_isuserdata;//USING_CODE
 extern lua_typeFunc* lua_type;
-//extern lua_typenameFunc* lua_typename;//USING_CODE
-//extern lua_equalFunc* lua_equal;//NOT_FOUND
+// extern lua_typenameFunc* lua_typename;//USING_CODE
+// extern lua_equalFunc* lua_equal;//NOT_FOUND
 extern lua_rawequalFunc* lua_rawequal;
 extern lua_lessthanFunc* lua_lessthan;
 extern lua_tonumberFunc* lua_tonumber;
@@ -301,16 +305,16 @@ extern lua_pcallFunc* lua_pcall;
 extern lua_cpcallFunc* lua_cpcall;
 extern lua_loadFunc* lua_load;
 extern lua_dumpFunc* lua_dump;
-//extern lua_yieldFunc* lua_yield;//USING_CODE
+// extern lua_yieldFunc* lua_yield;//USING_CODE
 extern lua_resumeFunc* lua_resume;
-//extern lua_statusFunc* lua_status;//USING_CODE
+// extern lua_statusFunc* lua_status;//USING_CODE
 extern lua_gcFunc* lua_gc;
 extern lua_errorFunc* lua_error;
 extern lua_nextFunc* lua_next;
 extern lua_concatFunc* lua_concat;
-//extern lua_getallocfFunc* lua_getallocf;//NO_USE
-//extern lua_setallocfFunc* lua_setallocf;//NO_USE
-//extern lua_setlevelFunc* lua_setlevel;//NO_USE
+// extern lua_getallocfFunc* lua_getallocf;//NO_USE
+// extern lua_setallocfFunc* lua_setallocf;//NO_USE
+// extern lua_setlevelFunc* lua_setlevel;//NO_USE
 extern lua_getstackFunc* lua_getstack;
 extern lua_getinfoFunc* lua_getinfo;
 extern lua_getlocalFunc* lua_getlocal;
@@ -318,11 +322,11 @@ extern lua_setlocalFunc* lua_setlocal;
 extern lua_getupvalueFunc* lua_getupvalue;
 extern lua_setupvalueFunc* lua_setupvalue;
 extern lua_sethookFunc* lua_sethook;
-//extern lua_gethookFunc* lua_gethook;//USING_CODE
-//extern lua_gethookmaskFunc* lua_gethookmask;//USING_CODE
-//extern lua_gethookcountFunc* lua_gethookcount;//USING_CODE
+// extern lua_gethookFunc* lua_gethook;//USING_CODE
+// extern lua_gethookmaskFunc* lua_gethookmask;//USING_CODE
+// extern lua_gethookcountFunc* lua_gethookcount;//USING_CODE
 extern luaI_openlibFunc* luaI_openlib;
-//extern luaL_registerFunc* luaL_register;//USING_CODE
+// extern luaL_registerFunc* luaL_register;//USING_CODE
 extern luaL_getmetafieldFunc* luaL_getmetafield;
 extern luaL_callmetaFunc* luaL_callmeta;
 extern luaL_typerrorFunc* luaL_typerror;
@@ -330,7 +334,7 @@ extern luaL_argerrorFunc* luaL_argerror;
 extern luaL_checklstringFunc* luaL_checklstring;
 extern luaL_optlstringFunc* luaL_optlstring;
 extern luaL_checknumberFunc* luaL_checknumber;
-//extern luaL_optnumberFunc* luaL_optnumber;//USING_CODE
+// extern luaL_optnumberFunc* luaL_optnumber;//USING_CODE
 extern luaL_checkintegerFunc* luaL_checkinteger;
 extern luaL_optintegerFunc* luaL_optinteger;
 extern luaL_checkstackFunc* luaL_checkstack;
@@ -341,18 +345,18 @@ extern luaL_checkudataFunc* luaL_checkudata;
 extern luaL_whereFunc* luaL_where;
 extern luaL_errorFunc* luaL_error;
 extern luaL_checkoptionFunc* luaL_checkoption;
-//extern luaL_refFunc* luaL_ref;//USING_CODE
-//extern luaL_unrefFunc* luaL_unref;//USING_CODE
+// extern luaL_refFunc* luaL_ref;//USING_CODE
+// extern luaL_unrefFunc* luaL_unref;//USING_CODE
 extern luaL_loadfileFunc* luaL_loadfile;
 extern luaL_loadbufferFunc* luaL_loadbuffer;
-//extern luaL_loadstringFunc* luaL_loadstring;//USING_CODE
+// extern luaL_loadstringFunc* luaL_loadstring;//USING_CODE
 extern luaL_newstateFunc* luaL_newstate;
 extern luaL_gsubFunc* luaL_gsub;
 extern luaL_findtableFunc* luaL_findtable;
-//extern luaL_buffinitFunc* luaL_buffinit;//USING_CODE
+// extern luaL_buffinitFunc* luaL_buffinit;//USING_CODE
 extern luaL_prepbufferFunc* luaL_prepbuffer;
 extern luaL_addlstringFunc* luaL_addlstring;
-//extern luaL_addstringFunc* luaL_addstring;//USING_CODE
+// extern luaL_addstringFunc* luaL_addstring;//USING_CODE
 extern luaL_addvalueFunc* luaL_addvalue;
 extern luaL_pushresultFunc* luaL_pushresult;
 extern luaopen_baseFunc* luaopen_base;

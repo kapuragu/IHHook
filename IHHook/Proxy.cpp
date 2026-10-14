@@ -2,7 +2,6 @@
 #include "spdlog/spdlog.h"
 #include "windowsapi.h"
 #include <filesystem>
-#include <mutex>
 #include <string>
 
 extern HMODULE g_thisModule; 
@@ -36,18 +35,18 @@ static void LoadOriginalDll()
                 return;
             }
 
-            const std::filesystem::path& path = std::filesystem::path(systemDir) / std::filesystem::path(ourPath).filename();
+            const std::filesystem::path path = std::filesystem::path(systemDir) / std::filesystem::path(ourPath).filename();
 
             spdlog::trace(L"Loading original: {}", path.wstring());
 
-            g_origDll = LoadLibraryW(path.c_str());
+            g_origDll = LoadLibraryExW(path.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
             if (!g_origDll)
             {
-                spdlog::error("LoadLibraryW failed: {}", GetLastError());
+                spdlog::error("LoadLibraryExW failed: {}", GetLastError());
                 return;
             }
 
-            // detect our proxy
+            // get the proxy name
             std::wstring name = std::filesystem::path(ourPath).filename().wstring();
             for (auto& c : name)
                 {
@@ -63,24 +62,30 @@ static void LoadOriginalDll()
 }
 
 // dinput8 exports
-#pragma comment(linker, "/export:DirectInput8Create=_DirectInput8Create")
-#pragma comment(linker, "/export:DllCanUnloadNow=_DllCanUnloadNow,PRIVATE")
-#pragma comment(linker, "/export:DllGetClassObject=_DllGetClassObject,PRIVATE")
-#pragma comment(linker, "/export:DllRegisterServer=_DllRegisterServer,PRIVATE")
-#pragma comment(linker, "/export:DllUnregisterServer=_DllUnregisterServer,PRIVATE")
-#pragma comment(linker, "/export:GetdfDIJoystick=_GetdfDIJoystick")
+#pragma comment(linker, "/export:DirectInput8Create=DirectInput8Create")
+#pragma comment(linker, "/export:DllCanUnloadNow=DllCanUnloadNow,PRIVATE")
+#pragma comment(linker, "/export:DllGetClassObject=DllGetClassObject,PRIVATE")
+#pragma comment(linker, "/export:DllRegisterServer=DllRegisterServer,PRIVATE")
+#pragma comment(linker, "/export:DllUnregisterServer=DllUnregisterServer,PRIVATE")
+#pragma comment(linker, "/export:GetdfDIJoystick=GetdfDIJoystick")
 
-typedef HRESULT(WINAPI* DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, void* punkOuter);
+//structs
+struct IUnknown;
 
+//typedefs
+typedef HRESULT(WINAPI* DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, IUnknown* punkOuter);
+typedef HRESULT(WINAPI* DllGetClassObject_t)(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
+
+//function pointers
 static DirectInput8Create_t DirectInput8Create_Orig = nullptr;
+static DllGetClassObject_t DllGetClassObject_Orig = nullptr;
 static FARPROC DllCanUnloadNow_Orig = nullptr;
-static FARPROC DllGetClassObject_Orig = nullptr;
 static FARPROC DllRegisterServer_Orig = nullptr;
 static FARPROC DllUnregisterServer_Orig = nullptr;
 static FARPROC GetdfDIJoystick_Orig = nullptr;
 
 
-extern "C" __declspec(dllexport) HRESULT WINAPI _DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, void* punkOuter)
+extern "C" __declspec(dllexport) HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, IUnknown* punkOuter)
 {
     if (!DirectInput8Create_Orig)
     {
@@ -90,7 +95,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI _DirectInput8Create(HINSTANCE hi
     return DirectInput8Create_Orig(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI _DllCanUnloadNow()
+extern "C" __declspec(dllexport) HRESULT WINAPI DllCanUnloadNow()
 {
     if (!DllCanUnloadNow_Orig)
     {
@@ -100,17 +105,17 @@ extern "C" __declspec(dllexport) HRESULT WINAPI _DllCanUnloadNow()
     return ((HRESULT(WINAPI*)())DllCanUnloadNow_Orig)();
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI _DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
+extern "C" __declspec(dllexport) HRESULT WINAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
     if (!DllGetClassObject_Orig)
     {
         LoadOriginalDll();
         ResolveAllExports();
     }
-    return ((HRESULT(WINAPI*)(REFCLSID, REFIID, LPVOID*))DllGetClassObject_Orig)(rclsid, riid, ppv);
+    return DllGetClassObject_Orig(rclsid, riid, ppv);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI _DllRegisterServer()
+extern "C" __declspec(dllexport) HRESULT WINAPI DllRegisterServer()
 {
     if (!DllRegisterServer_Orig)
     {
@@ -120,7 +125,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI _DllRegisterServer()
     return ((HRESULT(WINAPI*)())DllRegisterServer_Orig)();
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI _DllUnregisterServer()
+extern "C" __declspec(dllexport) HRESULT WINAPI DllUnregisterServer()
 {
     
     if (!DllUnregisterServer_Orig)
@@ -131,7 +136,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI _DllUnregisterServer()
     return ((HRESULT(WINAPI*)())DllUnregisterServer_Orig)();
 }
 
-extern "C" __declspec(dllexport) void WINAPI _GetdfDIJoystick()
+extern "C" __declspec(dllexport) void WINAPI GetdfDIJoystick()
 {
     if (!GetdfDIJoystick_Orig)
     {
@@ -144,23 +149,23 @@ extern "C" __declspec(dllexport) void WINAPI _GetdfDIJoystick()
 
 // xinput exports
 #pragma comment(linker, "/export:DllMain=_DllMain,@1")
-#pragma comment(linker, "/export:XInputGetState=_XInputGetState,@2")
-#pragma comment(linker, "/export:XInputSetState=_XInputSetState,@3")
-#pragma comment(linker, "/export:XInputGetCapabilities=_XInputGetCapabilities,@4")
-#pragma comment(linker, "/export:XInputEnable=_XInputEnable,@5")
-#pragma comment(linker, "/export:XInputGetDSoundAudioDeviceGuids=_XInputGetDSoundAudioDeviceGuids,@6")
-#pragma comment(linker, "/export:XInputGetBatteryInformation=_XInputGetBatteryInformation,@7")
-#pragma comment(linker, "/export:XInputGetKeystroke=_XInputGetKeystroke,@8")
-#pragma comment(linker, "/export:XInputGetAudioDeviceIds=_XInputGetAudioDeviceIds,@10")
+#pragma comment(linker, "/export:XInputGetState=XInputGetState,@2")
+#pragma comment(linker, "/export:XInputSetState=XInputSetState,@3")
+#pragma comment(linker, "/export:XInputGetCapabilities=XInputGetCapabilities,@4")
+#pragma comment(linker, "/export:XInputEnable=XInputEnable,@5")
+#pragma comment(linker, "/export:XInputGetDSoundAudioDeviceGuids=XInputGetDSoundAudioDeviceGuids,@6")
+#pragma comment(linker, "/export:XInputGetBatteryInformation=XInputGetBatteryInformation,@7")
+#pragma comment(linker, "/export:XInputGetKeystroke=XInputGetKeystroke,@8")
+#pragma comment(linker, "/export:XInputGetAudioDeviceIds=XInputGetAudioDeviceIds,@10")
 
 // Undocumented
-#pragma comment(linker, "/export:ordinal100=_ordinal100,@100,NONAME")
-#pragma comment(linker, "/export:ordinal101=_ordinal101,@101,NONAME")
-#pragma comment(linker, "/export:ordinal102=_ordinal102,@102,NONAME")
-#pragma comment(linker, "/export:ordinal103=_ordinal103,@103,NONAME")
+#pragma comment(linker, "/export:ordinal100=ordinal100,@100,NONAME")
+#pragma comment(linker, "/export:ordinal101=ordinal101,@101,NONAME")
+#pragma comment(linker, "/export:ordinal102=ordinal102,@102,NONAME")
+#pragma comment(linker, "/export:ordinal103=ordinal103,@103,NONAME")
 // xinput1_4 undocumented
-#pragma comment(linker, "/export:ordinal104=_ordinal104,@104,NONAME")
-#pragma comment(linker, "/export:ordinal108=_ordinal108,@108,NONAME")
+#pragma comment(linker, "/export:ordinal104=ordinal104,@104,NONAME")
+#pragma comment(linker, "/export:ordinal108=ordinal108,@108,NONAME")
 
 // structs
 struct XINPUT_STATE;
@@ -168,7 +173,11 @@ struct XINPUT_VIBRATION;
 struct XINPUT_CAPABILITIES;
 struct XINPUT_BATTERY_INFORMATION;
 struct XINPUT_KEYSTROKE;
+struct XINPUT_BUSINFO;
+struct XINPUT_CAPABILITIES_EX;
 
+//typedefs
+//xinput1_3
 typedef BOOL(WINAPI* DllMain_t)(HMODULE, DWORD, LPVOID);
 typedef DWORD(WINAPI* XInputGetState_t)(DWORD, XINPUT_STATE*);
 typedef DWORD(WINAPI* XInputSetState_t)(DWORD, XINPUT_VIBRATION*);
@@ -187,11 +196,12 @@ typedef DWORD(WINAPI* XInputWaitForGuideButton_t)(DWORD dwUserIndex, DWORD dwFla
 typedef DWORD(WINAPI* XInputCancelGuideButtonWait_t)(DWORD dwUserIndex); // ordinal 102
 typedef DWORD(WINAPI* XInputPowerOffController_t)(DWORD dwUserIndex);   // ordinal 103
 
-// xinput1_4 undocumented
-typedef DWORD(WINAPI* XInputGetBaseBusInformation_t)(DWORD dwUserIndex, LPVOID pVoid); // ordinal 104
-typedef DWORD(WINAPI* XInputGetCapabilitiesEx_t)(DWORD unk1, DWORD dwUserIndex, DWORD dwFlags, LPVOID pCapabilitiesEx); // ordinal 108
+//xinput1_4 undocumented
+typedef DWORD(WINAPI* XInputGetBaseBusInformation_t)(DWORD dwUserIndex, XINPUT_BUSINFO* pBusInfo);                          // ordinal 104
+typedef DWORD(WINAPI* XInputGetCapabilitiesEx_t)(DWORD unk1, DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES_EX* pCapabilitiesEx); // ordinal 108
 
 
+//function pointers
 static DllMain_t DllMain_Orig = nullptr;
 static XInputGetState_t XInputGetState_Orig = nullptr;
 static XInputSetState_t XInputSetState_Orig = nullptr;
@@ -221,7 +231,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI _DllMain(HMODULE hModule, DWORD ul_
     return DllMain_Orig ? DllMain_Orig(hModule, ul_reason_for_call, lpReserved) : TRUE;
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 {
     if (!XInputGetState_Orig)
     {
@@ -231,7 +241,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetState(DWORD dwUserIndex,
     return XInputGetState_Orig(dwUserIndex, pState);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
 {
     
     if (!XInputSetState_Orig)
@@ -242,7 +252,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputSetState(DWORD dwUserIndex,
     return XInputSetState_Orig(dwUserIndex, pVibration);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities)
 {
     
     if (!XInputGetCapabilities_Orig)
@@ -253,7 +263,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetCapabilities(DWORD dwUse
     return XInputGetCapabilities_Orig(dwUserIndex, dwFlags, pCapabilities);
 }
 
-extern "C" __declspec(dllexport) void WINAPI _XInputEnable(BOOL enable)
+extern "C" __declspec(dllexport) void WINAPI XInputEnable(BOOL enable)
 {
     
     if (!XInputEnable_Orig)
@@ -264,7 +274,7 @@ extern "C" __declspec(dllexport) void WINAPI _XInputEnable(BOOL enable)
     return XInputEnable_Orig(enable);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD dwUserIndex, GUID* pDSoundRenderGuid, GUID* pDSoundCaptureGuid)
 {
     
     if (!XInputGetDSoundAudioDeviceGuids_Orig)
@@ -275,7 +285,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetDSoundAudioDeviceGuids(D
     return XInputGetDSoundAudioDeviceGuids_Orig(dwUserIndex, pDSoundRenderGuid, pDSoundCaptureGuid);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetBatteryInformation(DWORD dwUserIndex, BYTE devType, XINPUT_BATTERY_INFORMATION* pBatteryInformation)
 {
     
     if (!XInputGetBatteryInformation_Orig)
@@ -286,7 +296,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetBatteryInformation(DWORD
     return XInputGetBatteryInformation_Orig(dwUserIndex, devType, pBatteryInformation);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, XINPUT_KEYSTROKE* pKeystroke)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetKeystroke(DWORD dwUserIndex, DWORD dwReserved, XINPUT_KEYSTROKE* pKeystroke)
 {
     if (!XInputGetKeystroke_Orig)
     {
@@ -296,7 +306,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetKeystroke(DWORD dwUserIn
     return XInputGetKeystroke_Orig(dwUserIndex, dwReserved, pKeystroke);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount)
+extern "C" __declspec(dllexport) DWORD WINAPI XInputGetAudioDeviceIds(DWORD dwUserIndex, LPWSTR pRenderDeviceId, UINT* pRenderCount, LPWSTR pCaptureDeviceId, UINT* pCaptureCount)
 {
     if (!XInputGetAudioDeviceIds_Orig)
     {
@@ -306,8 +316,8 @@ extern "C" __declspec(dllexport) DWORD WINAPI _XInputGetAudioDeviceIds(DWORD dwU
     return XInputGetAudioDeviceIds_Orig(dwUserIndex, pRenderDeviceId, pRenderCount, pCaptureDeviceId, pCaptureCount);
 }
 
-// Undocumented
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal100(DWORD dwUserIndex, XINPUT_STATE* pState)
+// undocumented
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal100(DWORD dwUserIndex, XINPUT_STATE* pState)
 {
     if (!XInputGetStateEx_Orig)
     {
@@ -317,7 +327,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _ordinal100(DWORD dwUserIndex, XIN
     return XInputGetStateEx_Orig(dwUserIndex, pState);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal101(DWORD dwUserIndex, DWORD dwFlag, LPVOID pVoid)
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal101(DWORD dwUserIndex, DWORD dwFlag, LPVOID pVoid)
 { 
     if (!XInputWaitForGuideButton_Orig)
     {
@@ -327,7 +337,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _ordinal101(DWORD dwUserIndex, DWO
     return XInputWaitForGuideButton_Orig(dwUserIndex, dwFlag, pVoid);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal102(DWORD dwUserIndex)
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal102(DWORD dwUserIndex)
 { 
     if (!XInputCancelGuideButtonWait_Orig)
     {
@@ -337,7 +347,7 @@ extern "C" __declspec(dllexport) DWORD WINAPI _ordinal102(DWORD dwUserIndex)
     return XInputCancelGuideButtonWait_Orig(dwUserIndex);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal103(DWORD dwUserIndex)
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal103(DWORD dwUserIndex)
 { 
     if (!XInputPowerOffController_Orig)
     {
@@ -347,17 +357,17 @@ extern "C" __declspec(dllexport) DWORD WINAPI _ordinal103(DWORD dwUserIndex)
     return XInputPowerOffController_Orig(dwUserIndex);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal104(DWORD dwUserIndex, LPVOID pVoid)
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal104(DWORD dwUserIndex, XINPUT_BUSINFO* pBusInfo)
 {
     if (!XInputGetBaseBusInformation_Orig)
     {
         LoadOriginalDll();
         ResolveAllExports();
     }
-    return XInputGetBaseBusInformation_Orig(dwUserIndex, pVoid);
+    return XInputGetBaseBusInformation_Orig(dwUserIndex, pBusInfo);
 }
 
-extern "C" __declspec(dllexport) DWORD WINAPI _ordinal108(DWORD unk1, DWORD dwUserIndex, DWORD dwFlags, LPVOID pCapabilitiesEx)
+extern "C" __declspec(dllexport) DWORD WINAPI ordinal108(DWORD unk1, DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES_EX* pCapabilitiesEx)
 {
     if (!XInputGetCapabilitiesEx_Orig)
     {
@@ -367,28 +377,37 @@ extern "C" __declspec(dllexport) DWORD WINAPI _ordinal108(DWORD unk1, DWORD dwUs
     return XInputGetCapabilitiesEx_Orig(unk1, dwUserIndex, dwFlags, pCapabilitiesEx);
 }
 
-//MFReadWrite.dll
-#pragma comment(linker, "/export:MFCreateSinkWriterFromMediaSink=__MFCreateSinkWriterFromMediaSink")
-#pragma comment(linker, "/export:MFCreateSinkWriterFromURL=__MFCreateSinkWriterFromURL")
-#pragma comment(linker, "/export:MFCreateSourceReaderFromByteStream=__MFCreateSourceReaderFromByteStream")
-#pragma comment(linker, "/export:MFCreateSourceReaderFromMediaSource=__MFCreateSourceReaderFromMediaSource")
-#pragma comment(linker, "/export:MFCreateSourceReaderFromURL=__MFCreateSourceReaderFromURL")
+// MFReadWrite.dll
+#pragma comment(linker, "/export:MFCreateSinkWriterFromMediaSink=MFCreateSinkWriterFromMediaSink")
+#pragma comment(linker, "/export:MFCreateSinkWriterFromURL=MFCreateSinkWriterFromURL")
+#pragma comment(linker, "/export:MFCreateSourceReaderFromByteStream=MFCreateSourceReaderFromByteStream")
+#pragma comment(linker, "/export:MFCreateSourceReaderFromMediaSource=MFCreateSourceReaderFromMediaSource")
+#pragma comment(linker, "/export:MFCreateSourceReaderFromURL=MFCreateSourceReaderFromURL")
+
+// structs
+struct IMFMediaSink;
+struct IMFAttributes;
+struct IMFSinkWriter;
+struct IMFByteStream;
+struct IMFSourceReader;
+struct IMFMediaSource;
 
 // typedefs
-typedef HRESULT(WINAPI* MFCreateSinkWriterFromMediaSink_t)(void* pMediaSink, void* pAttributes, void** ppSinkWriter);
-typedef HRESULT(WINAPI* MFCreateSinkWriterFromURL_t)(LPCWSTR pwszOutputURL, void* pByteStream, void* pAttributes, void** ppSinkWriter);
-typedef HRESULT(WINAPI* MFCreateSourceReaderFromByteStream_t)(void* pByteStream, void* pAttributes, void** ppSourceReader);
-typedef HRESULT(WINAPI* MFCreateSourceReaderFromMediaSource_t)(void* pMediaSource, void* pAttributes, void** ppSourceReader);
-typedef HRESULT(WINAPI* MFCreateSourceReaderFromURL_t)(LPCWSTR pwszURL, void* pAttributes, void** ppSourceReader);
+typedef HRESULT(WINAPI* MFCreateSinkWriterFromMediaSink_t)(IMFMediaSink* pMediaSink, IMFAttributes* pAttributes, IMFSinkWriter** ppSinkWriter);
+typedef HRESULT(WINAPI* MFCreateSinkWriterFromURL_t)(LPCWSTR pwszOutputURL, IMFByteStream* pByteStream, IMFAttributes* pAttributes, IMFSinkWriter** ppSinkWriter);
+typedef HRESULT(WINAPI* MFCreateSourceReaderFromByteStream_t)(IMFByteStream* pByteStream, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader);
+typedef HRESULT(WINAPI* MFCreateSourceReaderFromMediaSource_t)(IMFMediaSource* pMediaSource, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader);
+typedef HRESULT(WINAPI* MFCreateSourceReaderFromURL_t)(LPCWSTR pwszURL, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader);
 
-//ptrs
+// function pointers
 static MFCreateSinkWriterFromMediaSink_t MFCreateSinkWriterFromMediaSink_Orig = nullptr;
 static MFCreateSinkWriterFromURL_t MFCreateSinkWriterFromURL_Orig = nullptr;
 static MFCreateSourceReaderFromByteStream_t MFCreateSourceReaderFromByteStream_Orig = nullptr;
 static MFCreateSourceReaderFromMediaSource_t MFCreateSourceReaderFromMediaSource_Orig = nullptr;
 static MFCreateSourceReaderFromURL_t MFCreateSourceReaderFromURL_Orig = nullptr;
 
-extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSinkWriterFromMediaSink(void* pMediaSink, void* pAttributes, void** ppSinkWriter)
+// exported functions
+extern "C" __declspec(dllexport) HRESULT WINAPI MFCreateSinkWriterFromMediaSink(IMFMediaSink* pMediaSink, IMFAttributes* pAttributes, IMFSinkWriter** ppSinkWriter)
 {
     if (!MFCreateSinkWriterFromMediaSink_Orig)
     {
@@ -398,7 +417,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSinkWriterFromMediaSin
     return MFCreateSinkWriterFromMediaSink_Orig(pMediaSink, pAttributes, ppSinkWriter);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSinkWriterFromURL(LPCWSTR pwszOutputURL, void* pByteStream, void* pAttributes, void** ppSinkWriter)
+extern "C" __declspec(dllexport) HRESULT WINAPI MFCreateSinkWriterFromURL(LPCWSTR pwszOutputURL, IMFByteStream* pByteStream, IMFAttributes* pAttributes, IMFSinkWriter** ppSinkWriter)
 {
     if (!MFCreateSinkWriterFromURL_Orig)
     {
@@ -408,7 +427,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSinkWriterFromURL(LPCW
     return MFCreateSinkWriterFromURL_Orig(pwszOutputURL, pByteStream, pAttributes, ppSinkWriter);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSourceReaderFromByteStream(void* pByteStream, void* pAttributes, void** ppSourceReader)
+extern "C" __declspec(dllexport) HRESULT WINAPI MFCreateSourceReaderFromByteStream(IMFByteStream* pByteStream, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader)
 {
     if (!MFCreateSourceReaderFromByteStream_Orig)
     {
@@ -418,7 +437,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSourceReaderFromByteSt
     return MFCreateSourceReaderFromByteStream_Orig(pByteStream, pAttributes, ppSourceReader);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSourceReaderFromMediaSource(void* pMediaSource, void* pAttributes, void** ppSourceReader)
+extern "C" __declspec(dllexport) HRESULT WINAPI MFCreateSourceReaderFromMediaSource(IMFMediaSource* pMediaSource, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader)
 {
     if (!MFCreateSourceReaderFromMediaSource_Orig)
     {
@@ -428,7 +447,7 @@ extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSourceReaderFromMediaS
     return MFCreateSourceReaderFromMediaSource_Orig(pMediaSource, pAttributes, ppSourceReader);
 }
 
-extern "C" __declspec(dllexport) HRESULT WINAPI __MFCreateSourceReaderFromURL(LPCWSTR pwszURL, void* pAttributes, void** ppSourceReader)
+extern "C" __declspec(dllexport) HRESULT WINAPI MFCreateSourceReaderFromURL(LPCWSTR pwszURL, IMFAttributes* pAttributes, IMFSourceReader** ppSourceReader)
 {
     if (!MFCreateSourceReaderFromURL_Orig)
     {
@@ -467,7 +486,7 @@ static void ResolveAllExports()
             if (g_isDInput8 || g_isMFReadWrite)
             {
                 DllCanUnloadNow_Orig = GetProcAddress(g_origDll, "DllCanUnloadNow");
-                DllGetClassObject_Orig = GetProcAddress(g_origDll, "DllGetClassObject");
+                DllGetClassObject_Orig = (DllGetClassObject_t)GetProcAddress(g_origDll, "DllGetClassObject");
             }
 
             if (g_isXInput1_3 || g_isXInput1_4)

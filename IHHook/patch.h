@@ -1,12 +1,11 @@
 ﻿#pragma once
-#include <cstdint>
-
 #include "D3D11Hook.hpp"
+
+#include <cstdint>
 
 class patch
 {
 public:
-    
 };
 void* GetTarget(uintptr_t pointer);
 bool ComparePointerBytes(uintptr_t pointer, std::uint8_t* bytes, SIZE_T dwSize);

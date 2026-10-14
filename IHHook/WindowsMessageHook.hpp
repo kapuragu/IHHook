@@ -1,13 +1,13 @@
-//WindowsMessageHook.hpp - from RE2Framework
+// WindowsMessageHook.hpp - from RE2Framework
 #pragma once
 
-#include <functional>
-
 #include <Windows.h>
+#include <functional>
 
 // This type of hook replaces a windows message procedure so that it can intercept
 // messages sent to the window.
-class WindowsMessageHook {
+class WindowsMessageHook
+{
 public:
     std::function<bool(HWND, UINT, WPARAM, LPARAM)> on_message;
 
@@ -21,11 +21,13 @@ public:
     // explicitly if you need to remove the message hook for some reason.
     bool remove();
 
-    auto is_valid() const {
+    auto is_valid() const
+    {
         return m_original_proc != nullptr;
     }
 
-    auto get_original() const {
+    auto get_original() const
+    {
         return m_original_proc;
     }
 

@@ -1,290 +1,282 @@
 #include "Hooks_TPP.h"
-#include "IHHook.h"//BaseAddr
-#include "spdlog/spdlog.h"
 
-#include "MinHook/MinHook.h"
 #include "HookMacros.h"
+#include "IHHook.h" //BaseAddr
+#include "MinHook/MinHook.h"
+#include "spdlog/spdlog.h"
+#include "plf_list/plf_list.h"
 
-#include <map>
-#include <string>
 #include <iostream>
+#include <flat_map>
 #include <sstream>
+#include <string>
 
-namespace IHHook {
-	std::map<int, long long> locationLangIds{
-		{10,0x1b094033d45d},//afgh,tpp_loc_afghan
-		{20,0x7114b69e71e7},//mafr,tpp_loc_africa
-		{50,0xfa8eaa7758b1},//mtbs,tpp_loc_mb
+namespace IHHook
+{
+    std::flat_map<int, long long> locationLangIds{
+        { 10, 0x1b094033d45d }, // afgh,tpp_loc_afghan
+        { 20, 0x7114b69e71e7 }, // mafr,tpp_loc_africa
+        { 50, 0xfa8eaa7758b1 }, // mtbs,tpp_loc_mb
 
-		//DEBUGNOW proof of concept hack
-		//{40,0x27376b6e62ff},//tpp_loc_gntn - caplags langid from his gntn addon
-	};
+        // DEBUGNOW proof of concept hack
+        //{40,0x27376b6e62ff},//tpp_loc_gntn - caplags langid from his gntn addon
+    };
 
-	namespace Hooks_TPP {
-		//tex from here
-		//https://discord.com/channels/364177293133873153/364178190588968970/698650439817625691
-		//(though still not sure how partoftheworlD recognised this in the first place)
-		//If you memory dump the exe after execution of this point ghidra recognises this as entry point in the dumped exe
-		//eyeballing the function it seems to be _mainCRTStartup
-		//https://stackoverflow.com/questions/22934206/what-is-the-difference-between-main-and-maincrtstartup
-		//"mainCRTStartup basically looks like this: 
-		//init_tls(); 
-		//init_crt(); 
-		//run_global_constructors(); 
-		//get_args(&argc, &argv); 
-		//ret = main(argc, argv); 
-		//run_global_destructors(); 
-		//exit(ret); 
-		//.So, main is in there, some place.� Damon Apr 8 '14 at 11:03"
-		//tex so you can find actual main from this
-		//not much point hooking it or actual main (lets call it FoxMain to be clearer) at the moment since IHHook is currently a dinput8 proxy which is obviously well past the _crtMain/FoxMain execute point
+    namespace Hooks_TPP
+    {
+        // tex from here
+        // https://discord.com/channels/364177293133873153/364178190588968970/698650439817625691
+        //(though still not sure how partoftheworlD recognised this in the first place)
+        // If you memory dump the exe after execution of this point ghidra recognises this as entry point in the dumped exe
+        // eyeballing the function it seems to be _mainCRTStartup
+        // https://stackoverflow.com/questions/22934206/what-is-the-difference-between-main-and-maincrtstartup
+        //"mainCRTStartup basically looks like this:
+        // init_tls();
+        // init_crt();
+        // run_global_constructors();
+        // get_args(&argc, &argv);
+        // ret = main(argc, argv);
+        // run_global_destructors();
+        // exit(ret);
+        //.So, main is in there, some place.� Damon Apr 8 '14 at 11:03"
+        // tex so you can find actual main from this
+        // not much point hooking it or actual main (lets call it FoxMain to be clearer) at the moment since IHHook is currently
+        // a dinput8 proxy which is obviously well past the _crtMain/FoxMain execute point
 
+        // uintptr_t missionCode_Addr = 0x142A58A00;
+        // uint32_t* missionCode;//tex in header
 
-		uintptr_t missionCode_Addr = 0x142A58A00;
-		//uint32_t* missionCode;//tex in header
+        // TODO: move to exploration
+        // void UnkSomePlayerUpdateFuncHook(intptr_t unkPlayerClass, uintptr_t playerIndex) {
+        //	spdlog::trace(__func__);
+        //	UnkSomePlayerUpdateFunc(unkPlayerClass, playerIndex);
 
-		//TODO: move to exploration
-		//void UnkSomePlayerUpdateFuncHook(intptr_t unkPlayerClass, uintptr_t playerIndex) {
-		//	spdlog::trace(__func__);
-		//	UnkSomePlayerUpdateFunc(unkPlayerClass, playerIndex);
+        //	intptr_t playerClass = unkPlayerClass;
+        //
+        //}//UnkSomePlayerUpdateFuncHook
 
-		//	intptr_t playerClass = unkPlayerClass;
-		//	
-		//}//UnkSomePlayerUpdateFuncHook
+        ////Address of signature = mgsvtpp_1_0_15_1_en.exe + 0x012C7570//15.1
+        //(UnkAnotherPlayerUpdateFuncButHuge)// 0x1412cf110 = 15.3 DEBUGNOW
 
-		////Address of signature = mgsvtpp_1_0_15_1_en.exe + 0x012C7570//15.1
-		//(UnkAnotherPlayerUpdateFuncButHuge)// 0x1412cf110 = 15.3 DEBUGNOW
+        // tex the idroid free roam mission tab had an issue where it wouldn't show the name of custom free roam missions
+        // despite there being a map_location_parameter - locationNameLangId = "tpp_loc_<whatever> (that matches tpp_common lng
+        // for vanilla free) however the above map does show given that there's a location icon I guess that's set up in engine
+        // See IH InfMission.EnableLocationChangeMissions
+        // searching for the hashes of the mentioned tpp_loc<> (kept for ref) in the exe finds this function
+        // returns strcode64
+        // IN: locationLangIds
+        long long* GetFreeMissionNameKeyHook(long long* langId, short locationCode, short missionCode)
+        {
+            spdlog::trace(__func__);
 
-		
-			
-	
+            // DEBUGNOW only missionCode entry in vanilla
+            if (missionCode == 30150)
+            {                             // mtbs_zoo
+                *langId = 0xe3d47a6e1e15; // tpp_loc_mb_zoo
+                return langId;
+            }
 
+            auto iterator = locationLangIds.find(locationCode);
+            if (iterator != locationLangIds.end())
+            {
+                *langId = iterator->second; // value
+                return langId;
+            }
 
-		//tex the idroid free roam mission tab had an issue where it wouldn't show the name of custom free roam missions
-		//despite there being a map_location_parameter - locationNameLangId = "tpp_loc_<whatever> (that matches tpp_common lng for vanilla free)
-		//however the above map does show
-		//given that there's a location icon I guess that's set up in engine
-		//See IH InfMission.EnableLocationChangeMissions
-		//searching for the hashes of the mentioned tpp_loc<> (kept for ref) in the exe finds this function
-		//returns strcode64
-		//IN: locationLangIds
-		long long* GetFreeMissionNameKeyHook(long long* langId, short locationCode, short missionCode) {
-			spdlog::trace(__func__);
+            *langId = 0xb8a0bf169f98; // "" empty string
+            return langId;
+        } // GetFreeMissionNameKeyHook
 
-			//DEBUGNOW only missionCode entry in vanilla
-			if (missionCode == 30150) {//mtbs_zoo
-				*langId = 0xe3d47a6e1e15;//tpp_loc_mb_zoo
-				return langId;
-			}
+        // DEBUGNOW not really tpp only Hooks_Fox?
+        static void foxprintfHook(const char* fmt, ...)
+        {
+            // spdlog::trace(__func__);
+            va_list args;
+            va_start(args, fmt);
 
-			auto iterator = locationLangIds.find(locationCode);
-			if (iterator != locationLangIds.end()) {
-				*langId = iterator->second;//value
-				return langId;
-			}
+            int size = 100;
+            std::string message;
+            va_list ap;
 
-			//if (locationCode == 10) {//afgh
-			//	*langId = 0x1b094033d45d;////tpp_loc_afghan
-			//	return langId;
-			//}
-			//if (locationCode == 20) {//mafr
-			//	*langId = 0x7114b69e71e7;
-			//	return langId;
-			//}
-			//if (locationCode == 50) {//mtbs
-			//	*langId = 0xfa8eaa7758b1;//tpp_loc_mb 
-			//	return langId;
-			//}
+            while (1)
+            {
+                message.resize(size);
+                va_start(ap, fmt);
+                int n = vsnprintf(&message[0], size, fmt, ap);
+                va_end(ap);
 
+                if (n > -1 && n < size)
+                {
+                    message.resize(n); // Make sure there are no trailing zero char
+                    break;
+                }
+                if (n > -1)
+                    size = n + 1;
+                else
+                    size *= 2;
+            } // while(1)
 
-			////DEBUGNOW proof of concept hack
-			//if (locationCode == 40) {//gntn
-			//	*langId = 0x27376b6e62ff;//tpp_loc_gntn - caplags langid from his gntn addon
-			//	return langId;
-			//}
-			
-			*langId = 0xb8a0bf169f98;// "" empty string
-			return langId;
-		}//GetFreeMissionNameKeyHook
+            spdlog::debug("foxprintfHook: {}", message);
+        } // foxprintfHook
 
-		//DEBUGNOW not really tpp only Hooks_Fox?
-		static void foxprintfHook(const char* fmt, ...) {
-			//spdlog::trace(__func__);
-			va_list args;
-			va_start(args, fmt);
+        void voidreturnHook(const char* unkSomeIdStr, unsigned long long unkSomeIdNum)
+        {
+            // spdlog::trace(__func__);
+            if (unkSomeIdStr != NULL)
+            {
+                try
+                {
+                    char idStr[1024];
+                    sprintf(idStr, "%s", unkSomeIdStr);
+                    spdlog::debug("voidreturn {}", idStr);
+                }
+                catch (...)
+                {
+                }
+            }
+        } // voidreturnHook
 
-			int size = 100;
-			std::string message;
-			va_list ap;
+        void CreateHooks()
+        {
+            spdlog::trace(__func__);
+            // DEBUGNOW hitting some kind of exception on caps machine
+            // missionCode = NULL;
+            // try {
+            //	missionCode = (uint32_t*)((missionCode_Addr - BaseAddr) + RealBaseAddr);
+            // }
+            // catch (std::runtime_error & e) {
+            //	spdlog::error("CHP: runtime exception - {}", e.what());
+            //	auto log = spdlog::get("ihhook");
+            //	log->flush();
+            // }
+            // if (missionCode==NULL) {
+            //	spdlog::error("CHP: missionCode==NULL");
+            // }
+            // DEBUGNOW
 
-			while (1) {
-				message.resize(size);
-				va_start(ap, fmt);
-				int n = vsnprintf(&message[0], size, fmt, ap);
-				va_end(ap);
+            // DEBUGNOW
+            // if (_mainCRTStartupAddr == NULL) {
+            //	bool bleh = true;
+            // }
 
-				if (n > -1 && n < size) {
-					message.resize(n); // Make sure there are no trailing zero char
-					break;
-				}
-				if (n > -1)
-					size = n + 1;
-				else
-					size *= 2;
-			}//while(1)
+            if (addressSet["ff_stringid_hash_n"] == NULL)
+            {
+                spdlog::warn("addr fail: addressSet[\"ff_stringid_hash_n\"] == NULL");
+            }
+            else
+            {
+                // DEBUGNOW TEST
+                const char* langId = "tpp_loc_afghan";
+                long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
 
-			spdlog::debug("foxprintfHook: {}", message);
-		}//foxprintfHook
+                spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", tpp_loc_afghanS64);
+            }
 
-		void voidreturnHook(const char* unkSomeIdStr, unsigned long long unkSomeIdNum) {
-			//spdlog::trace(__func__);
-			if (unkSomeIdStr != NULL) {
-				try {
-					char idStr[1024];
-					sprintf(idStr, "%s", unkSomeIdStr);
-					spdlog::debug("voidreturn {}", idStr);
-				}
-				catch(...)  {
+            if (addressSet["GetFreeMissionNameKey"] == NULL || addressSet["foxprintf"] == NULL || addressSet["voidreturn"] == NULL)
+            {
+                spdlog::warn("addr == NULL");
+            }
+            else
+            {
+                CREATE_HOOK(GetFreeMissionNameKey)
+                CREATE_HOOK(foxprintf)
+                CREATE_HOOK(voidreturn)
 
-				}
-			}
-		}//voidreturnHook
+                ENABLEHOOK(GetFreeMissionNameKey)
 
-		void CreateHooks() {
-			spdlog::trace(__func__);
-			//DEBUGNOW hitting some kind of exception on caps machine
-			//missionCode = NULL;
-			//try {
-			//	missionCode = (uint32_t*)((missionCode_Addr - BaseAddr) + RealBaseAddr);
-			//}
-			//catch (std::runtime_error & e) {
-			//	spdlog::error("CHP: runtime exception - {}", e.what());
-			//	auto log = spdlog::get("ihhook");
-			//	log->flush();
-			//}
-			//if (missionCode==NULL) {
-			//	spdlog::error("CHP: missionCode==NULL");
-			//}
-			//DEBUGNOW
-
-			//DEBUGNOW
-			//if (_mainCRTStartupAddr == NULL) {
-			//	bool bleh = true;
-			//}
-
-			if (addressSet["ff_stringid_hash_n"] == NULL) {
-				spdlog::warn("addr fail: addressSet[\"ff_stringid_hash_n\"] == NULL");
-			}
-			else {					
-				//DEBUGNOW TEST
-				char* langId = "tpp_loc_afghan";
-				long long tpp_loc_afghanS64 = ff_stringid_hash_n(langId, strlen(langId));
-
-				spdlog::debug("Str64 tpp_loc_afghan:0x{:x}", tpp_loc_afghanS64);
-
-				//0x1b094033d45d//tpp_loc_afghan
-					//{ 20,0x7114b69e71e7 },//mafr,tpp_loc_africa
-					//{ 50,0xfa8eaa7758b1 },//mtbs,tpp_loc_mb
-					////DEBUGNOW proof of concept hack
-					//{ 40,0x27376b6e62ff },//tpp_loc_gntn - caplags langid from his gntn addon
-			}
-
-			if (addressSet["GetFreeMissionNameKey"] == NULL || addressSet["foxprintf"] == NULL || addressSet["voidreturn"] == NULL) {
-				spdlog::warn("addr == NULL");
-			}
-			else {
-				CREATE_HOOK(GetFreeMissionNameKey)
-				CREATE_HOOK(foxprintf)
-				CREATE_HOOK(voidreturn)
-
-				ENABLEHOOK(GetFreeMissionNameKey)
-
-				ENABLEHOOK(foxprintf) //DEBUGNOW
+                ENABLEHOOK(foxprintf) // DEBUGNOW
 #ifdef _DEBUG
-				//ENABLEHOOK(voidreturn)//DEBUGNOW
+                // ENABLEHOOK(voidreturn)//DEBUGNOW
 #endif // DEBUG
-				CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
-				ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
-				CREATE_HOOK(GetPhotoAdditionalTextLangId)
-				ENABLEHOOK(GetPhotoAdditionalTextLangId)
-				
-			}//if addr
-		}//CreateHooks
-		ChangeLocationMenuParameter* GetChangeLocationMenuParameterByLocationIdHook(MotherBaseMissionCommonData* This, unsigned short locationCode)
-		{
-			//Ensure vanilla cases are handled by original function
-			switch (locationCode)
-			{
-			case TppLocationId::afgh:
-			case TppLocationId::mafr:
-			case TppLocationId::mtbs:
-				return GetChangeLocationMenuParameterByLocationId(This,locationCode);
-			}
+                CREATE_HOOK(GetChangeLocationMenuParameterByLocationId)
+                ENABLEHOOK(GetChangeLocationMenuParameterByLocationId)
+                CREATE_HOOK(GetPhotoAdditionalTextLangId)
+                ENABLEHOOK(GetPhotoAdditionalTextLangId)
 
-			//In case original check slips, send mtbs here
-			if (locationCode == mtbs)
-				return GetMbFreeChangeLocationMenuParameter(This);
+            } // if addr
+        } // CreateHooks
+        ChangeLocationMenuParameter* GetChangeLocationMenuParameterByLocationIdHook(MotherBaseMissionCommonData* This, unsigned short locationCode)
+        {
+            // Ensure vanilla cases are handled by original function
+            switch (locationCode)
+            {
+            case TppLocationId::afgh:
+            case TppLocationId::mafr:
+            case TppLocationId::mtbs:
+                return GetChangeLocationMenuParameterByLocationId(This, locationCode);
+            }
 
-			//Joey's structs and iteration code!
-			ChangeLocationMenuParameter* params = This->ChangeLocationMenuParams;
-			for (uint i = 0; i < This->ChangeLocationMenuParamCount; i++)
-			{
-				//top line is to ensure this locationcode is a valid free roam location
-				if (locationLangIds.find(locationCode) != locationLangIds.end())
-					if (params[i].LocationId == locationCode)
-						return params + i;
-			}
-			return nullptr;
-		}
-		std::list<PhotoInfo> addPhotoInfos{};
-		unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(MotherBaseMissionCommonData* This, StringId* ret, unsigned short missionCode, unsigned char photoId, unsigned char photoType)
-		{
-			spdlog::info("GetPhotoAdditionalTextLangIdHook missionCode={}, photoId={}, photoType={}", missionCode, photoId, photoType);
-			
-			for (auto const& i : addPhotoInfos) {
-				if (i.MissionCode == missionCode)
-				{
-					if (i.PhotoId == photoId)
-					{
-						if (i.PhotoType == photoType)
-						{
-							spdlog::info("photo exists, replace langid {:x}", *ret);
-							*ret = i.TargetTypeLangId;
-							return *ret;
-						}
-					}
-				}
-			}
-			//spdlog::info("get vanilla langid {:x}", *ret);
-			return GetPhotoAdditionalTextLangId(This,ret,missionCode,photoId,photoType);
-		}
+            // In case original check slips, send mtbs here
+            if (locationCode == mtbs)
+                return GetMbFreeChangeLocationMenuParameter(This);
 
-		void AddPhotoAdditionalText(unsigned short missionCode, unsigned char photoId, unsigned char photoType, const char* targetTypeLangIdStr)
-		{
-			spdlog::info("AddPhotoAdditionalText %s",missionCode,photoId,photoType,targetTypeLangIdStr);
-			unsigned long long hash = ff_stringid_hash_n(targetTypeLangIdStr, strlen(targetTypeLangIdStr));
-			for (std::list<PhotoInfo>::iterator it = addPhotoInfos.begin(); it != addPhotoInfos.end(); ++it){
-				if (it->MissionCode == missionCode)
-				{
-					if (it->PhotoId == photoId)
-					{
-						if (it->PhotoType == photoType)
-						{
-							spdlog::info("replaced");
-							it->TargetTypeLangId = hash;
-							return;
-						}
-					}
-				}
-			}
-			PhotoInfo photoInfo = {
-				missionCode,
-				photoId,
-				static_cast<PHOTO_TYPE>(photoType),
-				hash,
-			};
-			addPhotoInfos.push_back(photoInfo);
-			spdlog::info("added");
-		}
-	}//Hooks_TPP
-}//namespace IHHook
+            // Joey's structs and iteration code!
+            ChangeLocationMenuParameter* params = This->ChangeLocationMenuParams;
+            for (uint i = 0; i < This->ChangeLocationMenuParamCount; i++)
+            {
+                // top line is to ensure this locationcode is a valid free roam location
+                if (locationLangIds.find(locationCode) != locationLangIds.end())
+                    if (params[i].LocationId == locationCode)
+                        return params + i;
+            }
+            return nullptr;
+        }
+        plf::list<PhotoInfo> addPhotoInfos{};
+        unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(
+            MotherBaseMissionCommonData* This,
+            StringId* ret,
+            unsigned short missionCode,
+            unsigned char photoId,
+            unsigned char photoType)
+        {
+            spdlog::info("GetPhotoAdditionalTextLangIdHook missionCode={}, photoId={}, photoType={}", missionCode, photoId, photoType);
+
+            for (auto const& i : addPhotoInfos)
+            {
+                if (i.MissionCode == missionCode)
+                {
+                    if (i.PhotoId == photoId)
+                    {
+                        if (i.PhotoType == photoType)
+                        {
+                            spdlog::info("photo exists, replace langid {:x}", *ret);
+                            *ret = i.TargetTypeLangId;
+                            return *ret;
+                        }
+                    }
+                }
+            }
+            // spdlog::info("get vanilla langid {:x}", *ret);
+            return GetPhotoAdditionalTextLangId(This, ret, missionCode, photoId, photoType);
+        }
+
+        void AddPhotoAdditionalText(unsigned short missionCode, unsigned char photoId, unsigned char photoType, const char* targetTypeLangIdStr)
+        {
+            spdlog::info("AddPhotoAdditionalText %s", missionCode, photoId, photoType, targetTypeLangIdStr);
+            unsigned long long hash = ff_stringid_hash_n(targetTypeLangIdStr, strlen(targetTypeLangIdStr));
+            for (plf::list<PhotoInfo>::iterator it = addPhotoInfos.begin(); it != addPhotoInfos.end(); ++it)
+            {
+                if (it->MissionCode == missionCode)
+                {
+                    if (it->PhotoId == photoId)
+                    {
+                        if (it->PhotoType == photoType)
+                        {
+                            spdlog::info("replaced");
+                            it->TargetTypeLangId = hash;
+                            return;
+                        }
+                    }
+                }
+            }
+            PhotoInfo photoInfo = {
+                missionCode,
+                photoId,
+                static_cast<PHOTO_TYPE>(photoType),
+                hash,
+            };
+            addPhotoInfos.push_back(photoInfo);
+            spdlog::info("added");
+        }
+    } // namespace Hooks_TPP
+} // namespace IHHook
