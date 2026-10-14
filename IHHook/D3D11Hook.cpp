@@ -25,6 +25,7 @@ bool D3D11Hook::hook()
     // hook::get_address resolves the relative address and returns the target address
     // so we check if it's jump and if it's we get our target address from relative address
 
+    // gn::swapchain::Present
     uint8_t* present_fn =
         hook::get_address<uint8_t*>(hook::get_pattern<uint8_t>("E8 ? ? ? ? 85 C0 75 12 38 43 69", 1)); // games own wrapper around IDXGISwapChain::Present
     if (*present_fn == 0xE9)
@@ -32,6 +33,7 @@ bool D3D11Hook::hook()
         present_fn = hook::get_address<uint8_t*>(present_fn + 0x1);
     }
 
+    // gn::dx11::swapchain::ResizeBuffers
     uint8_t* resize_buffers_fn =
         hook::get_address<uint8_t*>(hook::get_pattern<uint8_t>("BA 03 00 00 00 48 8B 4F 20", 0xA)); // games own wrapper around IDXGISwapChain::ResizeBuffers
     if (*resize_buffers_fn == 0xE9)

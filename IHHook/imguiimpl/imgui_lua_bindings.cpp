@@ -1,4 +1,5 @@
-//tex slightly tweaked from imgui_lua_bindings fork since main repo hasn't been updated since imgui 1.60 https://github.com/ZhuRong-HomoStation/imgui_lua_bindings
+// tex slightly tweaked from imgui_lua_bindings fork since main repo hasn't been updated since imgui 1.60
+// https://github.com/ZhuRong-HomoStation/imgui_lua_bindings
 #include <stdio.h>
 #include <imgui.h>
 #include <deque>
@@ -6,10 +7,8 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
-//using namespace slua;//tex OFF no idea what this is
-// THIS IS FOR LUA 5.3 although you can make a few changes for other versions
-
-
+// using namespace slua;//tex OFF no idea what this is
+//  THIS IS FOR LUA 5.3 although you can make a few changes for other versions
 
 #define ENABLE_IM_LUA_END_STACK
 // to keep track of end and begins and clean up the imgui stack
@@ -18,243 +17,257 @@
 #ifdef ENABLE_IM_LUA_END_STACK
 // Stack for imgui begin and end
 std::deque<int> endStack;
-static void AddToStack(int type) {
-  endStack.push_back(type);
+static void AddToStack(int type)
+{
+    endStack.push_back(type);
 }
 
-static void PopEndStack(int type) {
-  if (!endStack.empty()) {
-    endStack.pop_back(); // hopefully the type matches
-  }
+static void PopEndStack(int type)
+{
+    if (!endStack.empty())
+    {
+        endStack.pop_back(); // hopefully the type matches
+    }
 }
 
 static void ImEndStack(int type);
 
 #endif
 
-#define IMGUI_FUNCTION_DRAW_LIST(name) \
-static int impl_draw_list_##name(lua_State *L) { \
-  int max_args = lua_gettop(L); \
-  int arg = 1; \
-  int stackval = 0;
+#define IMGUI_FUNCTION_DRAW_LIST(name)                                                                                                                         \
+    static int impl_draw_list_##name(lua_State* L)                                                                                                             \
+    {                                                                                                                                                          \
+        int max_args = lua_gettop(L);                                                                                                                          \
+        int arg = 1;                                                                                                                                           \
+        int stackval = 0;
 
-#define IMGUI_FUNCTION(name) \
-static int impl_##name(lua_State *L) { \
-  int max_args = lua_gettop(L); \
-  int arg = 1; \
-  int stackval = 0;
+#define IMGUI_FUNCTION(name)                                                                                                                                   \
+    static int impl_##name(lua_State* L)                                                                                                                       \
+    {                                                                                                                                                          \
+        int max_args = lua_gettop(L);                                                                                                                          \
+        int arg = 1;                                                                                                                                           \
+        int stackval = 0;
 
 // I use OpenGL so this is a GLuint
 // Using unsigned int cause im lazy don't copy me
-#define IM_TEXTURE_ID_ARG(name) \
-  const ImTextureID name = (ImTextureID)luaL_checkinteger(L, arg++);
+#define IM_TEXTURE_ID_ARG(name) const ImTextureID name = (ImTextureID)luaL_checkinteger(L, arg++);
 
-#define OPTIONAL_LABEL_ARG(name) \
-  const char* name; \
-  if (arg <= max_args) { \
-    name = lua_tostring(L, arg++); \
-  } else { \
-    name = NULL; \
-  }
+#define OPTIONAL_LABEL_ARG(name)                                                                                                                               \
+    const char* name;                                                                                                                                          \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = lua_tostring(L, arg++);                                                                                                                         \
+    }                                                                                                                                                          \
+    else                                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = NULL;                                                                                                                                           \
+    }
 
-#define LABEL_ARG(name) \
-  size_t i_##name##_size; \
-  const char * name = luaL_checklstring(L, arg++, &(i_##name##_size));
+#define LABEL_ARG(name)                                                                                                                                        \
+    size_t i_##name##_size;                                                                                                                                    \
+    const char* name = luaL_checklstring(L, arg++, &(i_##name##_size));
 
-#define IM_VEC_2_ARG(name)\
-  const lua_Number i_##name##_x = luaL_checknumber(L, arg++); \
-  const lua_Number i_##name##_y = luaL_checknumber(L, arg++); \
-  const ImVec2 name((double)i_##name##_x, (double)i_##name##_y);
+#define IM_VEC_2_ARG(name)                                                                                                                                     \
+    const lua_Number i_##name##_x = luaL_checknumber(L, arg++);                                                                                                \
+    const lua_Number i_##name##_y = luaL_checknumber(L, arg++);                                                                                                \
+    const ImVec2 name((double)i_##name##_x, (double)i_##name##_y);
 
-#define OPTIONAL_IM_VEC_2_ARG(name, x, y) \
-  lua_Number i_##name##_x = x; \
-  lua_Number i_##name##_y = y; \
-  if (arg <= max_args - 1) { \
-    i_##name##_x = luaL_checknumber(L, arg++); \
-    i_##name##_y = luaL_checknumber(L, arg++); \
-  } \
-  const ImVec2 name((double)i_##name##_x, (double)i_##name##_y);
+#define OPTIONAL_IM_VEC_2_ARG(name, x, y)                                                                                                                      \
+    lua_Number i_##name##_x = x;                                                                                                                               \
+    lua_Number i_##name##_y = y;                                                                                                                               \
+    if (arg <= max_args - 1)                                                                                                                                   \
+    {                                                                                                                                                          \
+        i_##name##_x = luaL_checknumber(L, arg++);                                                                                                             \
+        i_##name##_y = luaL_checknumber(L, arg++);                                                                                                             \
+    }                                                                                                                                                          \
+    const ImVec2 name((double)i_##name##_x, (double)i_##name##_y);
 
-#define IM_VEC_4_ARG(name) \
-  const lua_Number i_##name##_x = luaL_checknumber(L, arg++); \
-  const lua_Number i_##name##_y = luaL_checknumber(L, arg++); \
-  const lua_Number i_##name##_z = luaL_checknumber(L, arg++); \
-  const lua_Number i_##name##_w = luaL_checknumber(L, arg++); \
-  const ImVec4 name((double)i_##name##_x, (double)i_##name##_y, (double)i_##name##_z, (double)i_##name##_w);
+#define IM_VEC_4_ARG(name)                                                                                                                                     \
+    const lua_Number i_##name##_x = luaL_checknumber(L, arg++);                                                                                                \
+    const lua_Number i_##name##_y = luaL_checknumber(L, arg++);                                                                                                \
+    const lua_Number i_##name##_z = luaL_checknumber(L, arg++);                                                                                                \
+    const lua_Number i_##name##_w = luaL_checknumber(L, arg++);                                                                                                \
+    const ImVec4 name((double)i_##name##_x, (double)i_##name##_y, (double)i_##name##_z, (double)i_##name##_w);
 
-#define OPTIONAL_IM_VEC_4_ARG(name, x, y, z, w) \
-  lua_Number i_##name##_x = x; \
-  lua_Number i_##name##_y = y; \
-  lua_Number i_##name##_z = z; \
-  lua_Number i_##name##_w = w; \
-  if (arg <= max_args - 1) { \
-    i_##name##_x = luaL_checknumber(L, arg++); \
-    i_##name##_y = luaL_checknumber(L, arg++); \
-    i_##name##_z = luaL_checknumber(L, arg++); \
-    i_##name##_w = luaL_checknumber(L, arg++); \
-  } \
-  const ImVec4 name((double)i_##name##_x, (double)i_##name##_y, (double)i_##name##_z, (double)i_##name##_w);
+#define OPTIONAL_IM_VEC_4_ARG(name, x, y, z, w)                                                                                                                \
+    lua_Number i_##name##_x = x;                                                                                                                               \
+    lua_Number i_##name##_y = y;                                                                                                                               \
+    lua_Number i_##name##_z = z;                                                                                                                               \
+    lua_Number i_##name##_w = w;                                                                                                                               \
+    if (arg <= max_args - 1)                                                                                                                                   \
+    {                                                                                                                                                          \
+        i_##name##_x = luaL_checknumber(L, arg++);                                                                                                             \
+        i_##name##_y = luaL_checknumber(L, arg++);                                                                                                             \
+        i_##name##_z = luaL_checknumber(L, arg++);                                                                                                             \
+        i_##name##_w = luaL_checknumber(L, arg++);                                                                                                             \
+    }                                                                                                                                                          \
+    const ImVec4 name((double)i_##name##_x, (double)i_##name##_y, (double)i_##name##_z, (double)i_##name##_w);
 
-#define NUMBER_ARG(name)\
-  lua_Number name = luaL_checknumber(L, arg++);
+#define NUMBER_ARG(name) lua_Number name = luaL_checknumber(L, arg++);
 
-#define OPTIONAL_NUMBER_ARG(name, otherwise)\
-  lua_Number name = otherwise; \
-  if (arg <= max_args) { \
-    name = lua_tonumber(L, arg++); \
-  }
+#define OPTIONAL_NUMBER_ARG(name, otherwise)                                                                                                                   \
+    lua_Number name = otherwise;                                                                                                                               \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = lua_tonumber(L, arg++);                                                                                                                         \
+    }
 
-#define FLOAT_POINTER_ARG(name) \
-  float i_##name##_value = luaL_checknumber(L, arg++); \
-  float* name = &(i_##name##_value);
+#define FLOAT_POINTER_ARG(name)                                                                                                                                \
+    float i_##name##_value = luaL_checknumber(L, arg++);                                                                                                       \
+    float* name = &(i_##name##_value);
 
-#define END_FLOAT_POINTER(name) \
-  if (name != NULL) { \
-    lua_pushnumber(L, i_##name##_value); \
-    stackval++; \
-  }
+#define END_FLOAT_POINTER(name)                                                                                                                                \
+    if (name != NULL)                                                                                                                                          \
+    {                                                                                                                                                          \
+        lua_pushnumber(L, i_##name##_value);                                                                                                                   \
+        stackval++;                                                                                                                                            \
+    }
 
-#define FLOAT_ARRAY_ARG(name, size) \
-  float name[size]; \
-  for(int i=0;i<size;++i) { \
-  name[i]  = luaL_checknumber(L, arg++); \
-  }
+#define FLOAT_ARRAY_ARG(name, size)                                                                                                                            \
+    float name[size];                                                                                                                                          \
+    for (int i = 0; i < size; ++i)                                                                                                                             \
+    {                                                                                                                                                          \
+        name[i] = luaL_checknumber(L, arg++);                                                                                                                  \
+    }
 
-#define END_FLOAT_ARRAY(name, size) \
-  for(int i=0;i<size;++i) { \
-    lua_pushnumber(L, name[i]); \
-    stackval++; \
-  }
+#define END_FLOAT_ARRAY(name, size)                                                                                                                            \
+    for (int i = 0; i < size; ++i)                                                                                                                             \
+    {                                                                                                                                                          \
+        lua_pushnumber(L, name[i]);                                                                                                                            \
+        stackval++;                                                                                                                                            \
+    }
 
-#define OPTIONAL_INT_ARG(name, otherwise)\
-  int name = otherwise; \
-  if (arg <= max_args) { \
-    name = (int)lua_tonumber(L, arg++); \
-  }
+#define OPTIONAL_INT_ARG(name, otherwise)                                                                                                                      \
+    int name = otherwise;                                                                                                                                      \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = (int)lua_tonumber(L, arg++);                                                                                                                    \
+    }
 
-#define INT_ARG(name) \
-  const int name = (int)luaL_checknumber(L, arg++);
+#define INT_ARG(name) const int name = (int)luaL_checknumber(L, arg++);
 
-#define OPTIONAL_UINT_ARG(name, otherwise)\
-  unsigned int name = otherwise; \
-  if (arg <= max_args) { \
-    name = (unsigned int)lua_tounsigned(L, arg++); \
-  }
+#define OPTIONAL_UINT_ARG(name, otherwise)                                                                                                                     \
+    unsigned int name = otherwise;                                                                                                                             \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = (unsigned int)lua_tounsigned(L, arg++);                                                                                                         \
+    }
 
-#define UINT_ARG(name) \
-  const unsigned int name = (unsigned int)luaL_checkinteger(L, arg++);
+#define UINT_ARG(name) const unsigned int name = (unsigned int)luaL_checkinteger(L, arg++);
 
-#define INT_POINTER_ARG(name) \
-  int i_##name##_value = (int)luaL_checkinteger(L, arg++); \
-  int* name = &(i_##name##_value);
+#define INT_POINTER_ARG(name)                                                                                                                                  \
+    int i_##name##_value = (int)luaL_checkinteger(L, arg++);                                                                                                   \
+    int* name = &(i_##name##_value);
 
-#define END_INT_POINTER(name) \
-  if (name != NULL) { \
-    lua_pushnumber(L, i_##name##_value); \
-    stackval++; \
-  }
+#define END_INT_POINTER(name)                                                                                                                                  \
+    if (name != NULL)                                                                                                                                          \
+    {                                                                                                                                                          \
+        lua_pushnumber(L, i_##name##_value);                                                                                                                   \
+        stackval++;                                                                                                                                            \
+    }
 
-  #define INT_ARRAY_ARG(name, size) \
-  int name[size]; \
-  for(int i=0;i<size;++i) { \
-  name[i]  = (int)luaL_checkinteger(L, arg++); \
-  }
+#define INT_ARRAY_ARG(name, size)                                                                                                                              \
+    int name[size];                                                                                                                                            \
+    for (int i = 0; i < size; ++i)                                                                                                                             \
+    {                                                                                                                                                          \
+        name[i] = (int)luaL_checkinteger(L, arg++);                                                                                                            \
+    }
 
-#define END_INT_ARRAY(name, size) \
-  for(int i=0;i<size;++i) { \
-    lua_pushnumber(L, name[i]); \
-    stackval++; \
-  }
+#define END_INT_ARRAY(name, size)                                                                                                                              \
+    for (int i = 0; i < size; ++i)                                                                                                                             \
+    {                                                                                                                                                          \
+        lua_pushnumber(L, name[i]);                                                                                                                            \
+        stackval++;                                                                                                                                            \
+    }
 
-#define UINT_POINTER_ARG(name) \
-  unsigned int i_##name##_value = (unsigned int)luaL_checkinteger(L, arg++); \
-  unsigned int* name = &(i_##name##_value);
+#define UINT_POINTER_ARG(name)                                                                                                                                 \
+    unsigned int i_##name##_value = (unsigned int)luaL_checkinteger(L, arg++);                                                                                 \
+    unsigned int* name = &(i_##name##_value);
 
-#define END_UINT_POINTER(name) \
-  if (name != NULL) { \
-    lua_pushnumber(L, i_##name##_value); \
-    stackval++; \
-  }
+#define END_UINT_POINTER(name)                                                                                                                                 \
+    if (name != NULL)                                                                                                                                          \
+    {                                                                                                                                                          \
+        lua_pushnumber(L, i_##name##_value);                                                                                                                   \
+        stackval++;                                                                                                                                            \
+    }
 
-#define BOOL_POINTER_ARG(name) \
-  bool i_##name##_value = (bool)lua_toboolean(L, arg++); \
-  bool* name = &(i_##name##_value);
+#define BOOL_POINTER_ARG(name)                                                                                                                                 \
+    bool i_##name##_value = (bool)lua_toboolean(L, arg++);                                                                                                     \
+    bool* name = &(i_##name##_value);
 
-#define OPTIONAL_BOOL_POINTER_ARG(name) \
-  bool i_##name##_value; \
-  bool* name = NULL; \
-  if (arg <= max_args) { \
-    i_##name##_value = (bool)lua_toboolean(L, arg++); \
-    name = &(i_##name##_value); \
-  }
+#define OPTIONAL_BOOL_POINTER_ARG(name)                                                                                                                        \
+    bool i_##name##_value;                                                                                                                                     \
+    bool* name = NULL;                                                                                                                                         \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        i_##name##_value = (bool)lua_toboolean(L, arg++);                                                                                                      \
+        name = &(i_##name##_value);                                                                                                                            \
+    }
 
-#define OPTIONAL_BOOL_ARG(name, otherwise) \
-  bool name = (bool)otherwise; \
-  if (arg <= max_args) { \
-    name = (bool)lua_toboolean(L, arg++); \
-  }
+#define OPTIONAL_BOOL_ARG(name, otherwise)                                                                                                                     \
+    bool name = (bool)otherwise;                                                                                                                               \
+    if (arg <= max_args)                                                                                                                                       \
+    {                                                                                                                                                          \
+        name = (bool)lua_toboolean(L, arg++);                                                                                                                  \
+    }
 
-#define BOOL_ARG(name) \
-  bool name = (bool)lua_toboolean(L, arg++);
+#define BOOL_ARG(name) bool name = (bool)lua_toboolean(L, arg++);
 
-#define CALL_FUNCTION(name, retType,...) \
-  retType ret = ImGui::name(__VA_ARGS__);
+#define CALL_FUNCTION(name, retType, ...) retType ret = ImGui::name(__VA_ARGS__);
 
-#define DRAW_LIST_CALL_FUNCTION(name, retType,...) \
-  retType ret = ImGui::GetWindowDrawList()->name(__VA_ARGS__);
+#define DRAW_LIST_CALL_FUNCTION(name, retType, ...) retType ret = ImGui::GetWindowDrawList()->name(__VA_ARGS__);
 
-#define CALL_FUNCTION_NO_RET(name, ...) \
-  ImGui::name(__VA_ARGS__);
+#define CALL_FUNCTION_NO_RET(name, ...) ImGui::name(__VA_ARGS__);
 
-#define DRAW_LIST_CALL_FUNCTION_NO_RET(name, ...) \
-  ImGui::GetWindowDrawList()->name(__VA_ARGS__);
+#define DRAW_LIST_CALL_FUNCTION_NO_RET(name, ...) ImGui::GetWindowDrawList()->name(__VA_ARGS__);
 
-#define PUSH_STRING(name) \
-  lua_pushstring(L, name); \
-  stackval++;
+#define PUSH_STRING(name)                                                                                                                                      \
+    lua_pushstring(L, name);                                                                                                                                   \
+    stackval++;
 
-#define PUSH_NUMBER(name) \
-  lua_pushnumber(L, name); \
-  stackval++;
+#define PUSH_NUMBER(name)                                                                                                                                      \
+    lua_pushnumber(L, name);                                                                                                                                   \
+    stackval++;
 
-#define PUSH_BOOL(name) \
-  lua_pushboolean(L, (int) name); \
-  stackval++;
+#define PUSH_BOOL(name)                                                                                                                                        \
+    lua_pushboolean(L, (int)name);                                                                                                                             \
+    stackval++;
 
-#define END_BOOL_POINTER(name) \
-  if (name != NULL) { \
-    lua_pushboolean(L, (int)i_##name##_value); \
-    stackval++; \
-  }
+#define END_BOOL_POINTER(name)                                                                                                                                 \
+    if (name != NULL)                                                                                                                                          \
+    {                                                                                                                                                          \
+        lua_pushboolean(L, (int)i_##name##_value);                                                                                                             \
+        stackval++;                                                                                                                                            \
+    }
 
-#define END_IMGUI_FUNC \
-  return stackval; \
-}
+#define END_IMGUI_FUNC                                                                                                                                         \
+    return stackval;                                                                                                                                           \
+    }
 
 #ifdef ENABLE_IM_LUA_END_STACK
-#define IF_RET_ADD_END_STACK(type) \
-  if (ret) { \
-    AddToStack(type); \
-  }
+#define IF_RET_ADD_END_STACK(type)                                                                                                                             \
+    if (ret)                                                                                                                                                   \
+    {                                                                                                                                                          \
+        AddToStack(type);                                                                                                                                      \
+    }
 
-#define ADD_END_STACK(type) \
-  AddToStack(type);
+#define ADD_END_STACK(type) AddToStack(type);
 
-#define POP_END_STACK(type) \
-  PopEndStack(type);
+#define POP_END_STACK(type) PopEndStack(type);
 
-#define END_STACK_START \
-static void ImEndStack(int type) { \
-  switch(type) {
+#define END_STACK_START                                                                                                                                        \
+    static void ImEndStack(int type)                                                                                                                           \
+    {                                                                                                                                                          \
+        switch (type)                                                                                                                                          \
+        {
+#define END_STACK_OPTION(type, function)                                                                                                                       \
+    case type:                                                                                                                                                 \
+        ImGui::function();                                                                                                                                     \
+        break;
 
-#define END_STACK_OPTION(type, function) \
-    case type: \
-      ImGui::function(); \
-      break;
-
-#define END_STACK_END \
-  } \
-}
+#define END_STACK_END                                                                                                                                          \
+    }                                                                                                                                                          \
+    }
 #else
 #define END_STACK_START
 #define END_STACK_OPTION(type, function)
@@ -265,17 +278,16 @@ static void ImEndStack(int type) { \
 #endif
 
 #define START_ENUM(name)
-#define MAKE_ENUM(c_name,lua_name)
+#define MAKE_ENUM(c_name, lua_name)
 #define END_ENUM(name)
 
 #include "imgui_iterator.inl"
 
-
-static const struct luaL_Reg imguilib [] = {
+static const struct luaL_Reg imguilib[] = {
 #undef IMGUI_FUNCTION
-#define IMGUI_FUNCTION(name) {#name, impl_##name},
+#define IMGUI_FUNCTION(name) { #name, impl_##name },
 #undef IMGUI_FUNCTION_DRAW_LIST
-#define IMGUI_FUNCTION_DRAW_LIST(name) {"DrawList_" #name, impl_draw_list_##name},
+#define IMGUI_FUNCTION_DRAW_LIST(name) { "DrawList_" #name, impl_draw_list_##name },
 // These defines are just redefining everything to nothing so
 // we can get the function names
 #undef IM_TEXTURE_ID_ARG
@@ -365,34 +377,35 @@ static const struct luaL_Reg imguilib [] = {
 #undef START_ENUM
 #define START_ENUM(name)
 #undef MAKE_ENUM
-#define MAKE_ENUM(c_name,lua_name)
+#define MAKE_ENUM(c_name, lua_name)
 #undef END_ENUM
 #define END_ENUM(name)
 
 #include "imgui_iterator.inl"
-  {"Button", impl_Button},
-  {NULL, NULL}
+    { "Button", impl_Button },
+    { NULL, NULL }
 };
 
-static void PushImguiEnums(lua_State* lState, const char* tableName) {
-  lua_pushstring(lState, tableName);
-  lua_newtable(lState);
+static void PushImguiEnums(lua_State* lState, const char* tableName)
+{
+    lua_pushstring(lState, tableName);
+    lua_newtable(lState);
 
 #undef START_ENUM
 #undef MAKE_ENUM
 #undef END_ENUM
-#define START_ENUM(name) \
-  lua_pushstring(lState, #name); \
-  lua_newtable(lState); \
-  { \
-    int i = 1;
-#define MAKE_ENUM(c_name,lua_name) \
-  lua_pushstring(lState, #lua_name); \
-  lua_pushnumber(lState, c_name); \
-  lua_rawset(lState, -3);
-#define END_ENUM(name) \
-  } \
-  lua_rawset(lState, -3);
+#define START_ENUM(name)                                                                                                                                       \
+    lua_pushstring(lState, #name);                                                                                                                             \
+    lua_newtable(lState);                                                                                                                                      \
+    {                                                                                                                                                          \
+        int i = 1;
+#define MAKE_ENUM(c_name, lua_name)                                                                                                                            \
+    lua_pushstring(lState, #lua_name);                                                                                                                         \
+    lua_pushnumber(lState, c_name);                                                                                                                            \
+    lua_rawset(lState, -3);
+#define END_ENUM(name)                                                                                                                                         \
+    }                                                                                                                                                          \
+    lua_rawset(lState, -3);
 // These defines are just redefining everything to nothing so
 // we get only the enums.
 #undef IMGUI_FUNCTION
@@ -486,17 +499,18 @@ static void PushImguiEnums(lua_State* lState, const char* tableName) {
 
 #include "imgui_iterator.inl"
 
-  lua_rawset(lState, -3);
+    lua_rawset(lState, -3);
 };
 
-
-void LoadImguiBindings(lua_State* lState) {
-  if (!lState) {
-    fprintf(stderr, "You didn't assign the global lState, either assign that or refactor LoadImguiBindings and RunString\n");
-  }
-  lua_newtable(lState);
- //tex > ver 501 luaL_setfuncs(lState, imguilib, 0);
-  luaL_register(lState, NULL, imguilib);// <= 501
-  PushImguiEnums(lState, "constant");
-  lua_setglobal(lState, "imgui");
+void LoadImguiBindings(lua_State* lState)
+{
+    if (!lState)
+    {
+        fprintf(stderr, "You didn't assign the global lState, either assign that or refactor LoadImguiBindings and RunString\n");
+    }
+    lua_newtable(lState);
+    // tex > ver 501 luaL_setfuncs(lState, imguilib, 0);
+    luaL_register(lState, NULL, imguilib); // <= 501
+    PushImguiEnums(lState, "constant");
+    lua_setglobal(lState, "imgui");
 }

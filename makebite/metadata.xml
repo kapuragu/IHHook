@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ModEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="IHHook" Version="r25" Author="TinManTex" Website="https://www.nexusmods.com/metalgearsolidvtpp/mods/1226/">
+<ModEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="IHHook" Version="r24" Author="TinManTex" Website="https://www.nexusmods.com/metalgearsolidvtpp/mods/1226/">
   <MGSVersion Version="1.0.15.4" />
   <SBVersion Version="0.0.0.0" />
   <Description># IHHook
-Version r25 - 2026-09-21 (see github for full changes)
-Patched dx11 anti-hook measures
-Version check optimized
-CityHash hook fixed
-Fixed imgui not initializing on unsupported game versions
-Added new imgui style "sakura"
-Added xinput1_3 feature
-Added dll/asi loading from /plugins/ with a toggle in config
-Various improvements
-
-Version r24 - 2026-08-07
+Version r24 - 2026-08-07 (see github for full changes)
 Added SnakeBite builds for Ultimate ASI Loader and plugin folder versions.
 Compatibility with alicealys's tpp-mod.
 Simplified and futureproofed version check. Added [exe name]_version_info.txt to the check.
@@ -54,8 +44,6 @@ Infinite Heaven mod: https://www.nexusmods.com/metalgearsolidvtpp/mods/45
 ## Description 
 A proxy dll (of dinput8.dll) that loads with MGSV to provide extended features for modding.
 
-Allows for loading .dll and .asi plugins in /MGS_TPP/plugins/.
-Note that Reshade can’t be loaded as reshade64.dll, but it loads as .asi.
 
 ## Dependencies
 ### Runtime
@@ -96,15 +84,14 @@ CityHash logging (currently has to be compiled in with a #define) using emooses 
 RawInput keyboard processing and blocking (proof of concept)  
 
 ## Further info
-See IHHook.h for some comments about the project.
+See IHHHook.h for some comments about the project.
 
 ## Thanks
 zip for making me smooth out the release process, sorry about taking so long.
 sai for mentioning what he had done with ghidra which helped me get past a few hurdles to start finding MGSVs lua functions.  
 emoose for CityHook which provided a base to start IHHook from.
 Half Way Lambda for imgui contributions in r18
-Yazed0071 for the addresses in 1.0.15.4
-0xFADED/ClearEdge for contributions at r25</Description>
+Yazed0071 for the addresses in 1.0.15.4</Description>
   <QarEntries />
   <FpkEntries />
   <FileEntries />

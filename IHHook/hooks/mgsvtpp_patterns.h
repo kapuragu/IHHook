@@ -13,7 +13,7 @@ namespace IHHook
         std::function<void*(void*)> adjust = {}; // e.g. resolve RIP, add another offset, etc.
     };
 
-    std::unordered_map<std::string, PatternEntry> mgsvtpp_patterns
+    ankerl::unordered_dense::map<std::string, PatternEntry> mgsvtpp_patterns
     {
 
         { "FoxBlockProcess", { "74 34 41 8B D6", -0x90 } },
