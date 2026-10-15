@@ -34,7 +34,7 @@ namespace IHHook
         };
         void CreateHooks();
         ChangeLocationMenuParameter* GetChangeLocationMenuParameterByLocationIdHook(MotherBaseMissionCommonData* This, unsigned short locationCode);
-        unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(
+        unsigned long long __fastcall GetPhotoAdditionalTextLangIdHook(
             MotherBaseMissionCommonData* This,
             StringId* ret,
             unsigned short missionCode,

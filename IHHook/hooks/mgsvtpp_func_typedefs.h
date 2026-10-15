@@ -183,7 +183,7 @@ typedef void(__fastcall luaL_openlibsFunc)(lua_State* L);
 typedef double(__fastcall FoxBlockProcessFunc)(void* Block, void* TaskContext, void* BlockProcessState);
 typedef ChangeLocationMenuParameter*(__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
 typedef ChangeLocationMenuParameter*(__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
-typedef unsigned long long(__thiscall GetPhotoAdditionalTextLangIdFunc)(
+typedef unsigned long long(__fastcall GetPhotoAdditionalTextLangIdFunc)(
     MotherBaseMissionCommonData* self,
     unsigned long long* __return_storage_ptr__,
     unsigned short missionCode,
