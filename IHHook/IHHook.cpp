@@ -890,7 +890,7 @@ namespace IHHook
                 if (it != mgsvtpp_patterns.end())
                 {
                     const PatternEntry& pe = it->second;
-                    uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pe.pattern.data());
+                    uintptr_t addr = (uintptr_t)MemoryUtils::PatternScan(pe.pattern);
 
 
                     if (addr == 0)
