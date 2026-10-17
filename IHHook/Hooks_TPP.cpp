@@ -222,7 +222,7 @@ namespace IHHook
             return nullptr;
         }
         plf::list<PhotoInfo> addPhotoInfos{};
-        unsigned long long __thiscall GetPhotoAdditionalTextLangIdHook(
+        unsigned long long __fastcall GetPhotoAdditionalTextLangIdHook(
             MotherBaseMissionCommonData* This,
             StringId* ret,
             unsigned short missionCode,

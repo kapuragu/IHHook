@@ -25,7 +25,7 @@ typedef void(__fastcall foxprintfFunc)(const char* fmt, void* param_2, void* par
 // voidreturn EXPORT_FUNC_FALSE
 typedef ulonglong*(__fastcall foxPathPathFunc)(ulonglong* fileSlotIndex, ulonglong filePath64);
 typedef void(__fastcall UpdateLocalPathStringFunc)(PathCode64 pathA, PathCode64 pathB);
-typedef Path*(__thiscall foxPathPathBFunc)(Path* This, Path* rhs);
+typedef Path*(__fastcall foxPathPathBFunc)(Path* This, Path* rhs);
 typedef Path*(__fastcall foxPathEmptyFunc)();
 typedef ulonglong*(__fastcall GetPartsFpkPathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType);
 typedef ulonglong*(__fastcall GetPartsFilePathFunc)(ulonglong* fileSlotIndex, uint playerType, uint playerPartsType);
@@ -181,18 +181,18 @@ typedef int(__fastcall luaopen_debugFunc)(lua_State* L);
 typedef int(__fastcall luaopen_packageFunc)(lua_State* L);
 typedef void(__fastcall luaL_openlibsFunc)(lua_State* L);
 typedef double(__fastcall FoxBlockProcessFunc)(void* Block, void* TaskContext, void* BlockProcessState);
-typedef ChangeLocationMenuParameter*(__thiscall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
-typedef ChangeLocationMenuParameter*(__thiscall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
-typedef unsigned long long(__thiscall GetPhotoAdditionalTextLangIdFunc)(
+typedef ChangeLocationMenuParameter*(__fastcall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
+typedef ChangeLocationMenuParameter*(__fastcall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
+typedef unsigned long long(__fastcall GetPhotoAdditionalTextLangIdFunc)(
     MotherBaseMissionCommonData* self,
     unsigned long long* __return_storage_ptr__,
     unsigned short missionCode,
     unsigned char photoId,
     unsigned char photoType);
-/*typedef bool (__thiscall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3,
+/*typedef bool (__fastcall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3,
 bool param_4, bool param_5, bool param_6); typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
-typedef ushort (__thiscall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort
-radioType); typedef void(__thiscall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc); typedef
+typedef ushort (__fastcall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort
+radioType); typedef void(__fastcall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc); typedef
 ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel); typedef bool (__cdecl IsRainingFunc)(void*
 Soldier2, uint param_2); typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);*/
 typedef longlong(__fastcall io_openFunc)(lua_State* L);
