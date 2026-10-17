@@ -248,97 +248,101 @@ namespace IHHook
             return NULL;
         } // PatternScan
 
-        /*
+         /*
          * @brief Scan for a given byte pattern on a module
-         *
          * @Param module    Base of the module to search
-         * @Param signature IDA-style byte array pattern ex: "48 89 ? ? ? 57 48 83 EC ? 48 8B ? ? ? ? ? 48 89 ? 48 8D ? ? ? ? ?
-         * 48 85"
-         *
+         * @Param signature IDA-style byte array pattern ex: "48 89 ? ? ? 57 48 83 EC ? 48 8B ? ? ? ? ? 48 89 ? 48 8D ? ? ? ? ? 48 85"
          * @Returns Address of the first occurence
          */
-         
-        std::uint8_t* PatternScan(const char* pattern)
+        std::uint8_t* PatternScan(std::string_view pattern)
         {
-            static auto pattern_to_bytes = [](const char* pattern) -> std::vector<std::pair<std::uint8_t, std::uint8_t>>
+            static auto pattern_to_bytes = [](std::string_view pattern) -> std::vector<std::pair<std::uint8_t, std::uint8_t>>
             {
                 std::vector<std::pair<std::uint8_t, std::uint8_t>> result;
 
-                auto to_nibble = [](char c) noexcept -> int
+                // compile-time generated lookup table for ASCII characters
+                constexpr auto hex_lut = []()
                 {
-                    if (c >= '0' && c <= '9') return c - '0';
-                    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-                    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-                    return -1;
-                };
+                    std::array<std::uint8_t, 256> lut{};
+                    for (std::uint8_t i = '0'; i <= '9'; ++i)
+                        lut[i] = i - '0';
+                    for (std::uint8_t i = 'A'; i <= 'F'; ++i)
+                        lut[i] = i - 'A' + 10;
+                    for (std::uint8_t i = 'a'; i <= 'f'; ++i)
+                        lut[i] = i - 'a' + 10;
 
-                const char* end = pattern + std::char_traits<char>::length(pattern);
+                    return lut;
+                }();
 
-                for (const char* current = pattern; current < end;)
+                auto to_hex = [&hex_lut](char c) noexcept -> std::uint8_t { return hex_lut[static_cast<unsigned char>(c)]; };
+
+                for (std::size_t i = 0; i < pattern.size();)
                 {
-                    // skip whitespace
-                    while (current < end && (*current == ' ' || *current == '\t'))
-                        ++current;
-                    if (current >= end)
-                        break;
+                    std::uint8_t byte, mask;
 
-                    if (*current == '?')
+                    if (pattern[i] == '?')
                     {
-                        ++current;
-                        result.emplace_back(0x00, 0x00); // wildcard
+                        byte = 0x00;
+                        mask = 0x00;
+                        i += 2;
                     }
                     else
                     {
-                        int hi = to_nibble(*current++);
-                        if (current >= end)
-                            return {}; // incomplete byte
-
-                        int lo = to_nibble(*current++);
-                        if (hi < 0 || lo < 0)
-                            return {}; // invalid hex
-
-                        result.emplace_back(static_cast<std::uint8_t>((hi << 4) | lo), 0xFF);
+                        byte = static_cast<std::uint8_t>((to_hex(pattern[i]) << 4) | to_hex(pattern[i + 1]));
+                        mask = 0xFF;
+                        i += 3;
                     }
+
+                    result.emplace_back(byte, mask);
                 }
+
                 return result;
             };
 
             const auto module = *reinterpret_cast<HMODULE*>(__readgsqword(0x60) + 0x10);
+
             auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(module);
             auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<std::uint8_t*>(module) + dosHeader->e_lfanew);
 
             const std::size_t sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
-            auto patternBytes = pattern_to_bytes(pattern);
+            const auto patternBytes = pattern_to_bytes(pattern);
 
-            auto* scanBytes = reinterpret_cast<std::uint8_t*>(module);
-            const auto* pat = patternBytes.data();
+            const auto scanBytes = reinterpret_cast<std::uint8_t*>(module);
+            const auto pat = patternBytes.data();
             const std::size_t patSz = patternBytes.size();
-
-            // skip leading wildcards
-            std::size_t first = 0;
-            while (first < patSz && pat[first].second == 0x00)
-                ++first;
-
-            // entire pattern is wildcards -> return base
-            if (first == patSz)
-                return scanBytes;
-
-            const std::uint8_t firstByte = pat[first].first;
-            const std::uint8_t firstMask = pat[first].second; //  0xFF 
 
             const std::size_t limit = sizeOfImage - patSz;
 
+            // find the last non-wildcard byte to use as our fast-skip anchor
+            std::size_t anchor_index = 0;
+            bool has_valid_byte = false;
+            for (std::size_t j = patSz; j > 0; --j)
+            {
+                if (pat[j - 1].second == 0xFF)
+                {
+                    anchor_index = j - 1;
+                    has_valid_byte = true;
+                    break;
+                }
+            }
+
+            const auto [target_byte, target_mask] = pat[anchor_index];
+
             for (std::size_t i = 0; i <= limit; ++i)
             {
-                // check the first non-wildcard byte
-                if ((scanBytes[i + first] & firstMask) != firstByte)
+                // fast-skip using the last valid byte
+                if ((scanBytes[i + anchor_index] & target_mask) != (target_byte & target_mask))
                     continue;
 
-                // full comparison with masks
                 bool found = true;
+
                 for (std::size_t j = 0; j < patSz; ++j)
                 {
+                    if (j == anchor_index)
+                        continue; // skip already verified anchor byte
+
                     const auto& [expected, mask] = pat[j];
+
                     if ((scanBytes[i + j] & mask) != (expected & mask))
                     {
                         found = false;
@@ -349,8 +353,6 @@ namespace IHHook
                 if (found)
                     return &scanBytes[i];
             }
-
-            return nullptr;
         } // PatternScan
 
         // IN/SIDE: BaseAddr, RealBaseAddr

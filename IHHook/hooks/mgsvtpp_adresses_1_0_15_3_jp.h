@@ -49,7 +49,7 @@ namespace IHHook
 
         { "foxPathPath", 0x143227d20 },           // Path * fox::Path::Path(Path *path,PathCode64 hash)
         { "UpdateLocalPathString", 0x142f665f0 }, // fox::fs::Path::UpdateLocalPathString
-        { "foxPathPathB", 0x143227580 },          // Path * __thiscall fox::Path::Path(Path *this,Path *rhs)
+        { "foxPathPathB", 0x143227580 },          // Path * __fastcall fox::Path::Path(Path *this,Path *rhs)
         { "foxPathEmpty", 0x143229640 },          // Path * fox::Path::Empty(void)
 
         { "GetPartsFpkPath", 0x14844de90 },           // tpp::gm::player::ResourceTable::GetPartsFpkPath
@@ -86,7 +86,7 @@ namespace IHHook
         { "GetBlockAtIndex", 0x1431d5520 }, // fox::BlockGroup::GetBlockAtIndex
 
         { "gkGetColoringSystem", 0x144e8da60 }, // tpp::gk::GetColoringSystem
-        { "stdstringstring", 0x142e77d10 },     // string * __thiscall std::string::string(string *this,char *cStr)
+        { "stdstringstring", 0x142e77d10 },     // string * __fastcall std::string::string(string *this,char *cStr)
 
         { "GetBuddyCommandName", 0x14110dcc0 },     // tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandName
         { "GetBuddyCommandHelpName", 0x14110da70 }, // tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandHelpName
@@ -227,8 +227,8 @@ namespace IHHook
         //{"IsRaining",NO_USE},//tpp::gm::soldier::impl::`anonymous_namespace'::IsRaining
         //{"ConvertToVoiceType",NO_USE},
 
-        //{"LoadFile_02", 0x143227e40},//void __thiscall fox::Path::~Path(Path *this)
-        //{"LoadFile_05", 0x143228120},//Path * __thiscall fox::Path::operator=(Path *this,Path *pathrhs)
+        //{"LoadFile_02", 0x143227e40},//void __fastcall fox::Path::~Path(Path *this)
+        //{"LoadFile_05", 0x143228120},//Path * __fastcall fox::Path::operator=(Path *this,Path *pathrhs)
 
         // compat with tpp-mod
         /*{"os_execute", NO_USE},
