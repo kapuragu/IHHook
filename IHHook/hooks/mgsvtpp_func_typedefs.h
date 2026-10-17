@@ -183,18 +183,13 @@ typedef void(__fastcall luaL_openlibsFunc)(lua_State* L);
 typedef double(__fastcall FoxBlockProcessFunc)(void* Block, void* TaskContext, void* BlockProcessState);
 typedef ChangeLocationMenuParameter*(__fastcall GetChangeLocationMenuParameterByLocationIdFunc)(MotherBaseMissionCommonData* This, unsigned short locationCode);
 typedef ChangeLocationMenuParameter*(__fastcall GetMbFreeChangeLocationMenuParameterFunc)(MotherBaseMissionCommonData* This);
-typedef unsigned long long(__fastcall GetPhotoAdditionalTextLangIdFunc)(
-    MotherBaseMissionCommonData* self,
-    unsigned long long* __return_storage_ptr__,
-    unsigned short missionCode,
-    unsigned char photoId,
-    unsigned char photoType);
-/*typedef bool (__fastcall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3,
-bool param_4, bool param_5, bool param_6); typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
-typedef ushort (__fastcall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort
-radioType); typedef void(__fastcall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc); typedef
-ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel); typedef bool (__cdecl IsRainingFunc)(void*
-Soldier2, uint param_2); typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);*/
+typedef unsigned long long(__fastcall GetPhotoAdditionalTextLangIdFunc)(MotherBaseMissionCommonData* self,unsigned long long* __return_storage_ptr__,unsigned short missionCode,unsigned char photoId,unsigned char photoType);
+/*
+typedef bool (__fastcall IsUseAreaIconFunc)(void* MbDvcMapCallbackIconImpl, uint param_1, uint param_2, bool param_3, bool param_4, bool param_5, bool param_6); typedef uint (__cdecl ConvertRadioTypeToSpeechLabelFunc)(ubyte radioType);
+typedef ushort (__fastcall CallWithRadioTypeFunc)(void* RadioSpeechHandlerImpl, uint param_1, ubyte param_2, ushort radioType); 
+typedef void(__fastcall StateRadioFunc)(void* ActionControllerImpl, uint param_1, ubyte StateProc); 
+typedef ubyte (__cdecl ConvertSpeechLabelToRadioTypeFunc)(uint speechLabel); typedef bool (__cdecl IsRainingFunc)(void* Soldier2, uint param_2); typedef uint(__cdecl ConvertToVoiceTypeFunc)(uint voiceTypeS32);
+*/
 typedef longlong(__fastcall io_openFunc)(lua_State* L);
 typedef longlong(__fastcall io_popenFunc)(lua_State* L);
 typedef void(__fastcall io_closeFunc)(lua_State* L);
