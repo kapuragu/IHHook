@@ -6,7 +6,7 @@
 // in the current exported address list NO_USE - something we dont really want to use for whatever reason USING_CODE -
 // using the default lapi code implementation instead of hooking
 
-#include "..\unordered_dense\include\ankerl\unordered_dense.h"
+#include "../unordered_dense/include/ankerl/unordered_dense.h"
 
 namespace IHHook
 {
@@ -49,7 +49,7 @@ namespace IHHook
 
         { "foxPathPath", 0x140085760 },           // Path * fox::Path::Path(Path *path,PathCode64 hash)
         { "UpdateLocalPathString", 0x140040cc0 }, // fox::fs::Path::UpdateLocalPathString
-        { "foxPathPathB", 0x140085640 },          // Path * __thiscall fox::Path::Path(Path *this,Path *rhs)
+        { "foxPathPathB", 0x140085640 },          // Path * __fastcall fox::Path::Path(Path *this,Path *rhs)
         { "foxPathEmpty", 0x1400859f0 },          // Path * fox::Path::Empty(void)
 
         { "GetPartsFpkPath", 0x140ae9990 },           // tpp::gm::player::ResourceTable::GetPartsFpkPath
@@ -86,7 +86,7 @@ namespace IHHook
         { "GetBlockAtIndex", 0x14006d7f0 }, // fox::BlockGroup::GetBlockAtIndex
 
         { "gkGetColoringSystem", 0x1405cf200 }, // tpp::gk::GetColoringSystem
-        { "stdstringstring", 0x1400164a0 },     // string * __thiscall std::string::string(string *this,char *cStr)
+        { "stdstringstring", 0x1400164a0 },     // string * __fastcall std::string::string(string *this,char *cStr)
 
         { "GetBuddyCommandName", 0x14110d3a0 },     // tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandName
         { "GetBuddyCommandHelpName", 0x14110d150 }, // tpp::gm::player::impl::`anonymous_namespace'::GetBuddyCommandHelpName
@@ -227,8 +227,8 @@ namespace IHHook
         //{"IsRaining",NO_USE},//tpp::gm::soldier::impl::`anonymous_namespace'::IsRaining
         //{"ConvertToVoiceType",NO_USE},
 
-        //{"LoadFile_02", 0x143227e40},//void __thiscall fox::Path::~Path(Path *this)
-        //{"LoadFile_05", 0x143228120},//Path * __thiscall fox::Path::operator=(Path *this,Path *pathrhs)
+        //{"LoadFile_02", 0x143227e40},//void __fastcall fox::Path::~Path(Path *this)
+        //{"LoadFile_05", 0x143228120},//Path * __fastcall fox::Path::operator=(Path *this,Path *pathrhs)
 
         // compat with tpp-mod
         /*{"os_execute", NO_USE},

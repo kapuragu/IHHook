@@ -451,7 +451,7 @@ namespace IHHook
             return 0;
         }
 
-        static int FoxLog(spdlog::level::level_enum level, char* levelName, lua_State* L)
+        static int FoxLog(spdlog::level::level_enum level, const char* levelName, lua_State* L)
         {
             // TODO: skip out early if not in debug mode or log level?
             int n = lua_gettop(L); /* number of arguments */
@@ -479,22 +479,22 @@ namespace IHHook
         // tex: Since these are stubbed out in normal we should only log them in debug.
         static int l_Fox_Log(lua_State* L)
         {
-            return FoxLog(spdlog::level::debug, (char*)"Log", L);
+            return FoxLog(spdlog::level::debug, "Log", L);
         }
 
         static int l_Fox_Caution(lua_State* L)
         {
-            return FoxLog(spdlog::level::debug, (char*)"Caution", L);
+            return FoxLog(spdlog::level::debug, "Caution", L);
         }
 
         static int l_Fox_Warning(lua_State* L)
         {
-            return FoxLog(spdlog::level::warn, (char*)"Warning", L);
+            return FoxLog(spdlog::level::warn, "Warning", L);
         }
 
         static int l_Fox_Error(lua_State* L)
         {
-            return FoxLog(spdlog::level::err, (char*)"Error", L);
+            return FoxLog(spdlog::level::err, "Error", L);
         }
 
         // game lua to IHHook callbacks>
