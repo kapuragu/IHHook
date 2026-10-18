@@ -184,39 +184,75 @@ static PMEMORY_BLOCK GetMemoryBlock(LPVOID pOrigin)
     }
 
 #if defined(_M_X64) || defined(__x86_64__)
-    // Alloc a new block above if not found.
-    {
-        LPVOID pAlloc = pOrigin;
-        while ((ULONG_PTR)pAlloc >= minAddr)
-        {
-            pAlloc = FindPrevFreeRegion(pAlloc, (LPVOID)minAddr, si.dwAllocationGranularity);
-            if (pAlloc == NULL)
-                break;
+    typedef PVOID(WINAPI* VirtualAlloc2_t)(HANDLE Process,PVOID BaseAddress,SIZE_T Size,ULONG AllocationType,ULONG PageProtection,MEM_EXTENDED_PARAMETER* ExtendedParameters,ULONG ParameterCount);
+    VirtualAlloc2_t pVirtualAlloc2 = (VirtualAlloc2_t)GetProcAddress(GetModuleHandleW(L"kernelbase.dll"), "VirtualAlloc2");
 
-            pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-            if (pBlock != NULL)
-                break;
-        }
+    // Prefer VirtualAlloc2 with address requirements when available
+    if (pVirtualAlloc2 != NULL)
+    {
+        MEM_ADDRESS_REQUIREMENTS addressReqs;
+        MEM_EXTENDED_PARAMETER param;
+
+        ULONG_PTR granularity = si.dwAllocationGranularity;
+
+        // Align the bounds properly
+        ULONG_PTR alignedMin = (minAddr + granularity - 1) & ~(granularity - 1);
+        ULONG_PTR alignedMax = maxAddr & ~(granularity - 1);
+        if (alignedMax != 0)
+            alignedMax -= 1;
+
+        addressReqs.LowestStartingAddress = (PVOID)alignedMin;
+        addressReqs.HighestEndingAddress = (PVOID)alignedMax;
+        addressReqs.Alignment = 0; // let the system use allocation granularity
+
+        param.Type = MemExtendedParameterAddressRequirements;
+        param.Pointer = &addressReqs;
+
+        pBlock = (PMEMORY_BLOCK)pVirtualAlloc2(NULL, NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, &param, 1);
     }
-
-    // Alloc a new block below if not found.
-    if (pBlock == NULL)
+    else
     {
-        LPVOID pAlloc = pOrigin;
-        while ((ULONG_PTR)pAlloc <= maxAddr)
+        // Alloc a new block above if not found.
         {
-            pAlloc = FindNextFreeRegion(pAlloc, (LPVOID)maxAddr, si.dwAllocationGranularity);
-            if (pAlloc == NULL)
-                break;
+            LPVOID pAlloc = pOrigin;
+            while ((ULONG_PTR)pAlloc >= minAddr)
+            {
+                pAlloc = FindPrevFreeRegion(pAlloc, (LPVOID)minAddr, si.dwAllocationGranularity);
+                if (pAlloc == NULL)
+                    break;
 
-            pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-            if (pBlock != NULL)
-                break;
+                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+                if (pBlock != NULL)
+                    break;
+            }
+        }
+
+        // Alloc a new block below if not found.
+        if (pBlock == NULL)
+        {
+            LPVOID pAlloc = pOrigin;
+            while ((ULONG_PTR)pAlloc <= maxAddr)
+            {
+                pAlloc = FindNextFreeRegion(pAlloc, (LPVOID)maxAddr, si.dwAllocationGranularity);
+                if (pAlloc == NULL)
+                    break;
+
+                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+                if (pBlock != NULL)
+                    break;
+            }
         }
     }
 #else
     // In x86 mode, a memory block can be placed anywhere.
-    pBlock = (PMEMORY_BLOCK)VirtualAlloc(NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    if (pVirtualAlloc2 != NULL)
+    {
+        pBlock = (PMEMORY_BLOCK)pVirtualAlloc2(NULL, NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, NULL, 0);
+    }
+    else
+    {
+        pBlock = (PMEMORY_BLOCK)VirtualAlloc(NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    }
 #endif
 
     if (pBlock != NULL)
