@@ -1,4 +1,4 @@
-/*
+﻿/*
     tex: msgvtpp has lua 5.1.5 statically linked
     IHHook hooks lua by function addresses (defined in lua/*_Addresses.h), using (macros wrapping) MH_Hook initialised
    in CreateHooks() below it also replaces the lua function declarations in the lua distro (using the FUNCPTRDEF macros)
@@ -122,7 +122,7 @@ namespace IHHook
             return nL;
         } // lua_newthreadHook
 
-        std::map<uint64_t, std::string> pathDict{};
+        std::flat_map<uint64_t, std::string> pathDict{};
         // tex may be better to hook the fox engine OpenLuawhatever that calls newstate and sets up the lua libraries
         // but don't know fox OpenLuas return type
         void __fastcall luaL_openlibsHook(lua_State* L)
@@ -403,8 +403,8 @@ namespace IHHook
 
                 CREATE_HOOK(FoxBlockLoad)
                 ENABLEHOOK(FoxBlockLoad)
-                // CREATE_HOOK(FoxBlockProcess)
-                // ENABLEHOOK(FoxBlockProcess)
+                CREATE_HOOK(FoxBlockProcess)
+                ENABLEHOOK(FoxBlockProcess)
 
                 auto ll_loadfunc_t_pattern = hook::get_pattern<uint8_t>("75 05 8D 47 01", -0x4A);
                 if (ll_loadfunc_t_pattern[0] == 0x48 && ll_loadfunc_t_pattern[1] == 0x89)
@@ -606,9 +606,9 @@ namespace IHHook
 
         // rlc FROM UNKNOWN'S DYNAMITE
         //  file format is `string,pathcode64`
-        std::map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename)
+        std::flat_map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename)
         {
-            std::map<uint64_t, std::string> result;
+            std::flat_map<uint64_t, std::string> result;
             if (!std::filesystem::exists(filename))
             {
                 spdlog::info("Path dictionary {} doesn't exist, message names/values will not be resolved", filename);
@@ -639,64 +639,87 @@ namespace IHHook
 
             return result;
         }
+        
+        static std::mutex blockMutex;
+        static ankerl::unordered_dense::map<void*, std::pair<uint32_t, uint64_t>> lastLoadInfo;
+        static ankerl::unordered_dense::set<void*> loggedBlocks;
+        static std::flat_map<void*, uint32_t> processCount{};
 
-        // used for debugging, see docs/issue_7.md
-        std::flat_map<void*, uint32_t> processCount{};
-        std::flat_map<void*, std::string> blockNames{};
         double FoxBlockProcessHook(void* Block, void* TaskContext, void* BlockProcessState)
         {
-            // this keeps crashing -> let's not use  GetCurrentThreadId();
             DWORD tid = (DWORD)__readgsdword(0x48);
-            if (processCount.find(Block) != processCount.end())
+
+            uint32_t count = 0;
+            bool shouldLog = false;
+
             {
-                processCount[Block]++;
-            }
-            else
-            {
-                processCount[Block] = 0;
-            }
-            if (processCount[Block] % 500 == 0)
-            {
-                auto blockName = blockNames[Block];
-                uint32_t mem1 = *(int*)((char*)Block + 0x60);
-                int32_t mem2 = *(int*)((char*)Block + 0x18);
-                int32_t mem3 = *(int*)((char*)Block + 0x40);
-                int32_t mem4 = *(int*)((char*)Block + 0x10);
-                uint32_t mem5 = *(int*)((char*)Block + 0x148);
-                spdlog::info("tid {}, process {} ({}), mem {} {} {} {} {}", tid, blockName, Block, mem1, mem2, mem3, mem4, mem5);
+                std::lock_guard lock(blockMutex);
+
+                auto [it, inserted] = processCount.try_emplace(Block, 0u);
+                count = ++it->second;
+
+                if (count % 500 == 0)
+                {
+                    if (loggedBlocks.insert(Block).second)
+                        shouldLog = true;
+                }
             }
 
-            //        if ((uint)((*(int *)(param_1 + 0x60) - *(int *)(param_1 + 0x18)) + *(int *)(param_1 + 0x40) +
-            //                   *(int *)(param_1 + 0x10)) <= *(uint *)(param_1 + 0x148)) {
+            if (shouldLog)
+            {
+                const auto mem1 = *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(Block) + 0x60);
+                const auto mem2 = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Block) + 0x18);
+                const auto mem3 = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Block) + 0x40);
+                const auto mem4 = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Block) + 0x10);
+                const auto mem5 = *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(Block) + 0x148);
+
+                spdlog::info("FoxBlockProcessHook: tid {}, process ({}), mem {} {} {} {} {}", tid, Block, mem1, mem2, mem3, mem4, mem5);
+            }
 
             return FoxBlockProcess(Block, TaskContext, BlockProcessState);
         }
+        
         int* FoxBlockLoadHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count)
         {
-            DWORD tid = GetCurrentThreadId();
-            auto pp = pathID;
-            auto blockName = blockNames[thisPtr];
-            if (pathDict.empty())
+            DWORD tid = (DWORD)__readgsdword(0x48);
+
+            bool shouldLog = false;
+            uint64_t firstPath = (count > 0) ? pathID[0] : 0;
+
             {
-                spdlog::info("tid 1 {}, block {} ({}), loading {:x} ({:d})", tid, blockName, thisPtr, *pp, count);
-                return FoxBlockLoad(thisPtr, errorCode, pathID, count);
+                std::lock_guard lock(blockMutex);
+
+                auto& last = lastLoadInfo[thisPtr];
+                if (last.first != count || last.second != firstPath)
+                {
+                    last = { count, firstPath };
+                    shouldLog = true;
+                }
             }
 
-            for (int i = 0; i < count; i++)
+            if (shouldLog)
             {
-                auto name = pathDict[(ulonglong)*pathID & 0x3FFFFFFFFFFFF];
-                if (name.empty())
+                if (pathDict.empty())
                 {
-                    spdlog::info("tid 2 {}, block {} ({}), loading {:x} ({:d}/{:d})", tid, blockName, thisPtr, *pp, i + 1, count);
+                    for (uint32_t i = 0; i < count; ++i)
+                    {
+                        spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {:x} ({:d}/{:d})", tid, thisPtr, pathID[i], i + 1, count);
+                    }
                 }
                 else
                 {
-                    spdlog::info("tid 3 {}, block {} ({}), loading {} ({:d}/{})", tid, blockName, thisPtr, name, i + 1, count);
+                    for (uint32_t i = 0; i < count; ++i)
+                    {
+                        const auto& name = pathDict[pathID[i]];
+                        if (name.empty())
+                            spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {:x} ({:d}/{:d})", tid, thisPtr, pathID[i], i + 1, count);
+                        else
+                            spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {} ({:d}/{})", tid, thisPtr, name, i + 1, count);
+                    }
                 }
-                pp++;
             }
-            auto q = FoxBlockLoad(thisPtr, errorCode, pathID, count);
-            return q;
+
+            return FoxBlockLoad(thisPtr, errorCode, pathID, count);
         }
         bool open_io_override = false;
         void CreateHooksForTppMod()
