@@ -15,7 +15,7 @@ namespace IHHook
         int l_FoxLua_OnUpdate(lua_State* L);
 
         extern lua_State* luaState;
-        std::map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename);
+        std::flat_map<uint64_t, std::string> readPathCodeDictionary(const std::string& filename);
         double FoxBlockProcessHook(void* Block, void* TaskContext, void* BlockProcessState);
         int* FoxBlockLoadHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count);
         extern bool open_io_override;
