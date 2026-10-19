@@ -714,7 +714,7 @@ namespace IHHook
                         if (name.empty())
                             spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {:x} ({:d}/{:d})", tid, thisPtr, pathID[i], i + 1, count);
                         else
-                            spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {} ({:d}/{})", tid, thisPtr, name, i + 1, count);
+                            spdlog::info("FoxBlockLoadHook: tid {}, block ({}), loading {:x} ({:d}/{:d})", tid, thisPtr, name, i + 1, count);
                     }
                 }
             }
