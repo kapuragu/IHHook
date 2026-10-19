@@ -381,11 +381,13 @@ namespace IHHook
             spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
-                spdlog::debug("ToggleMenu on ONDOWN");
-                g_ihhook->SetDrawUI(false);
-                IHMenu::QueueMessageIn("menuoff");
+                if (g_ihhook->IsDrawUI())
+                {
+                    g_ihhook->SetDrawUI(false);
+                    IHMenu::QueueMessageIn("menuoff");
+                }
             }
-        } // MenuOff
+        } //MenuOff
 
         // tex: don't process key //DEBUGNOW what am I doing here?
         void InitIgnoreKeys()
@@ -466,7 +468,7 @@ namespace IHHook
             // RegisterAction(VK_F1, ToggleUI);//DEBUGNOW
             RegisterAction(VK_F2, ToggleCursor); // DEBUGNOW
             RegisterAction(VK_F3, ToggleMenu);   // DEBUGNOW
-            RegisterAction(VK_ESCAPE, MenuOff);  // DEBUGNOW
+            RegisterAction(VK_BACK, MenuOff);    // DEBUGNOW
             // RegisterAction(VK_F5, ToggleImguiDemo);//DEBUGNOW
             // RegisterAction(VK_F4, ToggleStyleEditor);//DEBUGNOW
 
@@ -479,7 +481,7 @@ namespace IHHook
         {
             UnRegisterAction(VK_F2, ToggleCursor); // DEBUGNOW
             UnRegisterAction(VK_F3, ToggleMenu);   // DEBUGNOW
-            UnRegisterAction(VK_ESCAPE, MenuOff);  // DEBUGNOW
+            UnRegisterAction(VK_BACK, MenuOff);    // DEBUGNOW
         }
 
         // CULL not needed, the game will have set up it's own
