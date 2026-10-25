@@ -501,8 +501,6 @@ namespace IHHook
     // WindowsMessageHook
     bool IHH::OnMessage(HWND wnd, UINT message, WPARAM w_param, LPARAM l_param)
     {
-        // spdlog::trace("OnMessage");
-
         if (!frameInitialized)
         {
             return true;
@@ -510,6 +508,10 @@ namespace IHHook
 
         bool handledMessage = !RawInput::OnMessage(wnd, message, w_param, l_param);
 
+        const bool isKeyboardMsg = (message >= WM_KEYFIRST && message <= WM_KEYLAST) || message == WM_SYSKEYDOWN || message == WM_SYSKEYUP;
+        const bool isMouseMsg = (message >= WM_MOUSEFIRST && message <= WM_MOUSELAST) || (message >= WM_NCMOUSEMOVE && message <= WM_NCXBUTTONDBLCLK);
+        const bool isCharMsg = message == WM_CHAR || message == WM_DEADCHAR || message == WM_SYSCHAR || message == WM_SYSDEADCHAR;
+        
         if (drawUI)
         {
             ImGuiContext* previousContext = ImGui::GetCurrentContext();
@@ -517,13 +519,15 @@ namespace IHHook
 
             if (ImGui_ImplWin32_WndProcHandler(wnd, message, w_param, l_param) != 0)
             {
-                auto& io = ImGui::GetIO();
+                ImGuiIO& io = ImGui::GetIO();
 
-                if (io.WantCaptureMouse || io.WantCaptureKeyboard || io.WantTextInput)
+                if ((io.WantCaptureMouse && isMouseMsg) || (io.WantCaptureKeyboard && isKeyboardMsg) || (io.WantTextInput && isCharMsg))
                 {
                     handledMessage = true;
                 }
+
             }
+
             ImGui::SetCurrentContext(previousContext);
         }
 
@@ -531,13 +535,14 @@ namespace IHHook
         {
             // tex DEBUGNOW WORKAROUND: having menu eat all game can cause a problem if user was holding a key at the time
             // as the keyup even will be eaten
-            if (w_param == WM_KEYUP)
+            if (message == WM_KEYUP || message == WM_SYSKEYUP)
             {
                 return true;
             }
 
-            return false; // tex eat the message
+            return false; //don't pass the message to the game
         }
+
         return true;
     } // OnMessage
 
@@ -588,11 +593,6 @@ namespace IHHook
 
             p_imguiContext = ImGui::CreateContext();
             ImGui::SetCurrentContext(p_imguiContext);
-
-            ImGuiIO& io = ImGui::GetIO();
-            (void)io;
-            // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-            // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
             log->info("Initializing ImGui Win32");
 
@@ -679,9 +679,16 @@ namespace IHHook
         {
             RawInput::UnBlockMouseClick();
             RawInput::UnBlockKeyboard();
+            io.WantCaptureKeyboard = false;
+            io.WantTextInput = false;
             unlockCursor = false;
             io.MouseDrawCursor = false;
             return;
+        }
+        else
+        {
+            io.WantCaptureKeyboard = true;
+            io.WantTextInput = true;
         }
 
         // tex disable mouse input to game
