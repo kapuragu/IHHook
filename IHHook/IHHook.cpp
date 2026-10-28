@@ -708,7 +708,10 @@ namespace IHHook
 
         if (io.WantCaptureKeyboard)
         {
-            RawInput::BlockKeyboard();
+            if (config.enable_input_blocking)
+            {
+                RawInput::BlockKeyboard();
+            }
         }
         else
         {
@@ -863,6 +866,14 @@ namespace IHHook
             else if (varName == "enable_dll_loader")
             {
                 config.enable_dll_loader = valueStr == "true";
+            }
+            else if (varName == "enable_input_blocking")
+            {
+                config.enable_input_blocking = valueStr == "true";
+            }
+            else
+            {
+                spdlog::warn("[config] unknown varName={}", varName);
             }
 
         } // while line
