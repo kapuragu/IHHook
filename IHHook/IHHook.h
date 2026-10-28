@@ -63,6 +63,7 @@ namespace IHHook
 {
     struct Config
     {
+        bool enable_input_blocking{ false };
         bool enable_dll_loader {false };
         bool debugMode{ true }; // TODO debug level instead
         bool openConsole{ false };

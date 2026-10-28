@@ -18,10 +18,10 @@ namespace IHHook
 {
     namespace RawInput
     {
-        const USHORT vKeyMax = 256;              // tex: virtual keycode max (VK_OEM_CLEAR      0xFE)
-        USHORT currFlags[vKeyMax];               // tex: indexed by Virtual Keycode
-        bool ignore[vKeyMax] = { false };        // tex: don't process key, set up in InitIgnoreKeys
-        bool blockGameKeys[vKeyMax] = { false }; // tex: block game from recieving message
+        constexpr USHORT vKeyMax = 256;              // tex: virtual keycode max (VK_OEM_CLEAR      0xFE)
+        static USHORT currFlags[vKeyMax];                // tex: indexed by Virtual Keycode
+        extern bool ignore[vKeyMax] = { false };      // tex: don't process key, set up in InitIgnoreKeys
+        extern bool blockGameKeys[vKeyMax] = { false }; // tex: block game from recieving message
         plf::list<ButtonAction>* buttonActions[vKeyMax] = { nullptr };
 
         void BlockMouseClick()
@@ -56,7 +56,18 @@ namespace IHHook
             {
                 blockGameKeys[i] = true;
             }
+
             blockGameKeys[VK_ESCAPE] = false;
+            blockGameKeys[VK_UP] = false;
+            blockGameKeys[VK_DOWN] = false;
+            blockGameKeys[VK_LEFT] = false;
+            blockGameKeys[VK_RIGHT] = false;
+            blockGameKeys[VK_RETURN] = false;
+            blockGameKeys[VK_SPACE] = false;
+            blockGameKeys[VK_BACK] = false;
+            blockGameKeys[VK_F2] = false;
+            blockGameKeys[VK_F3] = false;
+            
         } // BlockKeyBoard
 
         void UnBlockKeyboard()
@@ -381,11 +392,13 @@ namespace IHHook
             spdlog::debug("ButtonEvent: {:d}, Action: ToggleUI", static_cast<int>(buttonEvent));
             if (buttonEvent == RawInput::BUTTONEVENT::ONDOWN)
             {
-                spdlog::debug("ToggleMenu on ONDOWN");
-                g_ihhook->SetDrawUI(false);
-                IHMenu::QueueMessageIn("menuoff");
+                if (g_ihhook->IsDrawUI())
+                {
+                    g_ihhook->SetDrawUI(false);
+                    IHMenu::QueueMessageIn("menuoff");
+                }
             }
-        } // MenuOff
+        } //MenuOff
 
         // tex: don't process key //DEBUGNOW what am I doing here?
         void InitIgnoreKeys()
@@ -505,67 +518,56 @@ namespace IHHook
 
         } // InitializeRawInput
 
+
+        alignas(RAWINPUT) std::byte stackBuffer[sizeof(RAWINPUT)];
+        std::vector<std::byte> heapBuffer;
         bool OnMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
-            switch (uMsg)
+            if (uMsg != WM_INPUT)
+                return true;
+
+            UINT dwSize = 0;
+
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER)) == static_cast<UINT>(-1))
             {
-            case WM_INPUT:
+                return true;
+            }
+
+            void* buffer = stackBuffer;
+
+            if (dwSize > sizeof(stackBuffer))
             {
-                // wParam is either RIM_INPUT (this app foreground) or RIM_INPUTSINK (this app background)
-                // lParam is the RAWINPUT handle
+                if (heapBuffer.capacity() < dwSize)
+                    heapBuffer.reserve(dwSize);
 
-                UINT dwSize;
+                heapBuffer.resize(dwSize);
+                buffer = heapBuffer.data();
+            }
 
-                // determine size of buffer
-                if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER)) == -1)
-                {
-                    break;
-                }
+            UINT bufferSize = dwSize;
 
-                LPBYTE lpb = new BYTE[dwSize];
-                if (lpb == NULL)
-                {
-                    break;
-                }
-                ZeroMemory(lpb, dwSize);
+            const UINT bytesRead = GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, buffer, &bufferSize, sizeof(RAWINPUTHEADER));
 
-                // get actual data
-                if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-                {
-                    delete[] lpb;
-                    break;
-                }
+            if (bytesRead == static_cast<UINT>(-1) || bytesRead != dwSize)
+                return true;
 
-                // process it
-                PRAWINPUT pRaw = (PRAWINPUT)lpb;
-                if (pRaw->header.dwType == RIM_TYPEKEYBOARD)
-                {
-                    USHORT vKey = pRaw->data.keyboard.VKey;
-                    if (blockGameKeys[vKey])
-                    {
-                        delete[] lpb;
-                        return false;
-                    }
+            const auto* pRaw = reinterpret_cast<const RAWINPUT*>(buffer);
 
-                    if (!ignore[vKey])
-                    {
-                        ProcessKey(pRaw);
-                    }
-                }
-                else if (pRaw->header.dwType == RIM_TYPEMOUSE)
-                {
-                    if (!ProcessMouseButtons(pRaw))
-                    {
-                        delete[] lpb;
-                        return false;
-                    }
-                }
+            if (pRaw->header.dwType == RIM_TYPEKEYBOARD)
+            {
+                const USHORT vKey = pRaw->data.keyboard.VKey;
 
-                // not needed
-                delete[] lpb;
-                break;
-            } // case WM_INPUT
-            } // switch uMsg
+                if (vKey < 256 && blockGameKeys[vKey])
+                    return false;
+
+                if (vKey < 256 && !ignore[vKey])
+                    ProcessKey(const_cast<PRAWINPUT>(pRaw));
+            }
+            else if (pRaw->header.dwType == RIM_TYPEMOUSE)
+            {
+                if (!ProcessMouseButtons(const_cast<PRAWINPUT>(pRaw)))
+                    return false;
+            }
 
             return true;
         } // OnMessage

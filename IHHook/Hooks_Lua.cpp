@@ -326,7 +326,7 @@ namespace IHHook
 
         __int64 __fastcall ll_loadfunc_Hook(__int64 L, const CHAR* libname, const CHAR* funcname)
         {
-            //package.loadlib trace
+            // package.loadlib trace
             spdlog::trace("ll_loadfuncHook library='{}', symbol='{}'", libname ? libname : "(null)", funcname ? funcname : "(null)");
 
             return ll_loadfunc_Orig(L, libname, funcname);
@@ -639,7 +639,7 @@ namespace IHHook
 
             return result;
         }
-        
+
         std::mutex blockMutex;
         ankerl::unordered_dense::map<void*, std::pair<uint32_t, uint64_t>> lastLoadInfo;
         static ankerl::unordered_dense::set<void*> loggedBlocks;
@@ -678,7 +678,7 @@ namespace IHHook
 
             return FoxBlockProcess(Block, TaskContext, BlockProcessState);
         }
-        
+
         int* FoxBlockLoadHook(void* thisPtr, int* errorCode, uint64_t* pathID, uint32_t count)
         {
             DWORD tid = (DWORD)__readgsdword(0x48);

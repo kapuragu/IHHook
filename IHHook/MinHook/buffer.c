@@ -149,7 +149,7 @@ static LPVOID FindNextFreeRegion(LPVOID pAddress, LPVOID pMaxAddr, DWORD dwAlloc
 //-------------------------------------------------------------------------
 static PMEMORY_BLOCK GetMemoryBlock(LPVOID pOrigin)
 {
-    PMEMORY_BLOCK pBlock;
+    PMEMORY_BLOCK pBlock = NULL;
 #if defined(_M_X64) || defined(__x86_64__)
     ULONG_PTR minAddr;
     ULONG_PTR maxAddr;
@@ -210,7 +210,7 @@ static PMEMORY_BLOCK GetMemoryBlock(LPVOID pOrigin)
 
         pBlock = (PMEMORY_BLOCK)pVirtualAlloc2(NULL, NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, &param, 1);
     }
-    else
+    if (pBlock == NULL)
     {
         // Alloc a new block above if not found.
         {
